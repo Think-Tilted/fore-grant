@@ -1,42 +1,210 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const sponsorTiers = [
+  "Orange Ribbon Champion — $5,000+",
+  "Premium Adopt-A-Hole (Contest Holes) — $1,750",
+  "Adopt-a-Hole Sponsor — $1,500",
+  '"19th Hole" Lunch Sponsor — $3,500',
+  '"Pre-Round Fuel" Breakfast Sponsor — $2,000',
+  "Putting for a Cure Sponsor — $1,000",
+  "Tee Sign Sponsor — $250",
+  "Foursome Entry — $600",
+];
 ---
 
-<BaseLayout title="Contact — Teeing Off Fore Grant">
+<BaseLayout title="Sponsor Registration — Teeing Off Fore Grant">
   <section class="py-16 lg:py-24">
     <h1 class="text-center font-display text-4xl sm:text-5xl font-bold text-fairway">
-      Questions?
+      Sponsor Registration
     </h1>
     <p class="mt-4 text-center text-ink-soft max-w-xl mx-auto">
-      Interested in sponsoring, playing, or donating? Reach out — we'd love to hear from you.
+      Fill out the form below to register as a sponsor or player. Have a question first?
+      Email <a href="mailto:grantstallbattle@gmail.com" class="text-fairway hover:text-ribbon">grantstallbattle@gmail.com</a>
+      or call Jessica at <a href="tel:6193447687" class="text-fairway hover:text-ribbon">619-344-7687</a>.
     </p>
 
-    <div class="mt-12 max-w-md mx-auto rounded-xl bg-paper-dim px-8 py-10 text-center space-y-6">
-      <div>
-        <p class="text-xs uppercase tracking-wide text-ink-soft">Email</p>
-        <a
-          href="mailto:grantstallbattle@gmail.com"
-          class="mt-1 block font-display text-xl font-semibold text-fairway hover:text-ribbon"
-        >
-          grantstallbattle@gmail.com
-        </a>
+    <form id="sponsor-form" class="mt-12 max-w-2xl mx-auto space-y-10">
+      <!-- Section 1: Company Information -->
+      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
+        <h2 class="font-display text-xl font-bold text-fairway">
+          1. Company Information
+        </h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <label class="block sm:col-span-2">
+            <span class="text-sm font-medium text-ink">Company Name *</span>
+            <input type="text" name="companyName" required class="field-input" />
+          </label>
+          <label class="block sm:col-span-2">
+            <span class="text-sm font-medium text-ink">Sponsor Tier *</span>
+            <select name="sponsorTier" required class="field-input">
+              <option value="">Select a tier…</option>
+              {sponsorTiers.map((tier) => <option value={tier}>{tier}</option>)}
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Company Website URL</span>
+            <input type="url" name="companyWebsite" placeholder="https://" class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Payment Type</span>
+            <select name="paymentType" class="field-input">
+              <option value="">Select…</option>
+              <option value="Check">Check</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Venmo">Venmo</option>
+              <option value="Invoice Me">Invoice Me</option>
+            </select>
+          </label>
+        </div>
       </div>
-      <div>
-        <p class="text-xs uppercase tracking-wide text-ink-soft">Phone</p>
-        <a
-          href="tel:6193447687"
-          class="mt-1 block font-display text-xl font-semibold text-fairway hover:text-ribbon"
-        >
-          Jessica: 619-344-7687
-        </a>
+
+      <!-- Section 2: Player Information -->
+      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
+        <h2 class="font-display text-xl font-bold text-fairway">
+          2. Player Information
+        </h2>
+        <p class="mt-1 text-sm text-ink-soft">Team Captain</p>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <label class="block">
+            <span class="text-sm font-medium text-ink">First Name *</span>
+            <input type="text" name="captainFirstName" required class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Last Name *</span>
+            <input type="text" name="captainLastName" required class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Phone Number *</span>
+            <input type="tel" name="phone" required class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Email Address *</span>
+            <input type="email" name="email" required class="field-input" />
+          </label>
+        </div>
+
+        <p class="mt-6 text-sm text-ink-soft">
+          Additional Players <span class="italic">(optional — most teams have not finalized
+          participants yet)</span>
+        </p>
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Player 2 Name</span>
+            <input type="text" name="player2" class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Player 3 Name</span>
+            <input type="text" name="player3" class="field-input" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-ink">Player 4 Name</span>
+            <input type="text" name="player4" class="field-input" />
+          </label>
+        </div>
       </div>
-    </div>
+
+      <!-- Section 3: Comments -->
+      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
+        <h2 class="font-display text-xl font-bold text-fairway">
+          3. Special Requests or Comments
+        </h2>
+        <label class="block mt-4">
+          <span class="text-sm font-medium text-ink">
+            Special requests, accommodations, questions, or additional comments
+          </span>
+          <textarea name="comments" rows="4" class="field-input"></textarea>
+        </label>
+      </div>
+
+      <div class="text-center">
+        <button
+          type="submit"
+          class="inline-block bg-ribbon px-10 py-3 font-display text-lg font-bold text-white shadow-sm transition hover:bg-ribbon-dark disabled:opacity-60"
+        >
+          Submit Registration
+        </button>
+        <p id="form-status" class="mt-4 text-sm" role="status"></p>
+      </div>
+    </form>
 
     <div class="mt-14 text-center">
       <span class="ribbon-banner text-sm font-display font-semibold tracking-wide">
         #GrantsTALLBattle
       </span>
-
     </div>
   </section>
+
+  <style>
+    .field-input {
+      margin-top: 0.375rem;
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      height: 2.75rem;
+      border-radius: 0.375rem;
+      border: 1px solid var(--color-fairway-light);
+      background-color: var(--color-paper);
+      padding: 0.5rem 0.75rem;
+      color: var(--color-ink);
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    select.field-input {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232f4a34'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1rem;
+      padding-right: 2.25rem;
+    }
+    textarea.field-input {
+      height: auto;
+    }
+    .field-input:focus {
+      outline: 2px solid var(--color-ribbon);
+      outline-offset: 1px;
+    }
+  </style>
+
+
+  <script>
+    const form = document.getElementById("sponsor-form") as HTMLFormElement;
+    const status = document.getElementById("form-status") as HTMLParagraphElement;
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      submitBtn.disabled = true;
+      status.textContent = "Submitting…";
+      status.className = "mt-4 text-sm text-ink-soft";
+
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const res = await fetch("/api/sponsor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+
+        if (res.ok && result.ok) {
+          status.textContent = "Thank you! Your registration has been received.";
+          status.className = "mt-4 text-sm text-fairway font-semibold";
+          form.reset();
+        } else {
+          status.textContent = result.error || "Something went wrong. Please try again.";
+          status.className = "mt-4 text-sm text-ribbon font-semibold";
+        }
+      } catch {
+        status.textContent = "Network error. Please try again or email us directly.";
+        status.className = "mt-4 text-sm text-ribbon font-semibold";
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
 </BaseLayout>

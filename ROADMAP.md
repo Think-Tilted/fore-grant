@@ -50,47 +50,81 @@ version-controlled, and now documented as a general pattern in
 
 ---
 
-## Phase 2 — Static content
+## Phase 2 — Static content ✅
 
-- [ ] Figma reference (colors, fonts, logo, button/component states) — supplied
-      separately, reuse existing flyer branding
-- [ ] Home page — hero, tournament info, CTA to sponsor form
-- [ ] About Grant & the Foundation — content + images page(s)
-- [ ] Contact page (reuse from scaffold template, adjust copy)
-- [ ] Apply branding: colors, fonts, logo assets
+- [x] Hero redesigned to match flyer branding (script logo mark, flagpole +
+      ribbon graphic, argyle top/bottom borders, warm paper/fairway/ribbon
+      palette)
+- [x] Home page — hero, tournament info, sponsorship tier cards, CTA
+- [x] About Grant page — story + tournament summary
+- [x] Contact page (to be rebuilt in Phase 4 with the real form)
+- [x] Branding applied: colors, fonts (Playfair Display / Lobster Two / Lora),
+      logo/flag SVG mark
 
-**Done when:** the static shell of the site is live and on-brand, no dynamic
-pieces yet.
-
----
-
-## Phase 3 — Google Sheets integration foundation
-
-- [ ] Create the sponsor tracker Google Sheet (tiers + capacity + sponsor rows)
-- [ ] Create a Google Cloud service account scoped to that one Sheet, generate
-      key
-- [ ] Add `GOOGLE_SERVICE_ACCOUNT_KEY` + `SPONSOR_SHEET_ID` as Netlify env vars
-- [ ] `netlify/functions/` — shared Sheets client helper (auth + read/write)
-- [ ] Basic read function: fetch current tier capacity from the sheet
-
-**Done when:** a Netlify Function can successfully read live data from the
-Sheet in a deployed preview.
+**Done:** the static shell of the site is live and on-brand.
 
 ---
 
-## Phase 4 — Sponsor sign-up form
+## Phase 3 — Google Sheets integration foundation ✅
 
-- [ ] Sponsor form UI (Astro page) — sponsor tiers rendered dynamically from
-      current capacity (via the Phase 3 read function)
-- [ ] Tiers at capacity show as sold out, submission blocked client-side
-- [ ] Netlify Function: validate + re-check capacity server-side, append row
-      to the Sheet if space remains
-- [ ] Handle the race-condition edge case gracefully (friendly error if a tier
-      fills between page load and submit)
-- [ ] Confirmation state/page after successful submission
+- [x] Sponsor tracker Google Sheet created, shared with the service account
+      email (`website-account@fore-grant.iam.gserviceaccount.com`)
+      — Sheet ID `1CCGUh2YN4-PByJUO-XG2CVfOpJICkRu7aQy1_z7IH4M`, tab `Sheet1`
+- [x] Google Cloud service account created, JSON key generated
+- [x] **Security step:** extracted `client_email` + `private_key` out of the
+      raw JSON key file into `fore-grant/.env` (gitignored), deleted the JSON
+      file from the repo before ever staging it
+- [x] Added `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
+      `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB` — placeholders in `.env.example`,
+      real values in local `.env` (still need to set on Netlify for prod)
+- [x] Added `googleapis` dependency
+- [x] `src/lib/sheets.ts` — JWT auth via service account, `appendSponsorRow()`
+      helper
+- [x] `src/pages/api/sponsor.ts` — Astro server API route (per-route
+      `prerender = false`, works alongside the rest of the static site under
+      the `@astrojs/netlify` adapter), validates required fields, appends row
 
-**Done when:** a real sponsor sign-up end-to-end works against the live Sheet,
-sold-out tiers are correctly blocked.
+**Sheet1 columns:**
+`Timestamp | Company Name | Sponsor Tier | Company Website | Payment Type | Captain First Name | Captain Last Name | Phone | Email | Player 2 | Player 3 | Player 4 | Comments`
+
+**Done:** verified locally end-to-end — `npm run dev`, POSTed a minimal test
+payload to `/api/sponsor`, got `{"ok":true}`, confirmed the row landed in the
+live Google Sheet.
+
+---
+
+## Phase 4 — Sponsor registration form ✅ (live now, no capacity gating yet)
+
+- [x] Rebuilt `contact.astro` as the real **Sponsor Registration Form**:
+  - Section 1 — Company Information: Company Name, Sponsor Tier, Company
+    Website URL, Payment Type
+  - Section 2 — Player Information: Team Captain First/Last Name, Phone,
+    Email; optional Player 2/3/4 names
+  - Section 3 — Special Requests or Comments (open text)
+- [x] Client-side `fetch` POST to `/api/sponsor`, inline success/error state
+      (no page reload, no redirect)
+- [x] Reconciled "coming soon" sponsorship copy on home/about pages — CTAs now
+      point directly at the live registration form
+- [x] Server-side validation (required fields) before appending to the Sheet
+
+**Done:** submitting the form appends a correct row to the Google Sheet
+end-to-end (verified via curl against the local dev server — see Phase 3).
+Still need to set the real env vars on Netlify before this works on the
+deployed site (see "Remaining before production" below).
+
+**Deferred from original plan:** dynamic tier-capacity/sold-out logic (reading
+current sheet state before allowing submission) is out of scope for this pass
+— tiers are shown as informational only for now. Revisit if sponsor volume
+makes manual tracking by Jess impractical.
+
+**Remaining before production:**
+- [ ] Set `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
+      `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB` as real Netlify environment
+      variables (dashboard, not committed anywhere)
+- [ ] Deploy via `gh release create` and re-verify one real submission against
+      production before telling Jess it's live
+
+
 
 ---
 
