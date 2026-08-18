@@ -7,7 +7,17 @@ how the pieces get assembled and how we know each phase is done.
 > Keep it dead simple — this is a pro bono project with zero appetite for scope
 > creep or ongoing infra cost.
 
+> ⚠️ **Open scope gap vs. the original brief:** automatic sold-out
+> enforcement per sponsor tier (brief.md line 8: "Website should
+> automatically indicate when a tier is sold out and prevent additional
+> registrations for that tier") is **not built** — see Phase 4's "Deferred
+> from original plan" note. Tiers currently show as informational only, with
+> no capacity limit enforced. Revisit before launch if this matters for real
+> sponsor volume, or explicitly confirm with Jess that manual tracking is
+> fine for now.
+
 ---
+
 
 ## Phase 0 — Scaffold ✅
 
@@ -60,8 +70,13 @@ version-controlled, and now documented as a general pattern in
 - [x] Contact page (to be rebuilt in Phase 4 with the real form)
 - [x] Branding applied: colors, fonts (Playfair Display / Lobster Two / Lora),
       logo/flag SVG mark
+- [x] Google Maps embed of San Vicente Golf Course added to bottom of home
+      page (full-width, matching other card sections), with a "Get
+      Directions" link — required adding `frame-src https://www.google.com`
+      to the CSP in `netlify.toml`
 
 **Done:** the static shell of the site is live and on-brand.
+
 
 ---
 
@@ -87,11 +102,21 @@ version-controlled, and now documented as a general pattern in
 **Sheet1 columns:**
 `Timestamp | Company Name | Sponsor Tier | Company Website | Payment Type | Captain First Name | Captain Last Name | Phone | Email | Player 2 | Player 3 | Player 4 | Comments`
 
+- [x] `scripts/apply-sheet-formatting.ts` (`npm run sheet:format`) — one-off
+      admin script, not part of the deployed site or form-submission flow.
+      Applies via the Sheets API: conditional formatting (color-coded
+      Sponsor Tier + Payment Type by enum value, persists automatically for
+      all future submissions), frozen/bold header row, alternating row
+      banding, text wrap on Comments/Company Website, and padded column
+      widths
+
 **Done:** verified locally end-to-end — `npm run dev`, POSTed a minimal test
 payload to `/api/sponsor`, got `{"ok":true}`, confirmed the row landed in the
-live Google Sheet.
+live Google Sheet. Re-verified after adding `sheet:format` by submitting two
+placeholder rows and confirming conditional formatting applied correctly.
 
 ---
+
 
 ## Phase 4 — Sponsor registration form ✅ (live now, no capacity gating yet)
 
@@ -154,8 +179,11 @@ actually needed before building the admin UI.
 - [ ] `project-scaffold add-domain fore-grant <domain>`
 - [ ] Final content pass with Jess (remaining copy edits from flyer)
 - [ ] `gh release create v1.0.0 --generate-notes` — real launch deploy
-- [ ] Confirm sold-out logic, form, and (if built) tournament org all work on
-      the live domain
+- [ ] Confirm form and (if built) tournament org work on the live domain
+- [ ] Decide on sold-out-tier enforcement (see open scope gap callout at top
+      of this file) before telling Jess the site fully replaces last year's
+      flow
+
 
 **Done when:** the site is live on the real domain and replaces the
 flyer → Google Form → shared sheet flow from last year.
