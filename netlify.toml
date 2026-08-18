@@ -1,6 +1,13 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  # Skip every push-triggered build (git push to any branch). This does NOT
+  # affect build-hook-triggered builds — Netlify guarantees the `ignore`
+  # command never cancels a build hook deploy, regardless of exit code.
+  # See: https://docs.netlify.com/build/configure-builds/ignore-builds
+  # Deploys only happen via `gh release create` (release-triggered build hook).
+  ignore = "exit 0"
+
 
 [build.environment]
   NODE_VERSION = "24"
