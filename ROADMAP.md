@@ -118,11 +118,14 @@ current sheet state before allowing submission) is out of scope for this pass
 makes manual tracking by Jess impractical.
 
 **Remaining before production:**
-- [ ] Set `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
+- [x] Set `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
       `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB` as real Netlify environment
-      variables (dashboard, not committed anywhere)
+      variables — imported via `netlify env:import .env --site
+      018be25b-d30c-4262-9f6c-a6174dc4567f`, confirmed all 4 values landed
+      correctly (private key newlines intact)
 - [ ] Deploy via `gh release create` and re-verify one real submission against
       production before telling Jess it's live
+
 
 
 
