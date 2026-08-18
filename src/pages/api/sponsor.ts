@@ -29,7 +29,8 @@ export const POST: APIRoute = async ({ request }) => {
     await appendSponsorRow({
       companyName: str(body.companyName),
       sponsorTier: str(body.sponsorTier),
-      companyWebsite: str(body.companyWebsite),
+      companyWebsite: normalizeWebsite(str(body.companyWebsite)),
+
       paymentType: str(body.paymentType),
       captainFirstName: str(body.captainFirstName),
       captainLastName: str(body.captainLastName),
@@ -56,6 +57,16 @@ export const POST: APIRoute = async ({ request }) => {
 function str(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
+
+// Sponsors type things like "example.com" or "www.example.com" without a
+// scheme — the form field intentionally doesn't require "https://" since
+// that's an unreasonable ask. Add it here so the value stored in the Sheet
+// is still a clickable, valid URL.
+function normalizeWebsite(value: string): string {
+  if (!value) return "";
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
 
 function jsonError(message: string, status: number): Response {
   return new Response(JSON.stringify({ ok: false, error: message }), {

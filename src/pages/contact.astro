@@ -44,8 +44,9 @@ const sponsorTiers = [
           </label>
           <label class="block">
             <span class="text-sm font-medium text-ink">Company Website URL</span>
-            <input type="url" name="companyWebsite" placeholder="https://" class="field-input" />
+            <input type="text" name="companyWebsite" placeholder="example.com" class="field-input" />
           </label>
+
           <label class="block">
             <span class="text-sm font-medium text-ink">Payment Type</span>
             <select name="paymentType" class="field-input">
@@ -124,16 +125,84 @@ const sponsorTiers = [
         >
           Submit Registration
         </button>
-        <p id="form-status" class="mt-4 text-sm" role="status"></p>
       </div>
+
     </form>
 
     <div class="mt-14 text-center">
+
       <span class="ribbon-banner text-sm font-display font-semibold tracking-wide">
         #GrantsTALLBattle
       </span>
     </div>
   </section>
+
+  <!-- Confirmation modal: shown on submit, reviews entered data before the
+       real POST happens. Cancel just hides the modal again — the form
+       itself is never reset or touched, so every field stays filled. -->
+  <div
+    id="confirm-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8"
+  >
+    <div class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-paper shadow-2xl">
+      <div class="border-b border-fairway-light/40 bg-paper-dim px-6 py-6 sm:px-10 sm:py-7">
+        <h2 class="font-display text-2xl font-bold text-fairway">
+          Confirm Your Registration
+        </h2>
+        <p class="mt-2 text-sm text-ink-soft">
+          Please review your information before submitting.
+        </p>
+      </div>
+
+      <dl id="confirm-modal-details" class="flex-1 overflow-y-auto divide-y divide-fairway-light/30 px-6 py-2 sm:px-10"></dl>
+
+      <div class="flex flex-col-reverse gap-3 border-t border-fairway-light/40 bg-paper-dim px-6 py-6 sm:flex-row sm:justify-end sm:px-10">
+
+        <button
+          type="button"
+          id="confirm-modal-cancel"
+          class="rounded-md border border-fairway-light bg-paper px-6 py-2.5 font-semibold text-ink transition hover:bg-white"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="confirm-modal-submit"
+          class="rounded-md bg-ribbon px-6 py-2.5 font-semibold text-white shadow-sm transition hover:bg-ribbon-dark disabled:opacity-60"
+        >
+          Confirm &amp; Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result modal: shown after the /api/sponsor request completes, for
+       both success and failure. Replaces the small inline status text as
+       the primary way sponsors learn whether their registration went
+       through. -->
+  <div
+    id="result-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8"
+  >
+    <div class="w-full max-w-md rounded-2xl bg-paper p-8 text-center shadow-2xl sm:p-10">
+      <div
+        id="result-modal-icon"
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl"
+      ></div>
+      <h2 id="result-modal-title" class="mt-5 font-display text-2xl font-bold text-fairway"></h2>
+      <p id="result-modal-message" class="mt-3 text-sm text-ink-soft"></p>
+      <button
+        type="button"
+        id="result-modal-close"
+        class="mt-8 rounded-md bg-ribbon px-8 py-2.5 font-semibold text-white shadow-sm transition hover:bg-ribbon-dark"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+
+
+
 
   <style>
     .field-input {
@@ -167,7 +236,13 @@ const sponsorTiers = [
       outline: 2px solid var(--color-ribbon);
       outline-offset: 1px;
     }
+    #confirm-modal.is-open,
+    #result-modal.is-open {
+      display: flex;
+    }
+
   </style>
+
 
 
   <script is:inline src="/scripts/sponsor-form.js"></script>
