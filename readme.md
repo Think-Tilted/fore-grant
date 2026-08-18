@@ -128,10 +128,37 @@ gh release create v1.0.0 --generate-notes
 ```
 
 This hits a Netlify build hook stored as the GitHub Actions secret
-`NETLIFY_BUILD_HOOK_URL`. Unlike the scaffold default, **auto-deploy-on-push to
-`main` has been manually disabled** on this site's Netlify settings (Stop
-builds) to avoid burning Netlify build credits on every commit — only
-published releases (or a manual build-hook trigger) deploy to production.
+`NETLIFY_BUILD_HOOK_URL`. Unlike the scaffold default, **auto-deploy-on-push
+to `main` is disabled** via `netlify.toml`:
+
+```toml
+[build]
+  ignore = "exit 0"
+```
+
+Exit code `0` tells Netlify "nothing changed, skip this build" — so every
+push-triggered build is skipped, on every branch, without burning a Netlify
+build credit on routine commits. This does **not** affect the release build
+hook: Netlify guarantees the `ignore` command never cancels a build-hook
+deploy, regardless of exit code (see
+[Netlify docs](https://docs.netlify.com/build/configure-builds/ignore-builds)).
+Only `gh release create` (or manually curling the build hook) deploys to
+production.
+
+This was verified end-to-end on the live site: pushing commits to `main`
+produced zero new deploys, while hitting the build hook produced a deploy
+that built and published successfully. (An earlier attempt used the Netlify
+API's `stop_builds` site setting instead — that was reverted because it also
+silently disabled the build hook itself, breaking releases entirely. The
+`netlify.toml` `ignore` command is the correct, docs-backed mechanism and is
+now documented as a general pattern in `project-scaffold`'s readme.)
+
+### Manually triggering a deploy without a release
+
+```bash
+curl -X POST "$NETLIFY_BUILD_HOOK_URL"
+```
+
 
 ## Security headers
 

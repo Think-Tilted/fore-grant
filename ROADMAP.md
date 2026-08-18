@@ -23,18 +23,30 @@ boilerplate.
 
 ---
 
-## Phase 1 — Deploy hygiene
+## Phase 1 — Deploy hygiene ✅
 
-- [ ] Disable Netlify auto-deploy-on-push (Stop builds) on the fore-grant site,
-      keep the release-triggered build hook working
-- [ ] Verify: push a trivial commit to `main` → confirm **no** build fires
-- [ ] Verify: `gh release create v0.0.1 --generate-notes` (or hit the build
-      hook directly) → confirm a build **does** fire
-- [ ] Note actual verified behavior back in `readme.md` if anything differs
-      from what's documented
+- [x] Disable Netlify auto-deploy-on-push on the fore-grant site, keep the
+      release-triggered build hook working
+- [x] Verify: push a trivial commit to `main` → confirm **no** build fires
+- [x] Verify: hitting the build hook directly → confirm a build **does** fire
+      and publishes successfully
+- [x] Note actual verified behavior back in `readme.md`
 
-**Done when:** push-to-main is confirmed silent, release/build-hook triggers
-are confirmed working, against the real Netlify site (not assumed).
+**Done:** implemented via `netlify.toml`'s `[build] ignore = "exit 0"` —
+confirmed against Netlify's docs ("the `ignore` command won't cancel a build
+triggered by a build hook, regardless of exit code") and verified live:
+
+- Pushed two commits to `main` → zero new deploys triggered.
+- Hit the build hook directly → new deploy created, built, and published
+  successfully.
+
+First attempt used the Netlify API's `stop_builds` site setting instead —
+reverted after discovering it also silently blocks the build hook itself
+(hook returned `200 OK` but no deploy was ever created), which would have
+broken `gh release create` entirely. The `netlify.toml` approach is correct,
+version-controlled, and now documented as a general pattern in
+`project-scaffold`'s readme for reuse on other projects.
+
 
 ---
 
