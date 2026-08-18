@@ -4,8 +4,12 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Fore Grant" } = Astro.props;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? import.meta.env.PUBLIC_SITE_URL);
+const {
+  title,
+  description = "Teeing Off Fore Grant — a charity golf tournament supporting Grant's fight against leukemia. #GrantsTALLBattle",
+} = Astro.props;
+const siteBase = Astro.site ?? import.meta.env.PUBLIC_SITE_URL ?? "http://localhost:4321";
+const canonicalURL = new URL(Astro.url.pathname, siteBase);
 ---
 
 <!doctype html>
@@ -17,24 +21,45 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? import.meta.env.P
     <link rel="canonical" href={canonicalURL.href} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Lobster+Two:ital,wght@0,700;1,700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
     <style>
       @import "../styles/global.css";
     </style>
   </head>
   <body class="min-h-dvh bg-paper text-ink font-sans">
-    <header class="mx-auto max-w-5xl px-6 py-6 flex items-center justify-between">
-      <a href="/" class="font-display text-lg font-semibold tracking-tight">Fore Grant</a>
-      <nav class="flex gap-6 text-sm">
-        <a href="/" class="hover:text-clay">Home</a>
-        <a href="/about" class="hover:text-clay">About</a>
-        <a href="/contact" class="hover:text-clay">Contact</a>
+    <div class="argyle-band mt-3"></div>
+
+    <header class="mx-auto max-w-5xl px-6 py-5 flex items-center justify-between">
+      <a href="/" class="flex items-baseline gap-1.5">
+        <span class="font-script text-2xl text-fairway italic">Fore Grant</span>
+      </a>
+      <nav class="flex gap-6 text-sm font-medium text-fairway">
+        <a href="/#sponsor" class="hover:text-ribbon">Sponsor</a>
+        <a href="/about" class="hover:text-ribbon">About Grant</a>
+        <a href="/contact" class="hover:text-ribbon">Contact</a>
       </nav>
     </header>
+
     <main class="mx-auto max-w-5xl px-6">
       <slot />
     </main>
-    <footer class="mx-auto max-w-5xl px-6 py-12 text-sm text-ink-soft">
-      <p>&copy; {new Date().getFullYear()} Fore Grant</p>
+
+    <div class="argyle-band mt-16"></div>
+
+    <footer class="mx-auto max-w-5xl px-6 py-10 text-center text-sm text-ink-soft">
+      <p>
+        <a href="mailto:grantstallbattle@gmail.com" class="hover:text-ribbon">grantstallbattle@gmail.com</a>
+        &nbsp;·&nbsp;
+        <a href="tel:6193447687" class="hover:text-ribbon">Jessica: 619-344-7687</a>
+        &nbsp;·&nbsp;
+        &copy; {new Date().getFullYear()} Teeing Off Fore Grant
+      </p>
     </footer>
+
   </body>
 </html>

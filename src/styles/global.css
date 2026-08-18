@@ -1,10 +1,84 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #1a1a1a;
-  --color-ink-soft: #555;
-  --color-paper: #fafaf8;
-  --color-paper-dim: #e8e6e1;
-  --color-clay: #b0835c;
-  --font-display: "system-ui", sans-serif;
+  /* Warm cream paper, matching the flyer background */
+  --color-paper: #f2efe4;
+  --color-paper-dim: #e5e3d3;
+
+  /* Deep fairway green — primary brand color from the flyer */
+  --color-fairway: #2f4a34;
+  --color-fairway-dark: #203323;
+  --color-fairway-light: #5a7050;
+
+  /* Warm orange ribbon accent */
+  --color-ribbon: #e05e2b;
+  --color-ribbon-dark: #c24f21;
+  --color-ribbon-light: #f2895c;
+
+  --color-ink: #2b2a22;
+  --color-ink-soft: #57543f;
+
+  --font-display: "Playfair Display", "Georgia", serif;
+  --font-script: "Lobster Two", "Brush Script MT", cursive;
+  --font-sans: "Lora", "Georgia", serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
+
+/*
+ * Argyle diamond band — echoes the flyer's top/bottom borders:
+ * alternating dark/light green diamonds with orange stitch dots between.
+ */
+.argyle-band {
+  height: 26px;
+  background-color: var(--color-paper);
+  background-repeat: repeat-x;
+  background-position: center;
+  background-size: 72px 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='26' viewBox='0 0 72 26'%3E%3Cpath d='M18 1 L34 13 L18 25 L2 13 Z' fill='%232f4a34'/%3E%3Cpath d='M54 1 L70 13 L54 25 L38 13 Z' fill='%235a7050'/%3E%3Ccircle cx='36' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='0' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='72' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='18' cy='13' r='1.2' fill='%23e05e2b' opacity='0.7'/%3E%3Ccircle cx='54' cy='13' r='1.2' fill='%23e05e2b' opacity='0.7'/%3E%3C/svg%3E");
+}
+
+/*
+ * Ribbon banner with folded ends, like the flyer's #GrantsTALLBattle banner.
+ */
+.ribbon-banner {
+  position: relative;
+  display: inline-block;
+  background-color: var(--color-ribbon);
+  color: #fff;
+  padding: 0.5rem 1.75rem;
+}
+
+.ribbon-banner::before,
+.ribbon-banner::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  width: 24px;
+  height: 100%;
+  background-color: var(--color-ribbon-dark);
+  z-index: -1;
+}
+
+.ribbon-banner::before {
+  left: -16px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 35% 50%);
+}
+
+.ribbon-banner::after {
+  right: -16px;
+  clip-path: polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%);
+}
+
+/* Small-caps serif label, like the flyer's "TEEING OFF" */
+.flyer-caps {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
 }
