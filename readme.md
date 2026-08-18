@@ -35,9 +35,11 @@ database)**, even though the sponsor form needs some server-side state
   silence) — a real risk of the DB pausing right when someone tries to sign up.
 - The client's own mental model is already "data lives in a tracker sheet" — so
   instead of adding Postgres as a translation layer that then needs to be kept
-  alive, **Google Sheets is the database**, accessed only through server-side
-  Netlify Functions. Visitors and Jess never interact with raw Sheets UI for the
-  sponsor flow; the Functions are the only reader/writer.
+  alive, **Google Sheets is the database**, accessed only through a server-side
+  Astro API route (`src/pages/api/sponsor.ts`, compiled into a Netlify Function
+  by the `@astrojs/netlify` adapter). Visitors and Jess never interact with raw
+  Sheets UI for the sponsor flow; this route is the only reader/writer.
+
 - No auth system, no RLS, no idle/pause risk, no monthly cost — matches the
   brief's "crazy simple" goal and "limited to no scope creep."
 
@@ -47,17 +49,18 @@ database)**, even though the sponsor form needs some server-side state
 Static Astro pages (About, Contact, Sponsor form UI)
         │
         ▼
-Netlify Functions (serverless)
+Astro API route (src/pages/api/*, compiled to a Netlify Function)
         │
         ▼
 Google Sheet (source of truth — sponsors, tiers, capacity)
 ```
 
-- **Writes** (sponsor sign-up): form → Netlify Function → Sheets API append,
-  after re-checking current tier capacity server-side.
-- **Reads** (tier availability, optional tournament pairings): Function or page
-  queries the Sheet and renders normal HTML — no spreadsheet UI ever shown to
-  visitors.
+- **Writes** (sponsor sign-up): form → `/api/sponsor` route → Sheets API
+  append, after re-checking current tier capacity server-side.
+- **Reads** (tier availability, optional tournament pairings): an API route or
+  page queries the Sheet and renders normal HTML — no spreadsheet UI ever
+  shown to visitors.
+
 - **Admin view for sponsors:** Jess just opens the Google Sheet directly — no
   custom admin UI needed, it's the interface she already knows.
 - **Admin view for tournament org (if built):** a small passphrase-protected
@@ -76,7 +79,9 @@ manually resolves it.
 - **Styling:** Tailwind CSS v4
 - **TypeScript:** strictest config
 - **Hosting:** Netlify (free tier)
-- **Backend:** Netlify Functions + Google Sheets API (no database)
+- **Backend:** Astro API routes (compiled to Netlify Functions) + Google
+  Sheets API (no database)
+
 - **Deploy:** release-triggered only (see below — auto-deploy-on-push is
   disabled to conserve Netlify build credits)
 
@@ -88,12 +93,21 @@ manually resolves it.
 
 ```
 src/pages/          → routes (Astro file-based routing)
+src/pages/api/      → server-rendered API routes (e.g. sponsor.ts), opted out
+                      of static prerendering per-route; @astrojs/netlify
+                      compiles these into Netlify Functions automatically —
+                      there is no hand-written netlify/functions/ directory
 src/layouts/        → shared layouts (BaseLayout.astro)
 src/components/     → reusable components
 src/styles/         → global CSS (Tailwind)
-public/             → static assets (favicon, images)
-netlify/functions/  → serverless functions (sponsor form, sheet reads)
+public/             → static assets (favicon, images); public/scripts/ holds
+                      plain unprocessed JS served as external files (needed
+                      so client scripts satisfy the CSP's `script-src 'self'`
+                      — Astro's bundler otherwise inlines small module
+                      scripts referenced from src/, which inline-script CSPs
+                      block)
 netlify.toml        → Netlify config (headers, redirects, build)
+
 .env.example        → env var reference
 brief.md            → original project brief (reference)
 ROADMAP.md          → build plan / phase tracking
@@ -104,8 +118,11 @@ ROADMAP.md          → build plan / phase tracking
 | Variable | Where set | Purpose |
 |----------|-----------|---------|
 | `PUBLIC_SITE_URL` | Netlify (set by scaffold) | Canonical site URL |
-| `GOOGLE_SERVICE_ACCOUNT_KEY` | Netlify (added manually) | Service account JSON for Sheets API access |
-| `SPONSOR_SHEET_ID` | Netlify (added manually) | Google Sheet ID used as sponsor/tier database |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Netlify + local `.env` | Service account `client_email` for Sheets API auth |
+| `GOOGLE_PRIVATE_KEY` | Netlify + local `.env` | Service account `private_key` for Sheets API auth |
+| `GOOGLE_SHEET_ID` | Netlify + local `.env` | Google Sheet ID used as sponsor/tier database |
+| `GOOGLE_SHEET_TAB` | Netlify + local `.env` | Sheet tab name to read/append (`Sheet1`) |
+
 
 Copy `.env.example` to `.env` for local dev. Netlify env vars are set via the
 account env API (site-scoped).

@@ -170,41 +170,8 @@ const sponsorTiers = [
   </style>
 
 
-  <script>
-    const form = document.getElementById("sponsor-form") as HTMLFormElement;
-    const status = document.getElementById("form-status") as HTMLParagraphElement;
-
-    form?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      submitBtn.disabled = true;
-      status.textContent = "Submitting…";
-      status.className = "mt-4 text-sm text-ink-soft";
-
-      const data = Object.fromEntries(new FormData(form).entries());
-
-      try {
-        const res = await fetch("/api/sponsor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-
-        if (res.ok && result.ok) {
-          status.textContent = "Thank you! Your registration has been received.";
-          status.className = "mt-4 text-sm text-fairway font-semibold";
-          form.reset();
-        } else {
-          status.textContent = result.error || "Something went wrong. Please try again.";
-          status.className = "mt-4 text-sm text-ribbon font-semibold";
-        }
-      } catch {
-        status.textContent = "Network error. Please try again or email us directly.";
-        status.className = "mt-4 text-sm text-ribbon font-semibold";
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-  </script>
+  <script is:inline src="/scripts/sponsor-form.js"></script>
 </BaseLayout>
+
+
+
