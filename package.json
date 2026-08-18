@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "check": "astro check",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "sheet:format": "tsx scripts/apply-sheet-formatting.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -18,6 +19,9 @@
 
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.19.0"
   }
+
 }
