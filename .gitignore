@@ -8,4 +8,6 @@ npm-debug.log*
 .DS_Store
 .netlify
 deno.lock
+design/figma-file.json
+
 

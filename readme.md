@@ -24,7 +24,57 @@ logistics.
    (Jess) can update it by just editing a sheet. Stretch goal, not required for
    launch.
 
+## Design system (source of truth)
+
+The visual design is driven by a Figma file — **"Teeing Off Fore Grant — Design
+System"** — which supersedes the original hand-coded Tailwind theme in
+`src/styles/global.css`. This is a Level 3 / "Production Ready" handoff per
+[`../design_handoff_v1.md`](../design_handoff_v1.md): a fully documented token
+system, componentized building blocks, and page-level frames for every route.
+
+**What's in the Figma file:**
+- **`01 Foundations` page** — the design system itself: 6 brand colors (plus
+  black/white) with hex + CMYK values, a full semantic token layer (background,
+  text, border, brand, accent, state — each with hover/active/subtle
+  variants), typography scale (Bitter for display/headings/buttons, Source
+  Serif 4 for body copy, with explicit weights/sizes per style), an 8px
+  spacing scale, and a radius scale.
+- **Component pages** — Button, Badge, Sponsor Tier Card, Form Field, Pairing
+  Group, Nav / Nav Link, Logo (full vector wordmark + color variants), Argyle
+  Band, Footer, Social Icon, Tier Row — each built as a proper Figma
+  `COMPONENT_SET` (variants), several with dedicated documentation frames.
+- **Page frames** — Home, Registration, Register Form (Sponsor + Golfer
+  variants), Tournament Day, Contact — each assembled from the components
+  above with named content sections, matching the site's actual page
+  structure. Notably, the Figma file already assumes the same "browse tiers →
+  dedicated registration form" flow this project separately converged on.
+
+**Exporting design data:** rather than screenshots, the full Figma document
+tree is pulled via the [Figma REST API](https://www.figma.com/developers/api)
+using a personal access token, and stored as structured JSON in this repo:
+
+```
+fore-grant/design/figma-file.json   → full document tree (~4MB), pulled via:
+```
+```bash
+curl -H "X-Figma-Token: $FIGMA_PAT" \
+  "https://api.figma.com/v1/files/$FIGMA_FILE_KEY" \
+  -o design/figma-file.json
+```
+
+This gives exact hex values, type specs, spacing, and component structure —
+not pixel-approximated values from an image. Re-run the command above to
+refresh the export if the Figma file is updated. `figma-file.json` is data,
+not committed logic — check repo conventions before committing large binary-
+like JSON blobs; treat it as regenerable from Figma rather than hand-edited.
+
+**Status:** design data has been pulled and reviewed; implementing it into
+the site is a substantial rebuild (new color palette, new type system,
+component-driven markup) rather than incremental styling tweaks, and is
+tracked as its own body of work — not yet started as of this writing.
+
 ### Why this stack (no Supabase)
+
 
 This project intentionally runs as a **Tier 1 scaffold (static Astro, no
 database)**, even though the sponsor form needs some server-side state

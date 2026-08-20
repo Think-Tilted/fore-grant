@@ -156,7 +156,47 @@ makes manual tracking by Jess impractical.
 
 ---
 
-## Phase 5 — Tournament organization (optional / stretch)
+## Phase 5 — Design system implementation
+
+Full current-state/target-state breakdown, phased plan, and completion
+checklist live in [`design/ROADMAP.md`](./design/ROADMAP.md) — this section
+is a summary only, kept here so it doesn't get lost among the other phases.
+
+The site is being rebuilt against a newly-delivered Figma design system
+("Teeing Off Fore Grant — Design System"), which supersedes the hand-coded
+Tailwind theme used in Phases 2–4. See [`readme.md`](./readme.md#design-system-source-of-truth)
+for how the design data was pulled and where it's stored.
+
+- [ ] 5.0 — Tokens & primitives (colors, type, spacing, radius) ported from
+      Figma into `src/styles/global.css`
+- [ ] 5.1 — Core components rebuilt (Button, Badge, Nav, Logo, Footer, Argyle
+      Band, Social Icon)
+- [ ] 5.2 — Form & card components rebuilt (Form Field, Sponsor Tier Card,
+      Tier Row, Pairing Group)
+- [ ] 5.3 — Pages rebuilt against new components: Tournament Day, Home,
+      Registration, Register Form, Contact
+- [ ] 5.4 — Existing working logic (sponsor form, confirm/result modals,
+      Sheets integration) re-wired into new markup with zero regression
+- [ ] 5.5 — QA pass against Figma at both breakpoints
+- [ ] **5.6 — Gap register closed (mandatory)** — every case where the Figma
+      design implies real backend logic that doesn't exist yet (e.g.
+      sold-out/limited tier states, which have full visual variants in Figma
+      but zero capacity tracking today) must be tracked in `design/ROADMAP.md`'s
+      Design/Infra Gap Register and explicitly closed or signed off —
+      **nothing hardcoded ships silently.** This phase is not complete until
+      that register has zero open rows, even if 5.0–5.5 are fully checked off.
+
+**Done when:** the live site matches the Figma design system across all
+pages/breakpoints, with all existing sponsor-form functionality intact, and
+the Gap Register in `design/ROADMAP.md` has no unresolved rows. See
+`design/ROADMAP.md` for open questions that need resolving during this phase
+(sponsor/golfer form split, sold-out/limited state enforcement, nav structure).
+
+
+---
+
+## Phase 6 — Tournament organization (optional / stretch)
+
 
 - [ ] Extend the Sheet (or add a second sheet/tab) for groups, pairings, tee
       times, order
@@ -172,7 +212,8 @@ actually needed before building the admin UI.
 
 ---
 
-## Phase 6 — Domain + launch
+## Phase 7 — Domain + launch
+
 
 - [ ] Purchase domain (`teeingoffforegrant.com` or `fore-grant.com`, on Jess's
       account/card)
