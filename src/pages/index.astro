@@ -1,277 +1,141 @@
 ---
+/**
+ * Home — rebuilt from scratch against the Figma "Home" frame
+ * (design/figma-file.json node 45:412 "Meet Grant" and siblings under
+ * "00 — REVIEW (start here) > Home"). Every value below was read directly
+ * from that node tree (padding/gap/color/radius/type), not eyeballed —
+ * see design/ROADMAP.md Phase 5.3 workflow.
+ *
+ * Sections, top to bottom, matching Figma's own frame order:
+ *   hero nav (Nav "home" variant, provided by BaseLayout) > Meet Grant >
+ *   Sponsor CTA > Sponsors (logo ticker) > Last year (Carousel) >
+ *   Other Ways > Find Us > footer
+ *
+ * Real photo assets (Meet Grant photo, 3 "Last year" carousel photos, San
+ * Vicente Resort logo) were exported from Figma via the images API
+ * (design/ROADMAP.md "Exporting real assets from Figma") and live in
+ * public/photos/ and public/logos/ — this closes Gap Register G5, which
+ * previously required the flyer PNGs as a stand-in.
+ *
+ * GAP: see design/ROADMAP.md G6 — the "Sponsors" ticker section below uses
+ * literal "LOGO" placeholder tiles because that's exactly what Figma's own
+ * source file specifies (each node is named `PLACEHOLDER — sponsor logo N`
+ * by the designer) — there is no real sponsor logo data yet. This is the
+ * one deliberate placeholder left on this page per project direction; every
+ * other image on Home is a real exported asset.
+ */
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Button from "../components/Button.astro";
+import Carousel from "../components/Carousel.astro";
 
-const tiers = [
-  {
-    name: "Orange Ribbon Champion",
-    price: "$5,000+",
-    max: "Max of 2",
-    featured: true,
-    perks: [
-      "Premier logo placement on event signage, flyer, and communication",
-      "Recognition in all social media posts & cart name tags",
-      "Company or brand logo displayed on signage at designated hole",
-      "Complimentary entry for 2 foursomes (8 players total); and 10 total dinner tickets",
-      "Speaking opportunity at awards ceremony",
-      "Includes Adopt-a-Hole at premier holes",
-      "Promotional items in every golfer's goodie bag",
-    ],
-  },
-  {
-    name: "Premium Adopt-A-Hole (Contest Holes)",
-    price: "$1,750",
-    max: "Max 2",
-    perks: [
-      "Drive Out Leukemia Sponsor (Longest Drive) or Swing for Strength Sponsor (Closest to the Pin)",
-      "Recognition in all social media posts",
-      "Company or brand logo displayed on signage at designated hole",
-      "Hand out food, drinks, or giveaways at a hole",
-      "Complimentary entry for 1 foursome (4 players total)",
-    ],
-  },
-  {
-    name: "Adopt-a-Hole Sponsor",
-    price: "$1,500",
-    max: "Max 9",
-    perks: [
-      "Recognition in all social media posts",
-      "Company or brand logo displayed on signage at designated hole",
-      "Hand out food, drinks, or giveaways at a hole",
-      "Complimentary entry for 1 foursome (4 players total)",
-    ],
-  },
-  {
-    name: '"19th Hole" Lunch Sponsor',
-    price: "$3,500",
-    max: "Max of 2",
-    perks: [
-      "Premier recognition as the sponsor of the tournament dinner",
-      "Logo featured on dinner signage",
-      "Acknowledgment during awards and dinner program",
-      "Complimentary entry for 2 foursomes (8 players total)",
-    ],
-  },
-  {
-    name: '"Pre-Round Fuel" Breakfast Sponsor',
-    price: "$2,000",
-    max: "Max of 2",
-    perks: [
-      "Premier recognition as the sponsor of the tournament lunch",
-      "Logo featured on lunch signage",
-      "Acknowledgment during awards and dinner program",
-      "Complimentary entry for 1 foursome (4 players total)",
-    ],
-  },
-  {
-    name: "Putting for a Cure Sponsor",
-    price: "$1,000",
-    max: "Max 1",
-    perks: [
-      "Host putting contest",
-      "Company or brand logo displayed on signage at putting green",
-      "Recognition in event program and website",
-      "Complimentary entry for 1 foursome (4 players total)",
-    ],
-  },
-  {
-    name: "Tee Sign Sponsor",
-    price: "$250",
-    max: "Max 5",
-    perks: [
-      "Your name or company logo displayed on a tee sign at a hole",
-      "Promotional items in every golfer's goodie bag",
-    ],
-  },
-  {
-    name: "Foursome Entry",
-    price: "$600",
-    max: "Group Package",
-    perks: ["18 holes for four players", "Cart rental", "Lunch & dinner", "Player swag bags"],
-  },
+const lastYearImages = [
+  { src: "/photos/last-year-1.png", alt: "Golfers teeing off at last year's Fore Grant tournament" },
+  { src: "/photos/last-year-2.png", alt: "Group photo from last year's Fore Grant tournament" },
+  { src: "/photos/last-year-3.png", alt: "Foursome on the green at last year's Fore Grant tournament" },
 ];
+
+// GAP: see design/ROADMAP.md G6 — no real sponsor logos exist yet; these 7
+// slots and the literal "LOGO" label are exactly what the Figma source
+// names them (`PLACEHOLDER — sponsor logo 1`..`7`), not an invented stand-in.
+const sponsorPlaceholderCount = 7;
 ---
 
-<BaseLayout title="Teeing Off Fore Grant — Charity Golf Tournament">
-  <!-- Hero — laid out like the flyer's masthead -->
-  <section class="pt-12 pb-16 lg:pt-16 lg:pb-20 text-center">
-    <!-- TEEING ⟨ribbon⟩ OFF -->
-    <div class="flex items-center justify-center gap-3 sm:gap-4 -translate-x-12 sm:-translate-x-15">
-
-
-
-      <span class="flyer-caps text-2xl sm:text-3xl text-fairway">Teeing</span>
-      <svg viewBox="0 0 44 60" class="h-12 sm:h-14 w-auto shrink-0" aria-hidden="true">
-        <!-- awareness ribbon -->
-        <path
-          d="M22 6 C14 -3, 2 4, 7 16 C10 23, 16 27, 20 34 L14 48 L20 52 L22 44 L24 52 L30 48 L24 34 C28 27, 34 23, 37 16 C42 4, 30 -3, 22 6 Z"
-          fill="#e05e2b"
-        />
-        <path
-          d="M22 10 C18 5, 11 8, 13 15 C15 20, 19 23, 22 28 C25 23, 29 20, 31 15 C33 8, 26 5, 22 10 Z"
-          fill="#f2efe4"
-        />
-      </svg>
-      <span class="flyer-caps text-2xl sm:text-3xl text-fairway">Off</span>
-    </div>
-
-    <!-- Fore | flagpole | Grant -->
-    <div class="mt-1 flex items-end justify-center gap-2 sm:gap-4">
-      <span class="font-script italic text-7xl sm:text-8xl lg:text-9xl text-fairway leading-none">
-        Fore
-      </span>
-      <svg viewBox="0 0 70 120" class="h-20 sm:h-24 lg:h-28 w-auto shrink-0 -mb-1" aria-hidden="true">
-        <!-- flagpole -->
-        <line x1="35" y1="0" x2="35" y2="102" stroke="#2f4a34" stroke-width="5" stroke-linecap="round" />
-        <!-- flag -->
-        <path d="M35 2 L60 12 L35 22 Z" fill="#de6a3a" />
-        <!-- putting green -->
-
-        <path d="M4 106 C4 98, 22 94, 35 94 C52 94, 66 99, 66 106 C66 112, 50 116, 33 116 C16 116, 4 112, 4 106 Z" fill="#2f4a34" />
-        <circle cx="22" cy="105" r="3.5" fill="#f2efe4" />
-      </svg>
-      <span class="font-script italic text-7xl sm:text-8xl lg:text-9xl text-fairway leading-none">
-        Grant
-      </span>
-    </div>
-
-    <!-- tagline, right-ish like the flyer, kept centered for web -->
-    <p class="mt-4 font-display text-2xl sm:text-3xl font-bold text-fairway">
-      His Fight Is Our Fight
-    </p>
-
-    <!-- ribbon banner hashtag -->
-    <div class="mt-6 flex justify-center">
-      <span class="ribbon-banner font-display text-lg sm:text-xl font-bold tracking-wide">
-        #GrantsTALLBattle
-      </span>
-    </div>
-
-    <!-- event details card -->
-    <div class="mt-14 mx-auto max-w-2xl rounded-xl bg-paper-dim px-8 py-7">
-      <p class="font-display text-xl sm:text-2xl font-bold text-ink">
-        Friday, November 6<sup>th</sup>, 2026
-      </p>
-      <p class="mt-1 font-display font-semibold text-ink">
-        9:00<sup class="text-xs">AM</sup> Shotgun Start
-      </p>
-      <p class="mt-2 font-display font-semibold text-ink">
-        San Vicente Golf Course
-        <span class="text-ribbon font-normal mx-1">|</span>
-        <span class="font-medium">24157 San Vicente Rd – Ramona, CA 92065</span>
-      </p>
-    </div>
-
-    <div class="mt-10">
-      <a
-        href="/contact"
-        class="inline-block bg-ribbon px-10 py-3 font-display text-lg font-bold text-white shadow-sm transition hover:bg-ribbon-dark"
-      >
-        Register as a Sponsor
-      </a>
-    </div>
-
-
-  </section>
-
-
-
-
+<BaseLayout title="Teeing Off Fore Grant — Charity Golf Tournament" navVariant="home">
   <!-- Meet Grant -->
-
-  <section class="py-4">
-
-    <div class="rounded-xl border-2 border-ribbon px-6 py-8 sm:px-10 sm:py-10 text-center">
-      <h2 class="font-display text-2xl sm:text-3xl font-bold text-ribbon">
-        Meet Grant: Join the Fight
-      </h2>
-      <p class="mt-4 max-w-2xl mx-auto text-ink-soft">
-        Grant is a strong and inspiring 10-year-old who is bravely battling leukemia. This
-        tournament is more than a game—it's a way to come together and rally around Grant and
-        his family. By becoming a sponsor, you are helping provide hope, strength, and support
-        when it's needed most.
-      </p>
-      <a href="/about" class="mt-5 inline-block font-medium text-fairway hover:text-ribbon">
-        Read more about Grant's story &rarr;
-      </a>
+  <section class="meet-grant">
+    <div class="meet-grant-row">
+      <img
+        class="meet-grant-photo"
+        src="/photos/meet-grant.png"
+        alt="Grant, smiling"
+      />
+      <div class="meet-grant-story">
+        <div class="meet-grant-story-inner">
+          <div class="meet-grant-text">
+            <h2>Meet Grant: Join the Fight</h2>
+            <p>
+              Grant is a strong and inspiring 11-year-old who is bravely battling leukemia. This
+              tournament is more than a game — it's a way to come together and rally around Grant and
+              his family. By becoming a sponsor, you are helping provide hope, strength, and support
+              when it's needed most.
+            </p>
+          </div>
+          <img
+            class="his-fight-logo"
+            src="/logos/his-fight-is-our-fight.png"
+            alt="His Fight Is Our Fight"
+          />
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Sponsorship tiers -->
-  <section id="sponsor" class="py-16 lg:py-24 scroll-mt-8">
-    <h2 class="text-center font-display text-3xl sm:text-4xl font-bold text-fairway">
-      Sponsorship Opportunities
-    </h2>
-    <p class="mt-3 text-center text-ink-soft max-w-2xl mx-auto">
-      Every sponsorship — big or small — helps drive out leukemia, one swing at a time.
-      Register directly using the form below.
-    </p>
-
-
-
-    <div class="mt-12 grid gap-6 sm:grid-cols-2">
-      {
-        tiers.map((tier) => (
-          <div
-            class={`rounded-lg p-6 flex flex-col ${
-              tier.featured
-                ? "bg-fairway text-paper ring-2 ring-ribbon"
-                : "bg-paper-dim text-ink"
-            }`}
-          >
-            <div class="flex items-baseline justify-between gap-2">
-              <h3 class="font-display font-semibold text-lg">{tier.name}</h3>
-              <span
-                class={`shrink-0 text-xs font-medium rounded-full px-2 py-1 ${
-                  tier.featured ? "bg-ribbon text-white" : "bg-fairway text-paper"
-                }`}
-              >
-                {tier.max}
-              </span>
-            </div>
-            <p
-              class={`mt-1 font-display text-2xl font-bold ${
-                tier.featured ? "text-ribbon-light" : "text-ribbon"
-              }`}
-            >
-              {tier.price}
-            </p>
-            <ul class="mt-4 space-y-2 text-sm flex-1">
-              {tier.perks.map((perk) => (
-                <li class="flex gap-2">
-                  <span class={tier.featured ? "text-ribbon-light" : "text-ribbon"}>▸</span>
-                  <span class={tier.featured ? "text-paper/90" : "text-ink-soft"}>{perk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
+  <!-- Sponsor CTA -->
+  <section class="sponsor-cta">
+    <div class="cta-card">
+      <div class="golf-balls" aria-hidden="true">
+        <img src="/icons/icon-golf-ball.svg" alt="" width="57" height="54" />
+        <img src="/icons/icon-golf-ball.svg" alt="" width="57" height="54" />
+        <img src="/icons/icon-golf-ball.svg" alt="" width="57" height="54" />
+      </div>
+      <h2>Ready to play Fore Grant?</h2>
+      <p>
+        Become a sponsor or play as a foursome — every registration helps drive out leukemia,
+        one swing at a time.
+      </p>
+      <Button href="/registration" size="large">Register Today</Button>
     </div>
+  </section>
 
-    <div class="mt-10 rounded-lg border-2 border-ribbon px-6 py-6 text-center">
-      <h3 class="font-display text-xl font-bold text-ribbon">Other Ways to Support Us!</h3>
-      <p class="mt-2 max-w-2xl mx-auto text-ink-soft text-sm">
+  <!-- Sponsors -->
+  <section class="sponsors">
+    <h2>Thank You to Our Sponsors</h2>
+    <div class="sponsor-ticker">
+      <div class="sponsor-track" aria-hidden="false">
+        {Array.from({ length: sponsorPlaceholderCount }).map(() => (
+          <div class="sponsor-tile">
+            <span class="sponsor-tile-label">LOGO</span>
+          </div>
+        ))}
+        <!-- duplicate set for a seamless CSS marquee loop -->
+        {Array.from({ length: sponsorPlaceholderCount }).map(() => (
+          <div class="sponsor-tile" aria-hidden="true">
+            <span class="sponsor-tile-label">LOGO</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Last year -->
+  <section class="last-year">
+    <h2>Last year was a hit!</h2>
+    <Carousel images={lastYearImages} />
+  </section>
+
+  <!-- Other Ways -->
+  <section class="other-ways">
+    <div class="callout">
+      <h2>Other Ways to Support Us!</h2>
+      <p>
         If a sponsorship isn't possible, please consider donating products, services, or gift
         certificates for our golf goodie bags, raffle, or silent auction. This event wouldn't be
         possible without the generous support of our donors. Your contribution makes a huge
         difference!
       </p>
+      <div class="gofundme">
+        <Button href="https://gofund.me/" variant="primary" size="large">Give to Grant's GoFundMe</Button>
+      </div>
     </div>
-
-    <p class="mt-8 text-center text-ink-soft">
-      Ready to register, or have a question first?
-      <a href="/contact" class="font-medium text-fairway hover:text-ribbon">Register now</a>.
-    </p>
-
-
   </section>
 
-  <!-- Course location map -->
-  <section class="pb-16 lg:pb-24">
-    <h2 class="text-center font-display text-2xl sm:text-3xl font-bold text-fairway">
-      Find Us at San Vicente Golf Course
-    </h2>
-    <div class="mt-6 rounded-xl overflow-hidden border-2 border-fairway-light">
+  <!-- Find Us -->
+  <section class="find-us">
+    <h2>Find Us at San Vicente Golf Course</h2>
+    <p class="find-us-addr">
+      24157 San Vicente Rd, Ramona, CA 92065
+    </p>
+    <div class="map-embed">
       <iframe
         title="San Vicente Golf Course location map"
         src="https://www.google.com/maps?q=San+Vicente+Golf+Course,24157+San+Vicente+Rd,Ramona,CA+92065&output=embed"
@@ -282,16 +146,346 @@ const tiers = [
         referrerpolicy="no-referrer-when-downgrade"
       ></iframe>
     </div>
-    <p class="mt-4 text-center">
+    <img
+      class="resort-logo"
+      src="/logos/san-vicente-resort.png"
+      alt="San Vicente Golf Resort logo"
+    />
+    <!--
+      Not in the Figma frame — this "Get directions" link is an intentional
+      addition beyond the source design (genuinely useful wayfinding UX,
+      doesn't conflict with any Figma-specified element). Documented here
+      per the project's "deviations must be justified" rule rather than
+      silently added.
+    -->
+    <p class="find-us-directions">
       <a
         href="https://www.google.com/maps/dir/?api=1&destination=San+Vicente+Golf+Course,24157+San+Vicente+Rd,Ramona,CA+92065"
         target="_blank"
         rel="noopener noreferrer"
-        class="font-medium text-fairway hover:text-ribbon"
       >
-        Get Directions to San Vicente Golf Course &rarr;
+        Get directions to San Vicente Golf Course &nbsp;→
       </a>
     </p>
   </section>
 </BaseLayout>
 
+<style>
+  /* ---- Meet Grant — Figma node 45:412: bg-page, row gap 48
+     (--spacing-12), outer padding 80/64 (--spacing-20/--spacing-16) ---- */
+  .meet-grant {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-20) var(--spacing-16);
+  }
+  .meet-grant-row {
+    max-width: 1312px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: var(--spacing-12);
+    align-items: stretch;
+  }
+  @media (max-width: 900px) {
+    .meet-grant-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  /* "photo — Grant" (45:414): real exported Figma image, radius-lg,
+     border --color-border-default @ 1px. Height 100% so it stretches
+     to match the story card's natural height (grid align-items: stretch). */
+  .meet-grant-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    display: block;
+  }
+  /* "His Fight Is Our Fight" logo — sits inside the story card (right
+     column) per the Figma screenshot: boxing glove + text lockup on the
+     right side of the Meet Grant card. Constrained to a reasonable max
+     so it doesn't overpower the body copy. */
+  .his-fight-logo {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    align-self: flex-end;
+  }
+  /* "story" (45:416): 2px orange border (--color-brand-orange), radius-lg,
+     padding 40 all sides (--spacing-10), gap 24 (--spacing-6) between
+     h/body, then the "His Fight" logo sits at the bottom-right of the card.
+     The story column is itself a flex column; the logo is pushed to the
+     right via align-self: flex-end. */
+  /* Inner row: text on the left, logo on the right, side by side */
+  .meet-grant-story-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-6);
+  }
+  .meet-grant-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+    flex: 1;
+  }
+  .meet-grant-story {
+    border: 2px solid var(--color-brand-orange);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-10);
+  }
+  /* "text > h" — fill #F05323 = --color-brand-orange (NOT rust/text-accent
+     — a real bug in the previous build, corrected here). Bitter 36px/700,
+     ls -0.65px. */
+  .meet-grant-story h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-brand-orange);
+  }
+  /* "text > body" — Source Serif 4 18px/400, lh 29.7px (~1.65), black. */
+  .meet-grant-story p {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--color-text-primary);
+  }
+
+  /* ---- Sponsor CTA — Figma node 47:466: bg-page section, padding
+     48/64/58 (top/sides/bottom — 58px is a one-off, non-scale value in
+     the source file, left as literal px rather than snapped to
+     --spacing-20, same treatment as Find Us's own one-offs below). Dark
+     green card, radius-xl, padding 48 all sides (--spacing-12), gap 24
+     (--spacing-6). ---- */
+  .sponsor-cta {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-12) var(--spacing-16) 58px;
+  }
+  .cta-card {
+    max-width: 1312px;
+    margin: 0 auto;
+    background-color: var(--color-bg-inverse);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-6);
+    text-align: center;
+  }
+  /* "golf balls — decorative" (145:1142): 3 golf ball SVG icons exported
+     from Figma node 145:1143/1152/1161 — cream fill (#F4F3E8) circle with
+     dimple dots, 57×54px each, gap 20px (--spacing-5). */
+  .golf-balls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-5);
+  }
+  .cta-card h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-bg-page);
+  }
+  .cta-card p {
+    font-family: var(--font-body);
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--color-bg-panel);
+    max-width: 640px;
+  }
+
+  /* ---- Sponsors — Figma node 127:1150: bg-page, gap 32 (--spacing-8),
+     padding 27/64/80 (top is a one-off literal, same pattern as Sponsor
+     CTA's 58px and Find Us's one-offs). White rounded ribbon (radius-xl),
+     track itemSpacing 48 (--spacing-12). ---- */
+  .sponsors {
+    background-color: var(--color-bg-page);
+    padding: 27px var(--spacing-16) var(--spacing-20);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+  }
+  .sponsors h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--color-bg-inverse);
+  }
+  .sponsor-ticker {
+    width: 100%;
+    max-width: 1312px;
+    background-color: var(--color-base-white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    padding: var(--spacing-8) 0;
+  }
+  /* "track — auto-scrolls left, pauses on hover" — CSS-driven marquee
+     rather than JS: the track's own content is duplicated once in the
+     markup above so the looping translateX animation has a seamless
+     second copy to hand off to, then pauses via :hover per the layer's
+     own name. */
+  .sponsor-track {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-12);
+    width: max-content;
+    animation: sponsor-scroll 30s linear infinite;
+  }
+  .sponsor-ticker:hover .sponsor-track {
+    animation-play-state: paused;
+  }
+  @keyframes sponsor-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  /* "PLACEHOLDER — sponsor logo N" (127:1154..1166): white fill,
+     border-subtle, radius-md. GAP: see design/ROADMAP.md G6. */
+  .sponsor-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 88px;
+    flex-shrink: 0;
+    background-color: var(--color-base-white);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+  }
+  /* "LOGO" text node — Figma spec's font is JetBrains Mono, not part of
+     this project's type system (same fallback rationale documented in
+     Carousel.astro's counter). */
+  .sponsor-tile-label {
+    font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-bg-inverse);
+  }
+
+  /* ---- Last year — Figma node 46:417: bg-panel, gap 32 (--spacing-8),
+     padding 80/64 (--spacing-20/--spacing-16) ---- */
+  .last-year {
+    background-color: var(--color-bg-panel);
+    padding: var(--spacing-20) var(--spacing-16);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+  }
+  .last-year h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-bg-inverse);
+  }
+  .last-year :global(.carousel) {
+    max-width: 1312px;
+    width: 100%;
+  }
+
+  /* ---- Other Ways — Figma node 46:497: bg-page, cream callout card,
+     orange border ---- */
+  .other-ways {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-16);
+  }
+  .callout {
+    max-width: 1312px;
+    margin: 0 auto;
+    background-color: var(--color-bg-panel);
+    border: 2px solid var(--color-argyle-dot);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-5);
+    text-align: center;
+  }
+  .callout h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-text-accent);
+  }
+  .callout p {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--color-text-primary);
+    max-width: 720px;
+  }
+  .gofundme {
+    padding-top: var(--spacing-3);
+  }
+
+  /* ---- Find Us — Figma node 46:501: bg-page. Gap (23px) and paddingTop
+     (41px) are one-off, non-scale values in the source file (visual-
+     balance choices, same pattern as Tournament Day's 29px/26px one-offs)
+     — left as literal px rather than snapped to the nearest spacing
+     token. paddingBottom (24px) does match --spacing-6. ---- */
+  .find-us {
+    background-color: var(--color-bg-page);
+    padding: 41px var(--spacing-16) var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 23px;
+    text-align: center;
+  }
+
+  .find-us h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-bg-inverse);
+  }
+  /* "addr" — Source Serif 4 17px/400, lh 25.5px (= 1.5). */
+  .find-us-addr {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+  .map-embed {
+    width: 100%;
+    max-width: 1312px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border-control);
+    margin-top: var(--spacing-4);
+  }
+  /* "San Vicente Resort logo" (137:1150): real exported Figma image,
+     radius-md, 170×110 in the source frame. */
+  .resort-logo {
+    width: 170px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-4);
+  }
+  .find-us-directions {
+    margin-top: var(--spacing-4);
+  }
+  .find-us-directions a {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.48px;
+    color: var(--color-bg-inverse);
+    text-decoration: none;
+  }
+  .find-us-directions a:hover {
+    color: var(--color-accent-hover);
+  }
+</style>

@@ -1,4 +1,9 @@
-// Sponsor registration form: confirmation modal + submit handler.
+// Registration form: confirmation modal + submit handler.
+//
+// Used by both /registration/sponsor and /registration/foursome.
+// The form ID is always "reg-form". Field labels are read from the form
+// itself via data-label attributes so this script doesn't need to know
+// which form it's on.
 //
 // This lives in public/ as a plain, unprocessed static file (not under
 // src/) so it's guaranteed to be served as a real external asset from our
@@ -9,10 +14,9 @@
 // disallowed as a security measure). Living in public/ sidesteps that
 // bundling behavior entirely.
 
-const form = document.getElementById("sponsor-form");
+const form = document.getElementById("reg-form");
 
 const confirmModal = document.getElementById("confirm-modal");
-
 const confirmModalDetails = document.getElementById("confirm-modal-details");
 const confirmModalCancelBtn = document.getElementById("confirm-modal-cancel");
 const confirmModalSubmitBtn = document.getElementById("confirm-modal-submit");
@@ -23,107 +27,110 @@ const resultModalTitle = document.getElementById("result-modal-title");
 const resultModalMessage = document.getElementById("result-modal-message");
 const resultModalCloseBtn = document.getElementById("result-modal-close");
 
-// Human-readable labels for each form field, in the order we want them
-// shown in the confirmation modal. Fields with empty values are skipped.
-// Contact info (phone/email) is prioritized right after the captain's name,
-// ahead of the additional player names, since that's what's most important
-// for the sponsor to double-check before submitting.
-const FIELD_LABELS = [
-  ["companyName", "Company Name"],
-  ["phone", "Phone Number"],
-  ["email", "Email Address"],
-  ["sponsorTier", "Sponsor Tier"],
-  ["companyWebsite", "Company Website"],
-  ["paymentType", "Payment Type"],
-  ["captainFirstName", "Captain First Name"],
-  ["captainLastName", "Captain Last Name"],
-  ["player2", "Player 2"],
-  ["player3", "Player 3"],
-  ["player4", "Player 4"],
-  ["comments", "Comments"],
-];
-
-
 // Fields highlighted in the confirmation modal with the "double check"
-// prompt — these are the ones we most need the sponsor to get right.
+// prompt — these are the ones we most need the registrant to get right.
 const CONTACT_FIELDS = new Set(["phone", "email"]);
 
+function buildConfirmRows(data) {
+  // Walk the form elements in DOM order to get a natural field ordering.
+  // Each input/select/textarea with a data-label attribute is included.
+  const rows = [];
+  if (!form) return rows;
+  const elements = form.querySelectorAll("[data-label]");
+  for (const el of elements) {
+    const key = el.name;
+    const label = el.dataset.label;
+    const value = String(data[key] ?? "").trim();
+    if (!value || !label) continue;
+    rows.push({ key, label, value });
+  }
+  return rows;
+}
 
 function openConfirmModal(data) {
   if (!confirmModal || !confirmModalDetails) return;
 
   confirmModalDetails.innerHTML = "";
-  for (const [key, label] of FIELD_LABELS) {
-    const value = String(data[key] ?? "").trim();
-    if (!value) continue;
+  const rows = buildConfirmRows(data);
 
+  let contactHeaderInserted = false;
+  for (const { key, label, value } of rows) {
     const isContactField = CONTACT_FIELDS.has(key);
 
-    // Insert the "please double-check" prompt right before the phone
-    // field, so it introduces the contact info block.
-    if (key === "phone") {
-      const notice = document.createElement("div");
-      notice.className = "pt-4";
-      const noticeText = document.createElement("p");
-      noticeText.className = "text-xs font-medium text-ribbon";
-      noticeText.textContent = "Please double-check your contact info below:";
-      notice.appendChild(noticeText);
+    if (isContactField && !contactHeaderInserted) {
+      const notice = document.createElement("p");
+      notice.className = "confirm-double-check";
+      notice.textContent = "Please double-check your contact info:";
       confirmModalDetails.appendChild(notice);
+      contactHeaderInserted = true;
     }
 
     const row = document.createElement("div");
-    row.className = isContactField
-      ? "py-4 rounded-md bg-ribbon/5 -mx-3 px-3"
-      : "py-4";
+    row.className = isContactField ? "confirm-row confirm-row-highlight" : "confirm-row";
 
     const dt = document.createElement("dt");
-    dt.className = "text-xs font-semibold uppercase tracking-wide text-ink-soft";
+    dt.className = "confirm-dt";
     dt.textContent = label;
+
     const dd = document.createElement("dd");
-    dd.className = isContactField
-      ? "mt-1.5 text-sm font-semibold text-ink break-words"
-      : "mt-1.5 text-sm text-ink break-words";
+    dd.className = isContactField ? "confirm-dd confirm-dd-highlight" : "confirm-dd";
     dd.textContent = value;
+
     row.append(dt, dd);
     confirmModalDetails.appendChild(row);
   }
 
-
-
   confirmModal.classList.add("is-open");
   confirmModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
 
 function closeConfirmModal() {
   if (!confirmModal) return;
   confirmModal.classList.remove("is-open");
   confirmModal.classList.add("hidden");
+  document.body.style.overflow = "";
 }
 
 function openResultModal({ success, title, message }) {
   if (!resultModal || !resultModalIcon || !resultModalTitle || !resultModalMessage) return;
 
   if (success) {
-    resultModalIcon.className =
-      "mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl bg-fairway/10 text-fairway";
-    resultModalIcon.textContent = "✓";
+    resultModalIcon.className = "result-modal-icon result-modal-icon-success";
+    resultModalIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>`;
   } else {
-    resultModalIcon.className =
-      "mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl bg-ribbon/10 text-ribbon";
-    resultModalIcon.textContent = "!";
+    resultModalIcon.className = "result-modal-icon result-modal-icon-error";
+    resultModalIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>`;
   }
 
   resultModalTitle.textContent = title;
   resultModalMessage.textContent = message;
 
+  // Store whether this was a success so the close handler knows to redirect
+  resultModal.dataset.success = success ? "true" : "false";
+
   resultModal.classList.add("is-open");
   resultModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
 
 function closeResultModal() {
   if (!resultModal) return;
+  const wasSuccess = resultModal.dataset.success === "true";
   resultModal.classList.remove("is-open");
   resultModal.classList.add("hidden");
+  document.body.style.overflow = "";
+  if (wasSuccess) {
+    window.location.href = "/tournament-day";
+  }
 }
 
 form?.addEventListener("submit", (e) => {
@@ -134,10 +141,9 @@ form?.addEventListener("submit", (e) => {
 
 confirmModalCancelBtn?.addEventListener("click", () => {
   // Just close the modal — the form is untouched, so every field the
-  // sponsor already filled in stays exactly as they left it.
+  // registrant already filled in stays exactly as they left it.
   closeConfirmModal();
 });
-
 
 resultModalCloseBtn?.addEventListener("click", () => {
   closeResultModal();
@@ -147,9 +153,9 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
   if (!form || !confirmModalSubmitBtn) return;
 
   confirmModalSubmitBtn.disabled = true;
+  confirmModalSubmitBtn.textContent = "Submitting…";
 
   const data = Object.fromEntries(new FormData(form).entries());
-
 
   try {
     const res = await fetch("/api/sponsor", {
@@ -166,7 +172,7 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
       openResultModal({
         success: true,
         title: "You're Registered!",
-        message: "Thank you! Your registration has been received. We'll be in touch with next steps.",
+        message: "Thank you! Your registration has been received. We'll be in touch with next steps. See you on the course!",
       });
     } else {
       openResultModal({
@@ -184,5 +190,6 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
     });
   } finally {
     confirmModalSubmitBtn.disabled = false;
+    confirmModalSubmitBtn.textContent = "Confirm & Submit";
   }
 });

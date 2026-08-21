@@ -167,12 +167,19 @@ The site is being rebuilt against a newly-delivered Figma design system
 Tailwind theme used in Phases 2–4. See [`readme.md`](./readme.md#design-system-source-of-truth)
 for how the design data was pulled and where it's stored.
 
-- [ ] 5.0 — Tokens & primitives (colors, type, spacing, radius) ported from
-      Figma into `src/styles/global.css`
-- [ ] 5.1 — Core components rebuilt (Button, Badge, Nav, Logo, Footer, Argyle
-      Band, Social Icon)
-- [ ] 5.2 — Form & card components rebuilt (Form Field, Sponsor Tier Card,
-      Tier Row, Pairing Group)
+- [x] 5.0 — Tokens & primitives (colors, type, spacing, radius) ported from
+      Figma into `src/styles/global.css` (clean break, no aliases — old
+      pages now visually broken locally until Phase 5.3 rebuilds them)
+
+- [x] 5.1 — Core components rebuilt (Button, Badge, Nav, Logo, Footer, Argyle
+      Band, Social Icon) — Logo assets exported for real from Figma
+      (public/logo-white.svg, public/logo-negative.svg)
+
+- [x] 5.2 — Form & card components rebuilt (Form Field, Sponsor Tier Card,
+      Tier Row, Pairing Group) — Sponsor Tier Card / Tier Row / Pairing
+      Group all carry Gap Register warnings (G1, G3) since their
+      availability/pairing data isn't real yet
+
 - [ ] 5.3 — Pages rebuilt against new components: Tournament Day, Home,
       Registration, Register Form, Contact
 - [ ] 5.4 — Existing working logic (sponsor form, confirm/result modals,

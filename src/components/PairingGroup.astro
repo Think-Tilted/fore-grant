@@ -1,0 +1,176 @@
+---
+/**
+ * PairingGroup — ported from Figma "Pairing Group" component set
+ * (design/ROADMAP.md Phase 5.2). Built now while the design-system work is
+ * contiguous, but its actual data source (live pairings per hole/tee time)
+ * doesn't exist yet — see main ROADMAP.md Phase 6 (optional/stretch) and
+ * Design/Infra Gap Register row G3 in design/ROADMAP.md. This component
+ * must always be fed either real pairing data or explicit `pending` state
+ * — never fake/sample names left in place on a real page.
+ *
+ * Figma source values (design/figma-file.json, "Pairing Group" page):
+ *   Layout=Card: 360px wide, radius-lg (16px). Layout=Row: full-width,
+ *     radius-md (8px), same content just laid out horizontally — a
+ *     one-line variant for dense schedule lists.
+ *   State=Default: cream fill, green@20% border, green hole label.
+ *   State=Highlighted: orange@14% fill, orange-mid border, rust hole label
+ *     — used to call out e.g. "your foursome" on a public schedule page.
+ *   State=Pending: green@8% fill, green@20% border, everything at 62%
+ *     opacity, players list replaced with a single italic-style message
+ *     ("Pairings are posted the morning of the tournament").
+ */
+export type PairingLayout = "card" | "row";
+export type PairingState = "default" | "highlighted" | "pending";
+
+interface Props {
+  hole: string;
+  teeTime: string;
+  players?: string[];
+  layout?: PairingLayout;
+  state?: PairingState;
+  pendingMessage?: string;
+  class?: string;
+}
+
+const {
+  hole,
+  teeTime,
+  players = [],
+  layout = "card",
+  state = "default",
+  pendingMessage = "Pairings are posted the morning of the tournament",
+  class: className = "",
+} = Astro.props;
+
+const isPending = state === "pending";
+---
+
+<div class:list={["pairing", `pairing-${layout}`, `pairing-${state}`, className]}>
+  <div class="pairing-meta">
+    <span class="pairing-hole">{hole}</span>
+    <span class="pairing-tee-time">{teeTime}</span>
+  </div>
+
+  <div class="pairing-players">
+    {isPending ? (
+      <p class="pairing-pending">{pendingMessage}</p>
+    ) : (
+      <ul class="pairing-list">
+        {players.map((name) => (
+          <li class="pairing-player">{name}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>
+
+<style>
+  @layer components {
+    .pairing {
+      display: flex;
+      border: 2px solid var(--color-border-default);
+      background-color: var(--color-bg-panel);
+    }
+
+    /* ---- Layout=Card ---- */
+    .pairing-card {
+      flex-direction: column;
+      gap: var(--spacing-4);
+      width: 100%;
+      max-width: 360px;
+      padding: var(--spacing-6);
+      border-radius: var(--radius-lg);
+    }
+
+    /* ---- Layout=Row ---- */
+    .pairing-row {
+      align-items: center;
+      gap: var(--spacing-6);
+      width: 100%;
+      padding: var(--spacing-4) var(--spacing-6);
+      border-radius: var(--radius-md);
+    }
+
+    .pairing-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+    .pairing-row .pairing-meta {
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--spacing-3);
+      flex-shrink: 0;
+      min-width: 140px;
+    }
+
+    .pairing-hole {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-brand);
+    }
+    .pairing-row .pairing-hole {
+      font-size: 12px;
+    }
+
+    .pairing-tee-time {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .pairing-row .pairing-tee-time {
+      font-size: 18px;
+    }
+
+    .pairing-players {
+      flex: 1;
+    }
+
+    .pairing-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      list-style: none;
+    }
+    .pairing-row .pairing-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--spacing-2) var(--spacing-6);
+    }
+
+    .pairing-player {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--color-text-primary);
+    }
+    .pairing-row .pairing-player {
+      font-size: 16px;
+    }
+
+    .pairing-pending {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--color-text-secondary);
+    }
+
+    /* ---- Highlighted ---- */
+    .pairing-highlighted {
+      background-color: color-mix(in srgb, var(--color-brand-orange) 14%, transparent);
+      border-color: var(--color-accent-default);
+    }
+    .pairing-highlighted .pairing-hole {
+      color: var(--color-text-accent);
+    }
+
+    /* ---- Pending ---- */
+    .pairing.pairing-pending {
+      background-color: var(--color-brand-subtle);
+      opacity: 0.62;
+    }
+  }
+</style>

@@ -1,252 +1,140 @@
 ---
+/**
+ * Contact page — ported from Figma "Contact" frame.
+ *
+ * Figma source: centered layout, page title "Contact" in display/h1,
+ * then an "EVENT DIRECTOR" eyebrow label, director name in display/h2,
+ * then three contact lines (email, call/text, Instagram) where the
+ * label portion is accent-display orange (--color-accent-display) and
+ * the value is body text. No form on this page — forms live on /registration.
+ */
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const sponsorTiers = [
-  "Orange Ribbon Champion — $5,000+",
-  "Premium Adopt-A-Hole (Contest Holes) — $1,750",
-  "Adopt-a-Hole Sponsor — $1,500",
-  '"19th Hole" Lunch Sponsor — $3,500',
-  '"Pre-Round Fuel" Breakfast Sponsor — $2,000',
-  "Putting for a Cure Sponsor — $1,000",
-  "Tee Sign Sponsor — $250",
-  "Foursome Entry — $600",
-];
 ---
 
-<BaseLayout title="Sponsor Registration — Teeing Off Fore Grant">
-  <section class="py-16 lg:py-24">
-    <h1 class="text-center font-display text-4xl sm:text-5xl font-bold text-fairway">
-      Sponsor Registration
-    </h1>
-    <p class="mt-4 text-center text-ink-soft max-w-xl mx-auto">
-      Fill out the form below to register as a sponsor or player. Have a question first?
-      Email <a href="mailto:grantstallbattle@gmail.com" class="text-fairway hover:text-ribbon">grantstallbattle@gmail.com</a>
-      or call Jessica at <a href="tel:6193447687" class="text-fairway hover:text-ribbon">619-344-7687</a>.
-    </p>
+<BaseLayout title="Contact — Teeing Off Fore Grant">
+  <section class="contact-section">
+    <h1 class="contact-title">Contact</h1>
 
-    <form id="sponsor-form" class="mt-12 max-w-2xl mx-auto space-y-10">
-      <!-- Section 1: Company Information -->
-      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
-        <h2 class="font-display text-xl font-bold text-fairway">
-          1. Company Information
-        </h2>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2">
-          <label class="block sm:col-span-2">
-            <span class="text-sm font-medium text-ink">Company Name *</span>
-            <input type="text" name="companyName" required class="field-input" />
-          </label>
-          <label class="block sm:col-span-2">
-            <span class="text-sm font-medium text-ink">Sponsor Tier *</span>
-            <select name="sponsorTier" required class="field-input">
-              <option value="">Select a tier…</option>
-              {sponsorTiers.map((tier) => <option value={tier}>{tier}</option>)}
-            </select>
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Company Website URL</span>
-            <input type="text" name="companyWebsite" placeholder="example.com" class="field-input" />
-          </label>
+    <div class="contact-card">
+      <p class="contact-eyebrow">EVENT DIRECTOR</p>
+      <h2 class="contact-name">Jessica Carlson-Petersen</h2>
 
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Payment Type</span>
-            <select name="paymentType" class="field-input">
-              <option value="">Select…</option>
-              <option value="Check">Check</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Venmo">Venmo</option>
-              <option value="Invoice Me">Invoice Me</option>
-            </select>
-          </label>
-        </div>
-      </div>
-
-      <!-- Section 2: Player Information -->
-      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
-        <h2 class="font-display text-xl font-bold text-fairway">
-          2. Player Information
-        </h2>
-        <p class="mt-1 text-sm text-ink-soft">Team Captain</p>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2">
-          <label class="block">
-            <span class="text-sm font-medium text-ink">First Name *</span>
-            <input type="text" name="captainFirstName" required class="field-input" />
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Last Name *</span>
-            <input type="text" name="captainLastName" required class="field-input" />
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Phone Number *</span>
-            <input type="tel" name="phone" required class="field-input" />
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Email Address *</span>
-            <input type="email" name="email" required class="field-input" />
-          </label>
-        </div>
-
-        <p class="mt-6 text-sm text-ink-soft">
-          Additional Players <span class="italic">(optional — most teams have not finalized
-          participants yet)</span>
-        </p>
-        <div class="mt-4 grid gap-4 sm:grid-cols-3">
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Player 2 Name</span>
-            <input type="text" name="player2" class="field-input" />
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Player 3 Name</span>
-            <input type="text" name="player3" class="field-input" />
-          </label>
-          <label class="block">
-            <span class="text-sm font-medium text-ink">Player 4 Name</span>
-            <input type="text" name="player4" class="field-input" />
-          </label>
-        </div>
-      </div>
-
-      <!-- Section 3: Comments -->
-      <div class="rounded-xl bg-paper-dim px-6 py-8 sm:px-10">
-        <h2 class="font-display text-xl font-bold text-fairway">
-          3. Special Requests or Comments
-        </h2>
-        <label class="block mt-4">
-          <span class="text-sm font-medium text-ink">
-            Special requests, accommodations, questions, or additional comments
-          </span>
-          <textarea name="comments" rows="4" class="field-input"></textarea>
-        </label>
-      </div>
-
-      <div class="text-center">
-        <button
-          type="submit"
-          class="inline-block bg-ribbon px-10 py-3 font-display text-lg font-bold text-white shadow-sm transition hover:bg-ribbon-dark disabled:opacity-60"
-        >
-          Submit Registration
-        </button>
-      </div>
-
-    </form>
-
-    <div class="mt-14 text-center">
-
-      <span class="ribbon-banner text-sm font-display font-semibold tracking-wide">
-        #GrantsTALLBattle
-      </span>
+      <ul class="contact-lines">
+        <li>
+          <span class="contact-label">email:</span>
+          <a href="mailto:grantstallbattle@gmail.com" class="contact-value contact-link">
+            grantstallbattle@gmail.com
+          </a>
+        </li>
+        <li>
+          <span class="contact-label">call/text:</span>
+          <a href="tel:6193447687" class="contact-value contact-link">
+            619-344-7687
+          </a>
+        </li>
+        <li>
+          <span class="contact-label">Follow on Instagram</span>
+          <a
+            href="https://www.instagram.com/GrantsTALLBattle"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-value contact-link"
+          >
+            @GrantsTALLBattle
+          </a>
+        </li>
+      </ul>
     </div>
   </section>
-
-  <!-- Confirmation modal: shown on submit, reviews entered data before the
-       real POST happens. Cancel just hides the modal again — the form
-       itself is never reset or touched, so every field stays filled. -->
-  <div
-    id="confirm-modal"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8"
-  >
-    <div class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-paper shadow-2xl">
-      <div class="border-b border-fairway-light/40 bg-paper-dim px-6 py-6 sm:px-10 sm:py-7">
-        <h2 class="font-display text-2xl font-bold text-fairway">
-          Confirm Your Registration
-        </h2>
-        <p class="mt-2 text-sm text-ink-soft">
-          Please review your information before submitting.
-        </p>
-      </div>
-
-      <dl id="confirm-modal-details" class="flex-1 overflow-y-auto divide-y divide-fairway-light/30 px-6 py-2 sm:px-10"></dl>
-
-      <div class="flex flex-col-reverse gap-3 border-t border-fairway-light/40 bg-paper-dim px-6 py-6 sm:flex-row sm:justify-end sm:px-10">
-
-        <button
-          type="button"
-          id="confirm-modal-cancel"
-          class="rounded-md border border-fairway-light bg-paper px-6 py-2.5 font-semibold text-ink transition hover:bg-white"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          id="confirm-modal-submit"
-          class="rounded-md bg-ribbon px-6 py-2.5 font-semibold text-white shadow-sm transition hover:bg-ribbon-dark disabled:opacity-60"
-        >
-          Confirm &amp; Submit
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Result modal: shown after the /api/sponsor request completes, for
-       both success and failure. Replaces the small inline status text as
-       the primary way sponsors learn whether their registration went
-       through. -->
-  <div
-    id="result-modal"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8"
-  >
-    <div class="w-full max-w-md rounded-2xl bg-paper p-8 text-center shadow-2xl sm:p-10">
-      <div
-        id="result-modal-icon"
-        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl"
-      ></div>
-      <h2 id="result-modal-title" class="mt-5 font-display text-2xl font-bold text-fairway"></h2>
-      <p id="result-modal-message" class="mt-3 text-sm text-ink-soft"></p>
-      <button
-        type="button"
-        id="result-modal-close"
-        class="mt-8 rounded-md bg-ribbon px-8 py-2.5 font-semibold text-white shadow-sm transition hover:bg-ribbon-dark"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-
-
-
-
-  <style>
-    .field-input {
-      margin-top: 0.375rem;
-      display: block;
-      box-sizing: border-box;
-      width: 100%;
-      height: 2.75rem;
-      border-radius: 0.375rem;
-      border: 1px solid var(--color-fairway-light);
-      background-color: var(--color-paper);
-      padding: 0.5rem 0.75rem;
-      color: var(--color-ink);
-      font-family: inherit;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
-    select.field-input {
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232f4a34'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      background-size: 1rem;
-      padding-right: 2.25rem;
-    }
-    textarea.field-input {
-      height: auto;
-    }
-    .field-input:focus {
-      outline: 2px solid var(--color-ribbon);
-      outline-offset: 1px;
-    }
-    #confirm-modal.is-open,
-    #result-modal.is-open {
-      display: flex;
-    }
-
-  </style>
-
-
-
-  <script is:inline src="/scripts/sponsor-form.js"></script>
 </BaseLayout>
 
+<style>
+  @layer components {
+    /* Figma: section has generous vertical padding, content centered */
+    .contact-section {
+      padding: var(--spacing-16) var(--spacing-6) var(--spacing-20);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
+    /* Figma: "Contact" h1 — display font, large, brand green */
+    .contact-title {
+      font-family: var(--font-display);
+      font-size: var(--text-5xl);
+      font-weight: 700;
+      color: var(--color-text-brand);
+      text-align: center;
+      margin: 0 0 var(--spacing-10);
+    }
 
+    /* Card: centered, no background — Figma shows plain centered text block */
+    .contact-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-2);
+      text-align: center;
+    }
+
+    /* Figma: "EVENT DIRECTOR" — small caps eyebrow, letter-spaced, muted */
+    .contact-eyebrow {
+      font-family: var(--font-display);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* Figma: director name — display/h2, brand green, bold */
+    .contact-name {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--color-text-brand);
+      margin: var(--spacing-1) 0 var(--spacing-6);
+    }
+
+    /* Contact lines list */
+    .contact-lines {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+
+    .contact-lines li {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: var(--spacing-2);
+      flex-wrap: wrap;
+    }
+
+    /* Figma: label portion is accent-display orange, bold italic display font */
+    .contact-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-style: italic;
+      color: var(--color-accent-display);
+    }
+
+    /* Figma: value portion is body text color */
+    .contact-value {
+      font-family: var(--font-body);
+      color: var(--color-text-primary);
+    }
+
+    .contact-link {
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .contact-link:hover {
+      color: var(--color-text-brand);
+    }
+  }
+</style>

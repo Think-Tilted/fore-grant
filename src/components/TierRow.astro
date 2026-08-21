@@ -1,0 +1,199 @@
+---
+/**
+ * TierRow — ported from Figma "Tier Row" component set (design/ROADMAP.md
+ * Phase 5.2). Condensed horizontal list-row variant of tier display,
+ * distinct from `SponsorTierCard`'s grid-card layout — used where tiers
+ * are browsed as a vertical list (e.g. the Registration page).
+ *
+ * 🚨 Reads Design/Infra Gap Register row G1 before using this component —
+ * see design/ROADMAP.md. Same caveat as SponsorTierCard: `state` is a
+ * caller-supplied prop, no real capacity logic lives here.
+ *
+ * Figma source values (design/figma-file.json, "Tier Row" page): unlike
+ * Sponsor Tier Card, Tier Row's variants are a single State axis (Default/
+ * Hover/Featured/SoldOut), not a State×Availability grid — Default/Hover/
+ * Featured all represent "available" tiers at different visual emphasis,
+ * SoldOut is its own terminal state.
+ *   Row: full-width (1312px design width), radius-lg (16px), cream fill +
+ *     green@20% border by default; Hover/Featured fill solid green
+ *     (Featured adds an orange-mid border); SoldOut stays cream but at
+ *     42-62% opacity throughout (muted, not just re-colored).
+ *   Two-column layout: benefits detail (left) + price/CTA action block
+ *     (right, right-aligned).
+ */
+import Badge, { type BadgeTone } from "./Badge.astro";
+import Button from "./Button.astro";
+
+export type TierRowState = "default" | "hover" | "featured" | "soldout";
+
+interface Props {
+  tierName: string;
+  price: string;
+  includesLabel: string;
+  availabilityLabel: string;
+  state?: TierRowState;
+  benefits: string[];
+  registerHref?: string;
+  class?: string;
+}
+
+const {
+  tierName,
+  price,
+  includesLabel,
+  availabilityLabel,
+  state = "default",
+  benefits,
+  registerHref = "/contact",
+  class: className = "",
+} = Astro.props;
+
+const isSoldOut = state === "soldout";
+
+const badgeTone: Record<TierRowState, BadgeTone> = {
+  default: "neutral",
+  hover: "neutral",
+  featured: "featured",
+  soldout: "soldout",
+};
+---
+
+<div class:list={["tier-row", `tier-row-${state}`, className]}>
+  <div class="tier-row-detail">
+    <div class="tier-row-header">
+      <h3 class="tier-row-name">{tierName}</h3>
+      <Badge tone={badgeTone[state]}>{availabilityLabel}</Badge>
+    </div>
+    <ul class="tier-row-benefits">
+      {benefits.map((benefit) => (
+        <li class="tier-row-benefit">
+          <span class="tier-row-marker" aria-hidden="true">▸</span>
+          <span>{benefit}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="tier-row-action">
+    <p class="tier-row-price">{price}</p>
+    <p class="tier-row-includes">{includesLabel}</p>
+    {isSoldOut ? (
+      <Button variant="primary" size="medium" disabled>Sold Out</Button>
+    ) : (
+      <Button variant="primary" size="medium" href={registerHref}>Register Now</Button>
+    )}
+  </div>
+</div>
+
+<style>
+  @layer components {
+    .tier-row {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-8);
+      width: 100%;
+      padding: var(--spacing-8);
+      border-radius: var(--radius-lg);
+      background-color: var(--color-bg-panel);
+      border: 2px solid var(--color-border-default);
+    }
+
+    .tier-row-detail {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+      flex: 1;
+    }
+
+    .tier-row-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    .tier-row-name {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--color-text-brand);
+    }
+
+    .tier-row-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      list-style: none;
+    }
+
+    .tier-row-benefit {
+      display: flex;
+      gap: var(--spacing-2);
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .tier-row-marker {
+      color: var(--color-text-accent);
+      flex-shrink: 0;
+    }
+
+    .tier-row-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--spacing-2);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .tier-row-price {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--color-text-accent);
+    }
+
+    .tier-row-includes {
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-2);
+    }
+
+    /* ---- Hover / Featured ---- */
+    .tier-row-hover,
+    .tier-row-featured {
+      background-color: var(--color-bg-inverse);
+      border-color: var(--color-brand-default);
+    }
+    .tier-row-featured {
+      border-color: var(--color-accent-default);
+    }
+    .tier-row-hover .tier-row-name,
+    .tier-row-hover .tier-row-price,
+    .tier-row-featured .tier-row-name,
+    .tier-row-featured .tier-row-price {
+      color: var(--color-brand-light);
+    }
+    .tier-row-hover .tier-row-benefit,
+    .tier-row-featured .tier-row-benefit,
+    .tier-row-hover .tier-row-includes,
+    .tier-row-featured .tier-row-includes {
+      color: var(--color-text-inverse);
+    }
+    .tier-row-hover .tier-row-marker,
+    .tier-row-featured .tier-row-marker {
+      color: var(--color-accent-display);
+    }
+
+    /* ---- SoldOut — muted throughout, cream stays put ---- */
+    .tier-row-soldout {
+      opacity: 0.62;
+    }
+    .tier-row-soldout .tier-row-name,
+    .tier-row-soldout .tier-row-price {
+      color: var(--color-text-primary);
+    }
+  }
+</style>

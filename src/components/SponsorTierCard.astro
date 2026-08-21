@@ -1,0 +1,195 @@
+---
+/**
+ * SponsorTierCard — ported from Figma "Sponsor Tier Card" component set
+ * (design/ROADMAP.md Phase 5.2).
+ *
+ * 🚨 Reads Design/Infra Gap Register row G1 before using this component —
+ * see design/ROADMAP.md. `availability` here is a **prop the caller must
+ * supply**; this component has zero built-in capacity logic. Passing
+ * anything other than "available" requires real sponsor-count data behind
+ * it (not built yet) or an explicit, documented decision to hardcode.
+ *
+ * Figma source values (design/figma-file.json, "Sponsor Tier Card" page):
+ *   Card: 420px wide, radius-lg (16px), cream fill + green@20% border by
+ *     default; on Hover/Featured, fills solid green with a stronger border
+ *     (orange-mid on Featured) and flips text to cream/white.
+ *   Availability=SoldOut overrides the whole card to always render in its
+ *     "muted" cream/black state regardless of State (Default/Hover/
+ *     Featured) — sold-out tiers never get the green hover/featured
+ *     treatment, by design.
+ *   tierName: 24px bold. price: 40px bold, rust (green bg) or cream
+ *     (on dark). Benefits: bulleted list, 16px, rust "▸" markers. CTA:
+ *     Button (Primary/Medium) normally, but swaps to a disabled-style
+ *     button automatically when sold out.
+ */
+import Badge, { type BadgeTone } from "./Badge.astro";
+import Button from "./Button.astro";
+
+export type TierAvailability = "available" | "limited" | "soldout";
+export type TierCardState = "default" | "hover" | "featured";
+
+interface Props {
+  tierName: string;
+  price: string;
+  availabilityLabel: string;
+  availability?: TierAvailability;
+  state?: TierCardState;
+  benefits: string[];
+  registerHref?: string;
+  class?: string;
+}
+
+const {
+  tierName,
+  price,
+  availabilityLabel,
+  availability = "available",
+  state = "default",
+  benefits,
+  registerHref = "/contact",
+  class: className = "",
+} = Astro.props;
+
+// SoldOut always overrides State to its own muted look, per Figma.
+const isSoldOut = availability === "soldout";
+const effectiveState = isSoldOut ? "default" : state;
+
+const badgeTone: Record<TierAvailability, BadgeTone> = {
+  available: "neutral",
+  limited: "limited",
+  soldout: "soldout",
+};
+---
+
+<div
+  class:list={[
+    "tier-card",
+    `tier-card-${effectiveState}`,
+    { "tier-card-soldout": isSoldOut },
+    className,
+  ]}
+>
+  <div class="tier-card-header">
+    <h3 class="tier-card-name">{tierName}</h3>
+    <Badge tone={badgeTone[availability]}>{availabilityLabel}</Badge>
+  </div>
+
+  <p class="tier-card-price">{price}</p>
+
+  <ul class="tier-card-benefits">
+    {benefits.map((benefit) => (
+      <li class="tier-card-benefit">
+        <span class="tier-card-marker" aria-hidden="true">▸</span>
+        <span>{benefit}</span>
+      </li>
+    ))}
+  </ul>
+
+  {isSoldOut ? (
+    <Button variant="primary" size="medium" disabled class="tier-card-cta">
+      Sold Out
+    </Button>
+  ) : (
+    <Button variant="primary" size="medium" href={registerHref} class="tier-card-cta">
+      Register Now
+    </Button>
+  )}
+</div>
+
+<style>
+  @layer components {
+    .tier-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+      width: 100%;
+      max-width: 420px;
+      padding: var(--spacing-8);
+      border-radius: var(--radius-lg);
+      background-color: var(--color-bg-panel);
+      border: 2px solid var(--color-border-default);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tier-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--spacing-3);
+    }
+
+    .tier-card-name {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-text-brand);
+    }
+
+    .tier-card-price {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--color-text-accent);
+    }
+
+    .tier-card-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+      list-style: none;
+    }
+
+    .tier-card-benefit {
+      display: flex;
+      gap: var(--spacing-2);
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .tier-card-marker {
+      color: var(--color-text-accent);
+      flex-shrink: 0;
+    }
+
+    .tier-card-cta {
+      align-self: flex-start;
+      margin-top: var(--spacing-2);
+    }
+
+    /* ---- Hover / Featured (only when not sold out) ---- */
+    .tier-card-hover,
+    .tier-card-featured {
+      background-color: var(--color-bg-inverse);
+    }
+    .tier-card-hover .tier-card-name,
+    .tier-card-hover .tier-card-price,
+    .tier-card-featured .tier-card-name,
+    .tier-card-featured .tier-card-price {
+      color: var(--color-brand-light);
+    }
+    .tier-card-hover .tier-card-benefit,
+    .tier-card-featured .tier-card-benefit {
+      color: var(--color-text-inverse);
+    }
+    .tier-card-hover {
+      border-color: var(--color-brand-default);
+    }
+    .tier-card-featured {
+      border-color: var(--color-accent-default);
+    }
+
+    /* ---- SoldOut always wins, overriding hover/featured colors above ---- */
+    .tier-card-soldout {
+      background-color: var(--color-bg-panel) !important;
+      border-color: var(--color-border-default) !important;
+    }
+    .tier-card-soldout .tier-card-name,
+    .tier-card-soldout .tier-card-price {
+      color: var(--color-text-primary) !important;
+    }
+    .tier-card-soldout .tier-card-benefit {
+      color: var(--color-text-primary) !important;
+    }
+  }
+</style>

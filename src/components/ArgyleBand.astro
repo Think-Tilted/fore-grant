@@ -1,0 +1,40 @@
+---
+/**
+ * ArgyleBand — ported from Figma "Argyle Band" component set
+ * (design/ROADMAP.md Phase 5.1).
+ *
+ * Figma defines 3 heights: Trim (24px), Standard (48px), Tall (88px) — same
+ * repeating diamond pattern at each size, just more/fewer rows. The diamond
+ * background-image tile lives in global.css (.argyle-band). Heights and
+ * repeat direction are set here in @layer components so they win over
+ * Tailwind v4's preflight reset without needing inline styles or !important.
+ */
+export type ArgyleSize = "trim" | "standard" | "tall";
+
+interface Props {
+  size?: ArgyleSize;
+  class?: string;
+}
+
+const { size = "trim", class: className = "" } = Astro.props;
+---
+
+<div class:list={["argyle-band", `argyle-band-${size}`, className]}></div>
+
+<style>
+  @layer components {
+    .argyle-band-trim {
+      height: 24px;
+    }
+    .argyle-band-standard {
+      height: 48px;
+      background-repeat: repeat;
+      background-size: 44px 48px;
+    }
+    .argyle-band-tall {
+      height: 88px;
+      background-repeat: repeat;
+      background-size: 44px 88px;
+    }
+  }
+</style>

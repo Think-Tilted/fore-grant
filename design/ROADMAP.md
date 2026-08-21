@@ -34,7 +34,12 @@ introduces an unlogged gap here.
 | G1 | `Sponsor Tier Card`, `Badge`, `Tier Row` (Availability/Tone = SoldOut/Limited) | Figma defines full visual states for sold-out and limited-availability tiers. Today there is **no capacity tracking at all** — tiers are informational only (see main `ROADMAP.md` Phase 4 "Deferred from original plan"). If these variants are implemented visually without wiring, someone could show a tier as "Available" or "SoldOut" based on nothing, or worse, hardcode a specific tier's status by hand. | Reading current sponsor counts per tier from the Google Sheet (or a maintained counter) server-side, before rendering `Sponsor Tier Card`/`Tier Row`/`Badge`, plus re-checking at submission time (already partially discussed as a race-condition tradeoff in the main readme). | 🔴 Open — must be resolved (either: build real capacity logic, or explicitly hardcode all tiers to "Available" with a `<!-- GAP: see design/ROADMAP.md G1 -->` comment at the exact line, and confirmed with Jess that this is acceptable for launch) |
 | G2 | `Register Form — Sponsor` / `Register Form — Golfer` (two Figma frames) | Current site has one merged form. If Phase 5.3 ships only one of the two, or fakes the split visually without real distinct submission logic, that's a silent gap. | A decision (Open Question #1) plus, if split, two distinct `/api/*` handling paths or a shared handler with a form-type field. | 🔴 Open — decision + implementation both pending |
 | G3 | `Tournament Day` page — pairings/tee times/order | Figma has a page for this; main `ROADMAP.md` Phase 6 (tournament org) is still an optional stretch goal with no live data source built. If Phase 5.3 builds the static Figma layout for this page, it must **not** be populated with fake/sample pairing data left in place — that is exactly the kind of hardcoded placeholder this rule targets. | Phase 6's full build-out: Sheet-backed data source + read view (see main `ROADMAP.md` Phase 6). | 🔴 Open — page can be built with real static content (schedule, raffle, meals) but pairing/order sections must stay clearly marked "Coming after tournament day" or similar, not populated with placeholder names |
-| G4 | *(add rows here as discovered)* | | | |
+| G4 | `PairingGroup.astro` — Pending state opacity + border width | Audited against `design/audit-reports/pairing-group.md` while reviewing `Tournament Day`. Two token mismatches found (not a data/logic gap like G1-G3, but a real visual bug that should be fixed before Phase 5.5 QA): (1) Figma's Pending state text nodes are already dimmed via color (`#000000 @ 62%` = `--color-text-secondary`) — the component additionally applies `opacity: 0.62` to the whole `.pairing.pairing-pending` block, compounding to ~38% effective opacity, visibly fainter than Figma. (2) Figma's stroke weight is `1.0px` for Default/Pending states and `2.0px` only for Highlighted, but the component's base `.pairing` rule hardcodes `border: 2px solid` for all states. | Remove the `opacity: 0.62` line from `.pairing.pairing-pending` (background-color swap alone is correct); change base `.pairing` border to `1px solid`, and add `border-width: 2px` only to `.pairing-highlighted`. | 🔴 Open — deferred, deprioritized in favor of continuing page rebuilds (Home next); revisit before Phase 5.5 QA pass |
+| G5 | `Home` — "Meet Grant" photo, "Last year" carousel photos | Figma specifies a real embedded photo of Grant and a 28-photo "last year" carousel. No actual photo assets exist in this repo (`public/` only has the flyer PNGs, icons, and logo SVGs) — building these sections today means either broken `<img>` tags or reusing an unrelated placeholder image, which would look finished but isn't. | Real photo files from Jess (a "Grant" portrait/action shot, and a set of prior-year tournament photos), dropped into `public/photos/` and wired into `Home`'s `Meet Grant` image and the `Carousel` `images` prop. | 🔴 Open — Home built with the flyer front/back images as an explicit, clearly-labeled stand-in (`<!-- GAP: see design/ROADMAP.md G5 -->` at each usage) until real photos are supplied |
+| G6 | `Home` — "Sponsors" section (logo ticker) | Figma's Home frame now has an entire "Thank You to Our Sponsors" section — a white rounded ticker with 7 slots, each explicitly named `PLACEHOLDER — sponsor logo N` in the source file itself (Figma's own author is flagging these as not-real). No actual sponsor logo assets or a maintained sponsor list exist in this repo. | Real sponsor logo files (once tiers actually sell) plus a small data source (array or CMS) driving the ticker, and likely a simple auto-scroll/marquee behavior per Figma's "auto-scrolls left, pauses on hover" note on the track layer. | 🔴 Open — section intentionally omitted from the rebuilt Home page for now rather than shipping literal "LOGO" placeholder tiles that could read as real to a visitor; revisit once the first sponsor signs on |
+| G7 | *(add rows here as discovered)* | | | |
+
+
 
 **Adding a new row:** the moment you notice implementing a Figma frame or
 component would require faking data, hardcoding a value that should be
@@ -110,15 +115,17 @@ almost directly to Astro components with prop-driven variants):
 | `Tier Row` | State (Default/Hover/Featured/SoldOut) — a condensed list-row variant of tier display, likely used on the Registration page |
 | `Pairing Group` | Layout (Card/Row) × State (Default/Highlighted/Pending) — for the Phase 6 tournament-org stretch goal |
 | `Logo` | Full vector wordmark, multiple color variants (White-on-white stage, Negative-on-green stage — for dark nav/subpages) |
-| `Argyle Band`, `Footer`, `Social Icon` | Single/simple components |
+| `Argyle Band`, `Footer`, `Social Icon` | Single/simple components. **Footer's "Get Connected" section was later revised** from 3 generic social icons to a single Instagram-specific `handle` row (icon + `@GrantsTALLBattle`) — already reflected in `src/components/Footer.astro`/`SocialIcon.astro`? verify against current Figma before/while touching Footer again, since this landed after Phase 5.1 shipped |
+| `Carousel` | Track (slide — prev/active/next) × controls (prev/counter/next). ✅ Built (`src/components/Carousel.astro`) ahead of the Home rebuild — 3-slide DOM window (prev/active/next `<img>`s swap `src` on nav) per Figma's actual spec rather than a full off-screen track; counter font falls back to system monospace since Figma's JetBrains Mono isn't part of this project's type system (flagged in the component's doc comment, not silently substituted) |
+
 
 **Pages** (Figma frames, one per real route):
 
 | Figma page | Maps to route | Notes |
 |---|---|---|
-| `Home` | `/` | Sections: header band, hero nav, "Meet Grant", "Sponsor CTA", "Last year" (carousel), "Other Ways", "Find Us" (map), footer |
-| `Registration` | new `/registration` route | Tier browsing page — likely built from `Sponsor Tier Card` / `Tier Row` components, each with a "Register Now" action |
-| `Register Form — Sponsor` / `Register Form — Golfer` | new `/register` (or similar) route | **Two variants** — sponsor registration vs. individual golfer registration are distinct forms in Figma, not one shared form. This is a new distinction not present in the current single `contact.astro` form — needs a decision (see Open Questions) |
+| `Home` | `/` | Sections: header band, hero nav, "Meet Grant", "Sponsor CTA", "Last year" (carousel), "Other Ways", "Find Us" (map), footer. The "Meet Grant" section's photo is a real embedded image now (`photo — Grant`), no longer a `PLACEHOLDER` text frame |
+| `Registration` | new `/registration` route | Tier browsing page — likely built from `Sponsor Tier Card` / `Tier Row` components, each with a "Register Now" action. "Other Ways to Support Us" section now also includes a **GoFundMe callout** — a "Give to Grant's GoFundMe" button, plus revised copy mentioning contacting Jessica directly or donating via GoFundMe as alternatives to a full sponsorship |
+| `Register Form — Sponsor` / `Register Form — Golfer` | new `/register` (or similar) route | **Two variants** — sponsor registration vs. individual golfer registration are distinct forms in Figma, not one shared form. This is a new distinction not present in the current single `contact.astro` form — needs a decision (see Open Questions). Golfer form's player-list section is now labeled **"Team Information"** (was "Your Foursome"); Player 4's helper text also dropped the "· leave blank to be paired" qualifier, now reading the same as players 2–3 ("First and last") |
 | `Tournament Day` | new `/tournament-day` route | Static content (schedule, raffle, auction, meals, contests) per your brain-dump; later gets the live pairing/order section (Phase 6) |
 | `Contact` | `/contact` (repurposed) | Now a lighter contact-only page rather than doubling as the registration form, once registration has its own dedicated route |
 
@@ -150,55 +157,208 @@ including a Sponsor/Golfer form split that wasn't explicitly discussed before.
 
 ---
 
+## Exporting real assets from Figma (logo, icons, images)
+
+`design/figma-file.json` (the full document pull via `/v1/files/{key}`) only
+contains **structure and geometry** — vector path data, fills, positions —
+not rendered, usable image files. This is enough to read tokens, variant
+props, and layout structure (everything used elsewhere in this roadmap), but
+**not** enough to drop a logo directly into `public/`.
+
+To get an actual usable asset (SVG/PNG) for something like the `Logo`
+component, Figma requires a **second, separate API call** — the file pull
+does not include it:
+
+1. **Find the node ID** for the specific frame/component variant you want
+   (e.g. the "Fore Grant — White" or "Fore Grant — Negative" logo stage
+   frames) — these IDs are already present in `design/figma-file.json`,
+   findable by walking the tree to the named node and reading its `id` field.
+2. **Call the images export endpoint:**
+   ```bash
+   curl -H "X-Figma-Token: $FIGMA_PAT" \
+     "https://api.figma.com/v1/images/$FIGMA_FILE_KEY?ids=<NODE_ID>&format=svg"
+   ```
+   This returns JSON with a temporary S3 URL where Figma has rendered that
+   node server-side as a real file (not the raw path data).
+3. **Download the file from that URL** (`curl -o public/logo.svg <url>`) and
+   commit it to `public/` as a normal static asset — same as `favicon.svg`
+   today. The temporary URL expires; the downloaded file does not need to be
+   re-fetched at runtime or build time.
+
+This is a **one-time manual export step per asset**, not a live API
+dependency — the deployed site never calls Figma. Re-run it only if the logo
+changes in Figma. Multiple node IDs can be requested in one call
+(comma-separated `ids=`) to batch-export all logo/icon variants at once.
+
+---
+
 ## Phased Plan
 
 ### Phase 5.0 — Tokens & primitives
-- [ ] Translate the full color/type/spacing/radius token tables above into
+
+**Decision: clean break, no aliasing.** Old token names (`paper`, `fairway`,
+`ribbon`, `ink`, etc.) are being fully removed and replaced with the new
+Figma-derived names — not kept around as aliases pointing at new values.
+This means **existing pages will visually break locally** the moment this
+phase lands, until each page is rebuilt in Phase 5.3. This is intentional —
+avoids any risk of an old token name accidentally surviving into the final
+build.
+
+- [x] Translate the full color/type/spacing/radius token tables above into
       `src/styles/global.css`'s `@theme` block (or CSS custom properties),
       replacing the current flat `paper`/`fairway`/`ribbon`/`ink` palette
-- [ ] Add Bitter + Source Serif 4 via Google Fonts `<link>` in
+      entirely — no aliases left behind
+- [x] Add Bitter + Source Serif 4 via Google Fonts `<link>` in
       `BaseLayout.astro`, replacing Playfair Display / Lobster Two / Lora
-- [ ] No visual page changes yet — this phase just makes the new vocabulary
-      available without touching existing markup
-- [ ] Sanity check: existing pages still render (using old utility classes)
-      with no build errors after the theme swap
+- [x] Confirm old utility classes referencing removed token names now fail
+      to compile or visibly break — this is the expected, correct state
+      until Phase 5.3 rebuilds each page (verified: `npm run build` still
+      compiles cleanly — Tailwind v4 doesn't hard-fail on unknown utility
+      classes like `bg-paper`/`text-fairway`, it just drops them silently,
+      so the visual breakage is real but won't show as a build error)
 
-**Done when:** new tokens exist and compile cleanly; old pages still look
-like today (classes haven't been swapped yet).
+**Done when:** new tokens exist and compile cleanly under their final names;
+old pages are expected to look broken locally — that's the intended state
+until they're rebuilt. ✅ Verified via `npm run build`.
 
-### Phase 5.1 — Core components
-- [ ] `src/components/Button.astro` — Variant/Size/State props matching
-      Figma's Button variants
-- [ ] `src/components/Badge.astro` — Tone/Reversed props
-- [ ] `src/components/Nav.astro` + `NavLink.astro` — Variant/Tone/State props
-- [ ] `src/components/Logo.astro` — wordmark as inline SVG, color variant prop
-- [ ] `src/components/Footer.astro`
-- [ ] `src/components/ArgyleBand.astro` (can likely stay CSS-driven like
-      today, just re-themed to new argyle tokens)
-- [ ] `src/components/SocialIcon.astro`
+
+### Phase 5.1 — Core components ✅
+- [x] `src/components/Button.astro` — Variant (Primary/Secondary/Ghost) ×
+      Size (Medium/Large) props; State (Hover/Active/Disabled/Focus) handled
+      via native pseudo-classes rather than separate markup
+- [x] `src/components/Badge.astro` — Tone (Neutral/Limited/SoldOut/Featured)
+      × Reversed props. **Found a Figma inconsistency while porting:**
+      Tone=SoldOut and Tone=Neutral (non-reversed) have identical colors in
+      the source file — ported as-is, flagged in a code comment, needs
+      Figma-owner sign-off before launch (not a functional gap, just a
+      likely design-file oversight — not added to the Gap Register since
+      it's a visual color question, not a missing-logic question)
+- [x] `src/components/Nav.astro` + `NavLink.astro` — Variant (Home/Subpage)
+      × Tone/State props; structurally different layouts per Figma (Home =
+      full hero band with centered stacked logo+links, Subpage = slim
+      100px dark bar with left logo/right links), not just re-colored
+- [x] `src/components/Logo.astro` — exported real White/Negative SVG assets
+      from Figma via the images API (node IDs 31:267 / 31:293) into
+      `public/logo-white.svg` / `public/logo-negative.svg`, component picks
+      the right one per Nav variant
+- [x] `src/components/Footer.astro` — 3-column layout (Get Connected /
+      Questions / Pages) with argyle band + tagline + copyright, matching
+      Figma's Footer component structure
+- [x] `src/components/ArgyleBand.astro` — Size prop (Trim/Standard/Tall)
+      wrapping the existing `.argyle-band` CSS pattern from Phase 5.0
+- [x] `src/components/SocialIcon.astro` — built from inline SVG (standard
+      X/Facebook/Instagram glyphs), no Figma asset export needed since
+      these are generic platform icons, not custom artwork
+
 
 **Done when:** each component renders in isolation with all its Figma
 variants reachable via props, matching Figma visually at both breakpoints.
+✅ All components compile cleanly (`npm run build` — 0 errors/warnings/hints
+via `astro check`). Visual verification against Figma at both breakpoints
+still needs a human pass in Phase 5.5.
 
-### Phase 5.2 — Form & card components
-- [ ] `src/components/FormField.astro` — Type/State props (Text/Select/
-      Textarea/Upload × Default/Hover/Focus/Filled/Error/Disabled)
-- [ ] `src/components/SponsorTierCard.astro` — State/Availability props
-- [ ] `src/components/TierRow.astro` — State prop
-- [ ] `src/components/PairingGroup.astro` — Layout/State props (used later
-      in Phase 6, but build now while the design system work is contiguous)
-- [ ] Resolve **Open Question #2** (sold-out/limited enforcement) before
-      wiring real data into these — at minimum the components should support
-      the state even if it's not driven by live capacity logic yet
+
+### Phase 5.2 — Form & card components ✅
+- [x] `src/components/FormField.astro` — Type prop (Text/Email/Tel/Url/
+      Select/Textarea/Upload); State (Hover/Focus/Filled/Disabled) via
+      native pseudo-classes/attributes (`:hover`, `:focus`, `:disabled`,
+      `::placeholder`) rather than separate markup — only `error` needed an
+      explicit prop, since validity isn't something CSS infers on its own
+- [x] `src/components/SponsorTierCard.astro` — State (Default/Hover/
+      Featured) × Availability (Available/Limited/SoldOut) props. Ported a
+      real Figma rule: Availability=SoldOut always overrides State to its
+      own muted look, even if `state="featured"` is passed — sold-out tiers
+      never get the green hover/featured treatment in the source file.
+      **Carries a Gap Register (G1) warning in its own doc comment** — this
+      component has zero built-in capacity logic, `availability` must come
+      from real data or an explicit hardcode decision
+- [x] `src/components/TierRow.astro` — condensed horizontal list-row variant
+      (distinct layout from the card, not just a re-skin); State axis here
+      is Default/Hover/Featured/SoldOut (single axis, unlike the card's
+      State×Availability grid) — same G1 gap-register warning carried over
+- [x] `src/components/PairingGroup.astro` — Layout (Card/Row) × State
+      (Default/Highlighted/Pending) props; carries a **Gap Register (G3)**
+      warning since its real data source (live tournament-day pairings)
+      doesn't exist yet (see main `ROADMAP.md` Phase 6) — component supports
+      an explicit `pending` state precisely so it's never fed placeholder
+      names on a real page
+- [x] **Open Question #2** (sold-out/limited enforcement) — left explicitly
+      unresolved by design: both card components fully support the visual
+      states via props, but neither computes availability itself. This is
+      the intended shape per the Gap Register — visual capability now,
+      real logic (or signed-off hardcoding) required before either
+      component is wired into a live page with non-"available" data
 
 **Done when:** all remaining Figma components exist as Astro components with
-working variant props.
+working variant props. ✅ Verified via `npm run build` (0 errors/warnings/
+hints via `astro check`, full static+SSR build completes).
+
 
 ### Phase 5.3 — Page rebuilds
+
+**🚨 Mandatory step for every page, before moving to the next one: run the
+token audit script.** This was added after `Tournament Day`'s first build
+shipped a real bug — `.schedule-sub` labels ("Format", "Start", "Pace of
+play"...) were styled black by eyeballing a screenshot against a mental
+model of "how this pattern usually looks," instead of reading what the
+Figma node actually specifies (rust, `--color-text-accent`, 20px/600, not
+black 16px/700). Eyeballing against memory is not an acceptable substitute
+for checking the source data — this script exists so that never happens
+silently again.
+
+**`design/audit-tokens.py`** walks a Figma page's full node tree and, for
+every node, extracts its actual fill/stroke colors, text style (family,
+size, weight, letter-spacing, line-height), corner radius, effects, and
+auto-layout spacing/padding — then matches each against the *live-parsed*
+tokens in `src/styles/global.css` (never hand-copied, so it can't drift out
+of sync with the real token source of truth). Anything that doesn't match a
+token is flagged `⚠ NO TOKEN MATCH` / `⚠ UNKNOWN FONT`. Output goes to
+`design/audit-reports/<slug>.md` (gitignored — regenerable, not meant to be
+diffed in git, same treatment as `figma-file.json`).
+
+Usage:
+```bash
+python3 design/audit-tokens.py "Tournament Day"   # single page/frame
+python3 design/audit-tokens.py --all               # every page/frame
+python3 design/audit-tokens.py --list-pages         # see exact names
+```
+Note: as of Kyle's "00 — REVIEW (start here)" reorg, individual site pages
+(Home, Registration, Register Form — Sponsor/Golfer, Tournament Day, Contact)
+are no longer their own top-level Figma pages — they're FRAME children of
+that single review page. `find_page()` in the script was updated to also
+search one level into page children, so lookups by the bare page name
+(`"Tournament Day"`, not `"Page — Tournament Day"`) still work, and
+`--all`/`--list-pages` now walk those nested frames too.
+
+
+**Required workflow per page, before checking it off below:**
+1. Build the page.
+2. Run the audit script against that page's Figma frame.
+3. Read every row in the generated report — not just the `⚠` rows. The
+   `Tournament Day` bug above was a color *mismatch* the script would have
+   caught even without a `⚠` flag, since the wrong color still happened to
+   resolve to a real (wrong) token-adjacent value in an earlier pass — the
+   discipline is comparing the report's Figma values against what was
+   actually built, not just scanning for warning icons.
+4. For every `⚠` finding: either fix it, or determine it belongs to a
+   feature that isn't built yet (e.g. Gap Register row) and is therefore
+   correctly out of scope — don't silently leave a real, fixable mismatch
+   unaddressed just because fixing all of them felt like scope creep.
+5. Only then move to the next page.
+
 Rebuild page-by-page, each only cut over once its dependent components from
 5.1/5.2 exist. Suggested order (lowest-risk first):
-- [ ] **Tournament Day** (new page, static content, no dependency on the
-      form/tier logic — safest starting point)
+- [x] **Tournament Day** (new page, static content, no dependency on the
+      form/tier logic — safest starting point). Audited via
+      `audit-tokens.py`; fixed `.schedule-sub` color/size/weight, corrected
+      `--color-text-secondary` from 56% to 62% opacity (was a hand-copy
+      error against the real Figma value), and split Day-of card list items
+      into label/description per Figma's actual two-tone structure. Two
+      one-off padding values (29px, 30px→26px) confirmed intentional and
+      left as literal px with inline comments rather than forced onto the
+      spacing scale. Remaining unmatched findings (JetBrains Mono font,
+      pairings-table-specific colors) belong to the not-yet-built live
+      pairings table — correctly out of scope per Gap Register G3.
 - [ ] **Home** — hero, Meet Grant, Sponsor CTA, Last year, Other Ways, Find Us
 - [ ] **Registration** (new page) — tier browsing using `SponsorTierCard`/
       `TierRow`, each with a "Register Now" action (resolve Open Question #1
@@ -210,7 +370,10 @@ Rebuild page-by-page, each only cut over once its dependent components from
       Question #3
 
 **Done when:** every page uses only new components/tokens, old inline markup
-in `index.astro`/`about.astro`/`contact.astro` is fully replaced.
+in `index.astro`/`about.astro`/`contact.astro` is fully replaced, and every
+page has been run through `audit-tokens.py` with all in-scope findings
+resolved.
+
 
 ### Phase 5.4 — Behavior migration (no functional regression)
 - [ ] Re-wire sponsor form submission (`/api/sponsor` POST) into new
@@ -273,11 +436,12 @@ none left 🔴 Open.
 
 ## Completion Checklist (rollup)
 
-- [ ] 5.0 — Tokens & primitives ported into `global.css`
-- [ ] 5.1 — Core components built (Button, Badge, Nav, Logo, Footer, Argyle
+- [x] 5.0 — Tokens & primitives ported into `global.css`
+- [x] 5.1 — Core components built (Button, Badge, Nav, Logo, Footer, Argyle
       Band, Social Icon)
-- [ ] 5.2 — Form & card components built (Form Field, Sponsor Tier Card,
+- [x] 5.2 — Form & card components built (Form Field, Sponsor Tier Card,
       Tier Row, Pairing Group)
+
 - [ ] 5.3 — All 5 pages rebuilt (Tournament Day, Home, Registration, Register
       Form, Contact)
 - [ ] 5.4 — Sponsor form + modals + Sheets integration verified working on

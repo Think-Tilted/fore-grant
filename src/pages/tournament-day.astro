@@ -1,0 +1,414 @@
+---
+/**
+ * Tournament Day — ported from Figma "Page — Tournament Day" frame
+ * (design/ROADMAP.md Phase 5.3, first page rebuilt since it has no
+ * dependency on the form/tier logic).
+ *
+ * The Figma frame includes a full "Groups & hole assignments" section with
+ * a name-lookup field and an 18-row pairings table, all populated with
+ * sample data. Per Design/Infra Gap Register row G3 (design/ROADMAP.md),
+ * that data doesn't exist yet — there's no live pairings source. Per
+ * explicit direction, that section is built as a "Coming soon" placeholder
+ * instead of shipping the Figma sample names, until Phase 6 wires up a
+ * real data source.
+ *
+ * Re-audited against the raw Figma JSON node-by-node (not just the
+ * audit-tokens.py token-match report) after a manual screenshot comparison
+ * turned up a missing card border, wrong spacing, and wrong marker/label
+ * typography. All fixes below are backed by exact Figma node values, not
+ * eyeballed against "how this pattern usually looks" — see inline comments
+ * for the specific node each value comes from.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PairingGroup from "../components/PairingGroup.astro";
+---
+
+<BaseLayout title="Tournament Day — Teeing Off Fore Grant" navVariant="subpage">
+  <section class="page-header">
+    <h1>Tournament Day</h1>
+  </section>
+
+  <section class="day-of">
+    <div class="day-of-cards">
+      <div class="day-of-card">
+        <img class="day-of-icon" src="/icons/icon-trophy.svg" width="96" height="96" alt="" aria-hidden="true" />
+        <h2>Contests</h2>
+        <ul class="day-of-list">
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Putting contest</strong>
+              <span class="day-of-desc">Hosted at the putting green — sponsored by Putting for a Cure.</span>
+            </span>
+          </li>
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Longest Drive</strong>
+              <span class="day-of-desc">Drive Out Leukemia contest hole.</span>
+            </span>
+          </li>
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Closest to the Pin</strong>
+              <span class="day-of-desc">Swing for Strength contest hole.</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day-of-card">
+        <img class="day-of-icon" src="/icons/icon-ticket.svg" width="96" height="96" alt="" aria-hidden="true" />
+        <h2>Ways to Win</h2>
+        <ul class="day-of-list">
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Silent auction</strong>
+              <span class="day-of-desc">Bidding open through the round; winners announced at lunch.</span>
+            </span>
+          </li>
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Raffle</strong>
+              <span class="day-of-desc">Tickets available at check-in and throughout the round.<br /><br />Raffle Ticket Prices<br />5 for $20&nbsp;&nbsp;|&nbsp;&nbsp;15 for $50&nbsp;&nbsp;|&nbsp;&nbsp;40 for $100<br /><br />50/50 Ticket Prices<br />1 for $5&nbsp;&nbsp;|&nbsp;&nbsp;25 for $100</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day-of-card">
+        <img class="day-of-icon" src="/icons/icon-hamburger.svg" width="96" height="96" alt="" aria-hidden="true" />
+        <h2>Meals</h2>
+        <ul class="day-of-list">
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Breakfast</strong>
+              <span class="day-of-desc">Opens at 7am — Breakfast Burritos</span>
+            </span>
+          </li>
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Lunch</strong>
+              <span class="day-of-desc">Hot Dog and hamburger BBQ</span>
+            </span>
+          </li>
+          <li>
+            <span class="marker" aria-hidden="true">▸</span>
+            <span class="day-of-copy">
+              <strong class="day-of-label">Awards &amp; celebration</strong>
+              <span class="day-of-desc">Held during lunch: awards, announcements, and thank yous.</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="schedule-format">
+    <div class="schedule-format-split">
+      <div class="schedule-format-col">
+        <h2>Event Schedule</h2>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">7:00 – 8:50 AM</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Check-in opens</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Silent auction opens for bidding</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Raffle tickets on sale</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Putting contest</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Breakfast served</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">8:50 AM</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Morning announcements</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">9:00 AM</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Shotgun start — all groups tee off together</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">After the round</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Lunch</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Awards</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Silent auction results</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Raffle drawing</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="schedule-format-divider" aria-hidden="true"></div>
+
+      <div class="schedule-format-col">
+        <h2>Tournament Format</h2>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">Format</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Best ball — one score per foursome</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Play the best shot of the four each stroke</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">Start</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Shotgun start at 9:00 AM</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Your starting hole is listed in Groups below</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">Pace of play</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Ready golf — play when you are ready, not by honours</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Keep pace with the group ahead, not the group behind</span></li>
+          </ul>
+        </div>
+
+        <div class="schedule-block">
+          <p class="schedule-sub">Contests</p>
+          <ul class="schedule-bullets">
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Longest Drive and Closest to the Pin on designated holes</span></li>
+            <li><span class="schedule-marker" aria-hidden="true">▸</span><span>Putting contest runs before the shotgun start</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--
+    GAP: see design/ROADMAP.md G3 — real pairings/hole-assignment data
+    doesn't exist yet. Rendered as an explicit "coming soon" placeholder via
+    PairingGroup's pending state rather than the Figma sample names, per
+    the No Silent Placeholders rule.
+  -->
+  <section class="groups">
+    <h2>Groups &amp; hole assignments</h2>
+    <PairingGroup hole="—" teeTime="Posted morning-of" layout="row" state="pending" />
+  </section>
+</BaseLayout>
+
+<style>
+  /* Page header — Figma "Page header" frame: paddingTop 80 / bottom 48. */
+  .page-header {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: var(--spacing-20) var(--spacing-16) var(--spacing-12);
+    text-align: center;
+  }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+
+  /* "Day-of" frame — Figma: paddingLeft/Right 64, paddingTop 0 (no top pad
+     in the frame — the Page header above already carries bottom spacing),
+     paddingBottom 80. */
+  .day-of {
+    background-color: var(--color-bg-page);
+    padding: 0 var(--spacing-16) var(--spacing-20);
+  }
+  .day-of-cards {
+    max-width: 1312px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-6);
+  }
+  @media (max-width: 900px) {
+    .day-of-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+  /* Card — Figma "Contests"/"Ways to Win"/"Meals" frames: fill cream,
+     1px border at green @20%, radius 16, padding 40 all sides. Border was
+     previously missing entirely. */
+  .day-of-card {
+    background-color: var(--color-bg-panel);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .day-of-card h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text-brand);
+    margin-bottom: var(--spacing-6);
+    text-align: center;
+  }
+  .day-of-icon {
+    margin-bottom: var(--spacing-4);
+  }
+  /* "items" frame — itemSpacing 20 */
+  .day-of-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-self: stretch;
+  }
+  /* "item" frame — itemSpacing 12 between marker and copy */
+  .day-of-list li {
+    display: flex;
+    gap: var(--spacing-3);
+    color: var(--color-text-primary);
+  }
+  /* "copy" frame — itemSpacing 4 */
+  .day-of-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  /* "label" text node — Bitter 18px/600, ls -0.07px. Was previously a bare
+     <strong>, inheriting the body font/16px and only browser-bolded. */
+  .day-of-label {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.07px;
+    color: var(--color-text-primary);
+  }
+  /* "desc" text node — Source Serif 4 16px, black @62%. */
+  .day-of-desc {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--color-text-secondary);
+  }
+
+  /* Day-of card marker (▸) — Bitter 16px/700, rust. Was previously
+     inheriting the body font with no explicit weight. */
+  .marker {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-accent);
+    flex-shrink: 0;
+  }
+
+  /* Schedule & Format bullet marker (▸) — a *separate* Figma node from the
+     Day-of card marker: Bitter 14px/700, orange (#F05323 / --color-brand-
+     orange), not rust. Previously shared the same .marker class/color as
+     the Day-of cards, which is visibly wrong (wrong color, wrong size). */
+  .schedule-marker {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-brand-orange);
+    flex-shrink: 0;
+  }
+
+  /* "Schedule & Format" frame — paddingLeft/Right 64. Top padding is 29px
+     in Figma, not the 64px spacing-scale value — likely visual balance
+     against the Day-of section's bottom padding above it, not an
+     oversight. Left as a one-off per audit findings. */
+  .schedule-format {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: 29px var(--spacing-16) var(--spacing-20);
+  }
+
+  /* "split" frame — itemSpacing 108 between the two columns. Was
+     previously 40px (--spacing-10), a large miss. */
+  .schedule-format-split {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 108px;
+  }
+  @media (max-width: 900px) {
+    .schedule-format-split {
+      grid-template-columns: 1fr;
+    }
+    .schedule-format-divider {
+      display: none;
+    }
+  }
+  .schedule-format-divider {
+    width: 1px;
+    background-color: var(--color-section-rule);
+  }
+  /* "Event Schedule"/"Tournament Format" h — Bitter 36px/700, ls -0.65px.
+     Was previously 28px, matching the (smaller) card headings instead of
+     Figma's distinct larger size for these section headings. Gap to the
+     "blocks" frame below is itemSpacing 32, not a 24px margin. */
+  .schedule-format-col h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-text-brand);
+    margin-bottom: var(--spacing-8);
+  }
+  .schedule-block {
+    margin-bottom: var(--spacing-6);
+  }
+  /* Bitter 20px/600, rust — per design/audit-reports/page-tournament-day.md
+     ("Event Schedule > blocks > ... > sub" nodes). Was previously black
+     16px/700 by mistaken assumption rather than reading the actual node. */
+  .schedule-sub {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.12px;
+    color: var(--color-text-accent);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .schedule-bullets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  /* "text" node — Source Serif 4 17px, not 16px. */
+  .schedule-bullets li {
+    display: flex;
+    gap: var(--spacing-2);
+    font-family: var(--font-body);
+    font-size: 17px;
+    color: var(--color-text-primary);
+  }
+
+  /* "Groups" frame — paddingLeft/Right 64. Top padding is 26px in Figma,
+     same visual-balance one-off pattern as .schedule-format above. */
+  .groups {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: 26px var(--spacing-16) var(--spacing-20);
+  }
+
+  /* Matches the same 36px/700 section-heading treatment as Event
+     Schedule/Tournament Format above — Figma's "Groups & hole assignments"
+     h node uses the identical style. */
+  .groups h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-text-brand);
+    margin-bottom: var(--spacing-6);
+  }
+</style>

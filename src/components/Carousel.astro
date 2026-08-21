@@ -1,0 +1,189 @@
+---
+/**
+ * Carousel — ported from Figma "Carousel" component
+ * (design/ROADMAP.md Phase 5.3, built ahead of Home page rebuild since Home
+ * depends on it for the "Last year" photo section).
+ *
+ * Figma source values (design/audit-reports/carousel.md):
+ *   Carousel / track / controls: itemSpacing (gap) 24px (--spacing-6)
+ *   Slides (prev/active/next): cornerRadius 16px (--radius-lg)
+ *   Controls prev/next: circular (cornerRadius 999px — no exact token,
+ *     closest semantic match is --radius-full, which resolves to 9999px;
+ *     visually identical since both exceed half the button's own size),
+ *     bg-inverse fill, bg-page glyph ("‹"/"›"), Bitter 22px/700
+ *   Counter: text-secondary, "01 / 28" format — Figma spec's font is
+ *     JetBrains Mono (not part of this project's type system, which only
+ *     defines Bitter/Source Serif 4 — see design/ROADMAP.md token table).
+ *     No JetBrains Mono token exists to port faithfully, so this falls back
+ *     to the system monospace stack rather than inventing a new font token
+ *     unilaterally. Flagged here rather than silently guessing.
+ *
+ * Only prev/active/next are distinct Figma states for the *slide itself*;
+ * off-screen slides beyond that 3-slide window have no defined treatment,
+ * so this component only ever renders three <img> nodes in the DOM at a
+ * time (previous, current, next) and swaps their `src` on navigation,
+ * rather than keeping the full image list mounted. This matches what
+ * Figma actually specifies (a 3-slide-wide window) instead of assuming a
+ * more elaborate off-screen-track pattern that isn't in the source file.
+ */
+interface Props {
+  images: { src: string; alt: string }[];
+  class?: string;
+}
+
+const { images, class: className = "" } = Astro.props;
+const total = images.length;
+---
+
+<div class:list={["carousel", className]} data-carousel data-total={total}>
+  <div class="carousel-track">
+    <img class="carousel-slide carousel-slide-prev" data-slide="prev" src={images[(total - 1) % total]?.src} alt="" aria-hidden="true" />
+    <img class="carousel-slide carousel-slide-active" data-slide="active" src={images[0]?.src} alt={images[0]?.alt ?? ""} />
+    <img class="carousel-slide carousel-slide-next" data-slide="next" src={images[1 % total]?.src} alt="" aria-hidden="true" />
+  </div>
+
+  <div class="carousel-controls">
+    <button type="button" class="carousel-btn carousel-prev" data-action="prev" aria-label="Previous photo">‹</button>
+    <span class="carousel-counter" data-counter aria-live="polite">01 / {String(total).padStart(2, "0")}</span>
+    <button type="button" class="carousel-btn carousel-next" data-action="next" aria-label="Next photo">›</button>
+  </div>
+</div>
+
+<script>
+  // Vanilla JS only — no client-side framework in this project, and this
+  // keeps the component compatible with the CSP script-src 'self'
+  // constraint noted in design/ROADMAP.md (inline <script> in .astro files
+  // is bundled to a hashed/external file by Astro, not left inline).
+  const carousels = document.querySelectorAll<HTMLElement>("[data-carousel]");
+
+  carousels.forEach((carousel) => {
+    const total = Number(carousel.dataset.total ?? "0");
+    if (total < 1) return;
+
+    // Image sources/alt text are re-read from the rendered <img> tags
+    // rather than duplicated into a data attribute, since Astro already
+    // put them in the DOM — avoids keeping two copies of the same list
+    // in sync. Order: [prev, active, next] as rendered server-side.
+    const allImgs = Array.from(carousel.querySelectorAll<HTMLImageElement>("img"));
+    const sources = allImgs.map((img) => img.src);
+
+    let current = 0;
+
+    const prevImg = carousel.querySelector<HTMLImageElement>("[data-slide='prev']")!;
+    const activeImg = carousel.querySelector<HTMLImageElement>("[data-slide='active']")!;
+    const nextImg = carousel.querySelector<HTMLImageElement>("[data-slide='next']")!;
+    const counter = carousel.querySelector<HTMLElement>("[data-counter]")!;
+
+    function render() {
+      const prevIndex = (current - 1 + total) % total;
+      const nextIndex = (current + 1) % total;
+      prevImg.src = sources[prevIndex] ?? "";
+      activeImg.src = sources[current] ?? "";
+      nextImg.src = sources[nextIndex] ?? "";
+      counter.textContent = `${String(current + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+    }
+
+    carousel.querySelector("[data-action='prev']")?.addEventListener("click", () => {
+      current = (current - 1 + total) % total;
+      render();
+    });
+    carousel.querySelector("[data-action='next']")?.addEventListener("click", () => {
+      current = (current + 1) % total;
+      render();
+    });
+  });
+</script>
+
+<style>
+  @layer components {
+    .carousel {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6);
+    }
+
+    .carousel-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-6);
+    }
+
+    .carousel-slide {
+      border-radius: var(--radius-lg);
+      object-fit: cover;
+    }
+
+    .carousel-slide-active {
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 4 / 3;
+    }
+
+    /* Prev/next peek slides — smaller and dimmed, since Figma's 3-slide
+       window implies a "coverflow"-style side preview rather than
+       full-size neighbors. */
+    .carousel-slide-prev,
+    .carousel-slide-next {
+      display: none;
+      width: 100%;
+      max-width: 220px;
+      aspect-ratio: 4 / 3;
+      opacity: 0.5;
+    }
+
+    @media (min-width: 900px) {
+      .carousel-slide-prev,
+      .carousel-slide-next {
+        display: block;
+      }
+    }
+
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-6);
+    }
+
+    .carousel-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-bg-inverse);
+      color: var(--color-bg-page);
+      border: none;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .carousel-btn:hover {
+      background-color: var(--color-brand-hover);
+    }
+    .carousel-btn:active {
+      background-color: var(--color-brand-active);
+    }
+    .carousel-btn:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    /* See top-of-file note: Figma specifies JetBrains Mono, which isn't part
+       of this project's type system — falls back to a generic monospace
+       stack rather than silently substituting Bitter/Source Serif. */
+    .carousel-counter {
+      font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--color-text-secondary);
+      min-width: 64px;
+      text-align: center;
+    }
+  }
+</style>

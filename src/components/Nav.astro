@@ -1,0 +1,189 @@
+---
+/**
+ * Nav — ported from Figma "Nav" component set (design/ROADMAP.md Phase 5.1).
+ *
+ * Figma has two variants that are structurally different, not just
+ * re-colored:
+ *   Variant=Home: full-bleed light hero band, large centered logo (520×378),
+ *     links row centered below it, 40px gap between links
+ *   Variant=Subpage: slim 100px-tall dark green header bar, small logo
+ *     (104×76) left-aligned, links right-aligned, 32px gap between links
+ *
+ * Both variants' link row contains the same 3 items: a "Register Today"
+ * Button (Primary/Medium), then two Nav Links (Tournament Day, Contact).
+ *
+ * Logo: Home variant sits on a light background, so it uses the White logo
+ * mark (which reads correctly against light because the wordmark itself is
+ * the colored/green version — "White" refers to the Figma stage background
+ * it was designed against, not the mark's own color); Subpage sits on the
+ * dark green header bar, so it uses the Negative (light-on-dark) mark.
+ */
+import NavLink from "./NavLink.astro";
+import Button from "./Button.astro";
+import Logo from "./Logo.astro";
+
+interface Props {
+  variant?: "home" | "subpage";
+  currentPath?: string;
+}
+
+const { variant = "home", currentPath = "" } = Astro.props;
+const tone = variant === "home" ? "light" : "dark";
+const logoVariant = variant === "home" ? "hero" : "negative";
+---
+
+<header class:list={["nav", `nav-${variant}`]}>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="Teeing Off Fore Grant — home">
+      <Logo variant={logoVariant} />
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <Button href="/registration" size="medium">Register Today</Button>
+      <NavLink href="/tournament-day" tone={tone} active={currentPath === "/tournament-day"}>
+        Tournament Day
+      </NavLink>
+      <NavLink href="/contact" tone={tone} active={currentPath === "/contact"}>
+        Contact
+      </NavLink>
+    </nav>
+  </div>
+
+  {variant === "home" && (
+    <div class="scroll-hint" aria-hidden="true">
+      <svg class="scroll-chevron" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
+  )}
+</header>
+
+<style>
+  @layer components {
+    .nav {
+      width: 100%;
+    }
+
+    /* ---- Variant=Home ---- */
+    /* Deviation from Figma: the home nav is stretched to fill the full
+       viewport height (100dvh) so the hero logo + nav links are the only
+       thing visible above the fold, with Meet Grant revealed on scroll.
+       Figma's own frame has fixed padding values (48/40px) that don't
+       account for viewport height — this is an intentional UX improvement
+       beyond the source design, documented here per the deviation rule.
+       The ArgyleBand above this is 88px tall (--argyle-band-height), so
+       the nav itself gets calc(100dvh - 88px) to fill the remaining space. */
+    .nav-home {
+      background-color: var(--color-bg-page);
+      min-height: calc(100dvh - 88px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: var(--spacing-12) var(--spacing-6) var(--spacing-10);
+      position: relative;
+    }
+    .nav-home .nav-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-8);
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .nav-home .nav-logo {
+      width: 100%;
+      max-width: min(720px, 80vw);
+    }
+    .nav-home .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-10);
+    }
+
+    /* Scroll hint — pinned to the bottom of the hero section, centered.
+       Fades in after 1.2s (gives the page a moment to settle) then bobs
+       up/down with a gentle bounce. Fades out once the user scrolls past
+       the hero via JS below. Not in Figma — documented deviation. */
+    .scroll-hint {
+      position: absolute;
+      bottom: var(--spacing-8);
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--color-text-brand);
+      opacity: 0;
+      animation:
+        scroll-hint-fadein 0.8s ease 1.2s forwards,
+        scroll-hint-bob 2s ease-in-out 2s infinite;
+      pointer-events: none;
+    }
+    @keyframes scroll-hint-fadein {
+      to { opacity: 0.55; }
+    }
+    @keyframes scroll-hint-bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+    .scroll-hint.hidden {
+      opacity: 0 !important;
+      transition: opacity 0.4s ease;
+    }
+  }
+</style>
+
+<script>
+  const hint = document.querySelector(".scroll-hint");
+  if (hint) {
+    const hide = () => {
+      if (window.scrollY > 60) {
+        hint.classList.add("hidden");
+        window.removeEventListener("scroll", hide);
+      }
+    };
+    window.addEventListener("scroll", hide, { passive: true });
+  }
+</script>
+
+<style>
+  @layer components {
+    /* ---- Variant=Subpage ---- */
+    /* Figma "nav" instance: paddingTop/Bottom 12, paddingLeft/Right 40. Was
+       previously padding: var(--spacing-6) (24px all sides), doubling the
+       vertical padding and stacking with the page header's own top padding
+       to make subpage headers read as oversized. */
+    .nav-subpage {
+      background-color: var(--color-bg-inverse);
+      padding: var(--spacing-3) var(--spacing-10);
+    }
+    .nav-subpage .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1344px;
+      margin: 0 auto;
+    }
+    .nav-subpage .nav-logo {
+      /* The SVG is 560×408 (aspect ratio ~1.37:1). We want the logo to be
+         as tall as the nav content area without growing the nav bar.
+         The nav has 12px padding top/bottom. We constrain the wrapper to
+         a fixed height and let the img fill it via object-fit:contain.
+         Width is derived from the aspect ratio: 56px tall × (560/408) ≈ 77px.
+         We give it a bit more room (120px) so it reads clearly. */
+      height: 56px;
+      width: 120px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .nav-subpage .nav-logo :global(img) {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: left center;
+    }
+    .nav-subpage .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-8);
+    }
+  }
+</style>

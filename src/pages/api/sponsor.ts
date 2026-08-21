@@ -3,14 +3,10 @@ import { appendSponsorRow } from "../../lib/sheets";
 
 export const prerender = false;
 
-const REQUIRED_FIELDS = [
-  "companyName",
-  "sponsorTier",
-  "captainFirstName",
-  "captainLastName",
-  "phone",
-  "email",
-] as const;
+// captainName, phone, and email are always required.
+// companyName and sponsorTier are required for sponsor registrations but
+// optional for foursome-only registrations (sent as empty string).
+const REQUIRED_FIELDS = ["captainName", "phone", "email"] as const;
 
 export const POST: APIRoute = async ({ request }) => {
   let body: Record<string, unknown>;
@@ -30,10 +26,8 @@ export const POST: APIRoute = async ({ request }) => {
       companyName: str(body.companyName),
       sponsorTier: str(body.sponsorTier),
       companyWebsite: normalizeWebsite(str(body.companyWebsite)),
-
       paymentType: str(body.paymentType),
-      captainFirstName: str(body.captainFirstName),
-      captainLastName: str(body.captainLastName),
+      captainName: str(body.captainName),
       phone: str(body.phone),
       email: str(body.email),
       player2: str(body.player2),
@@ -45,8 +39,6 @@ export const POST: APIRoute = async ({ request }) => {
     console.error("Failed to append sponsor row:", err);
     return jsonError("Something went wrong submitting your registration. Please try again or email us directly.", 500);
   }
-
-
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
@@ -66,7 +58,6 @@ function normalizeWebsite(value: string): string {
   if (!value) return "";
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 }
-
 
 function jsonError(message: string, status: number): Response {
   return new Response(JSON.stringify({ ok: false, error: message }), {

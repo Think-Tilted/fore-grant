@@ -5,8 +5,7 @@ export interface SponsorSubmission {
   sponsorTier: string;
   companyWebsite: string;
   paymentType: string;
-  captainFirstName: string;
-  captainLastName: string;
+  captainName: string;
   phone: string;
   email: string;
   player2: string;
@@ -39,14 +38,16 @@ export async function appendSponsorRow(submission: SponsorSubmission): Promise<v
   const spreadsheetId = requireEnv("GOOGLE_SHEET_ID");
   const tab = import.meta.env.GOOGLE_SHEET_TAB || "Sheet1";
 
+  // Column order matches the Sheet header row (A–L):
+  // Timestamp | Company Name | Sponsor Tier | Company Website | Payment Type |
+  // Captain Name | Phone | Email | Player 2 | Player 3 | Player 4 | Comments
   const row = [
     new Date().toISOString(),
     submission.companyName,
     submission.sponsorTier,
     submission.companyWebsite,
     submission.paymentType,
-    submission.captainFirstName,
-    submission.captainLastName,
+    submission.captainName,
     submission.phone,
     submission.email,
     submission.player2,
@@ -57,7 +58,7 @@ export async function appendSponsorRow(submission: SponsorSubmission): Promise<v
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${tab}!A:M`,
+    range: `${tab}!A:L`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [row] },
   });

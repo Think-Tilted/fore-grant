@@ -1,0 +1,85 @@
+---
+/**
+ * Badge — ported from Figma "Badge" component set
+ * (design/ROADMAP.md Phase 5.1).
+ *
+ * Figma source values (design/figma-file.json, "Badge" page):
+ *   Shape: pill (radius-full), padding 16px/8px, font-size 14px, semibold
+ *
+ * NOTE: in the Figma source, Tone=SoldOut and Tone=Neutral (Reversed=False)
+ * have IDENTICAL fill/text colors (brand-green @8%, black text). This looks
+ * like it may be an oversight in the Figma file rather than intentional —
+ * a sold-out badge visually indistinguishable from a neutral one seems
+ * unlikely to be the actual intent. Implemented exactly as designed for
+ * now; flag to whoever owns the Figma file before this ships to production.
+ */
+export type BadgeTone = "neutral" | "limited" | "soldout" | "featured";
+
+interface Props {
+  tone?: BadgeTone;
+  reversed?: boolean;
+  class?: string;
+}
+
+const { tone = "neutral", reversed = false, class: className = "" } = Astro.props;
+
+const toneClass = `badge-${tone}${reversed ? "-reversed" : ""}`;
+---
+
+<span class:list={["badge", toneClass, className]}>
+  <slot />
+</span>
+
+<style>
+  @layer components {
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--spacing-2) var(--spacing-4);
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* ---- Neutral ---- */
+    .badge-neutral {
+      background-color: var(--color-brand-subtle);
+      color: var(--color-text-primary);
+    }
+    .badge-neutral-reversed {
+      background-color: var(--color-brand-light);
+      color: var(--color-text-brand);
+    }
+
+    /* ---- Limited ---- */
+    .badge-limited {
+      background-color: var(--color-accent-subtle);
+      color: var(--color-state-limited);
+    }
+    .badge-limited-reversed {
+      background-color: var(--color-accent-default);
+      color: var(--color-text-on-accent);
+    }
+
+    /* ---- SoldOut ---- */
+    /* See NOTE above — same as neutral in the Figma source, ported as-is. */
+    .badge-soldout {
+      background-color: var(--color-brand-subtle);
+      color: var(--color-text-primary);
+    }
+    .badge-soldout-reversed {
+      background-color: transparent;
+      color: var(--color-text-inverse);
+    }
+
+    /* ---- Featured ---- */
+    .badge-featured,
+    .badge-featured-reversed {
+      background-color: var(--color-accent-default);
+      color: var(--color-text-on-accent);
+    }
+  }
+</style>

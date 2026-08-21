@@ -1,0 +1,90 @@
+---
+/**
+ * NavLink — ported from Figma "Nav Link" component set
+ * (design/ROADMAP.md Phase 5.1).
+ *
+ * Figma source values (design/figma-file.json, "Nav" page, "Nav Link" set):
+ *   font: Bitter 16px semibold
+ *   Tone=Light (used on the light Home header): default text-brand (green),
+ *     hover/active text-accent (rust, #A53422)
+ *   Tone=Dark (used on the dark Subpage header): default text-inverse
+ *     (cream, #E4E1C5), hover/active near-white (#F4F3E8)
+ *   Underline: hidden at rest, appears on hover (2px) and active (4px),
+ *     always accent-display orange (#F05323), regardless of tone
+ */
+interface Props {
+  href: string;
+  tone?: "light" | "dark";
+  active?: boolean;
+  class?: string;
+}
+
+const { href, tone = "light", active = false, class: className = "" } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={["nav-link", `nav-link-${tone}`, { "is-active": active }, className]}
+  aria-current={active ? "page" : undefined}
+>
+  <span class="nav-link-label"><slot /></span>
+  <span class="nav-link-underline" aria-hidden="true"></span>
+</a>
+
+<style>
+  @layer components {
+    .nav-link {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      padding-bottom: 8px;
+      /* Match the button height so all nav-links items share the same
+         flex baseline in the nav-links row. */
+      height: 44px;
+    }
+
+    .nav-link-underline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--color-accent-display);
+      opacity: 0;
+      transition: opacity 0.15s ease, height 0.15s ease;
+    }
+
+    .nav-link:hover .nav-link-underline {
+      opacity: 1;
+    }
+
+    .nav-link.is-active .nav-link-underline {
+      opacity: 1;
+      height: 4px;
+    }
+
+    /* ---- Tone=Light ---- */
+    .nav-link-light .nav-link-label {
+      color: var(--color-text-brand);
+    }
+    .nav-link-light:hover .nav-link-label,
+    .nav-link-light.is-active .nav-link-label {
+      color: var(--color-text-accent);
+    }
+
+    /* ---- Tone=Dark ---- */
+    .nav-link-dark .nav-link-label {
+      color: var(--color-text-inverse);
+    }
+    .nav-link-dark:hover .nav-link-label,
+    .nav-link-dark.is-active .nav-link-label {
+      color: var(--color-brand-light);
+    }
+  }
+</style>

@@ -1,50 +1,152 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — ported directly from the Figma design system
+ * ("Teeing Off Fore Grant — Design System", 01 Foundations page).
+ * See ../../design/ROADMAP.md for full source tables and rationale.
+ *
+ * Clean break from the old hand-coded theme (paper/fairway/ribbon/ink) —
+ * no aliases kept. Anything in src/ still referencing old names is expected
+ * to break until it's rebuilt against these tokens (see design/ROADMAP.md
+ * Phase 5.0 decision note).
+ */
 @theme {
-  /* Warm cream paper, matching the flyer background */
-  --color-paper: #f2efe4;
-  --color-paper-dim: #e5e3d3;
+  /* ---- Brand palette ---- */
+  --color-brand-green: #31532d;
+  --color-brand-olive: #577233; /* argyle only — not on swatch card */
+  --color-brand-orange: #f05323;
+  --color-brand-orange-mid: #cd4628;
+  --color-brand-rust: #a53422;
+  --color-brand-cream: #e4e1c5;
+  --color-base-black: #000000;
+  --color-base-white: #ffffff;
+  /* derived — cream 40% over white */
+  --color-brand-light: #f4f3e8;
 
-  /* Deep fairway green — primary brand color from the flyer */
-  --color-fairway: #2f4a34;
-  --color-fairway-dark: #203323;
-  --color-fairway-light: #5a7050;
+  /* ---- Semantic: background ---- */
+  --color-bg-page: var(--color-brand-light);
+  --color-bg-panel: var(--color-brand-cream);
+  --color-bg-inverse: var(--color-brand-green);
+  --color-bg-overlay: color-mix(in srgb, var(--color-brand-green) 55%, transparent);
 
-  /* Warm orange ribbon accent */
-  --color-ribbon: #e05e2b;
-  --color-ribbon-dark: #c24f21;
-  --color-ribbon-light: #f2895c;
+  /* ---- Semantic: text ---- */
+  --color-text-primary: var(--color-base-black);
+  /* 62% per design/audit-reports/page-tournament-day.md (card descriptions,
+     helper text, table headers) — corrected from a hand-copied 56%. */
+  --color-text-secondary: color-mix(in srgb, var(--color-base-black) 62%, transparent);
 
-  --color-ink: #2b2a22;
-  --color-ink-soft: #57543f;
+  --color-text-brand: var(--color-brand-green);
+  --color-text-accent: var(--color-brand-rust);
+  --color-text-on-brand: var(--color-base-white);
+  --color-text-on-accent: var(--color-base-white);
+  --color-text-inverse: var(--color-brand-cream);
 
-  --font-display: "Playfair Display", "Georgia", serif;
-  --font-script: "Lobster Two", "Brush Script MT", cursive;
-  --font-sans: "Lora", "Georgia", serif;
+  /* ---- Semantic: border ---- */
+  --color-border-subtle: color-mix(in srgb, var(--color-brand-green) 10%, transparent);
+  --color-border-default: color-mix(in srgb, var(--color-brand-green) 20%, transparent);
+  --color-border-control: color-mix(in srgb, var(--color-brand-green) 64%, transparent);
+  --color-border-focus: var(--color-brand-orange-mid);
+
+  /* ---- Semantic: brand action ---- */
+  --color-brand-default: var(--color-brand-green);
+  --color-brand-hover: #2a4727;
+  --color-brand-active: #243d21;
+  --color-brand-subtle: color-mix(in srgb, var(--color-brand-green) 8%, transparent);
+
+  /* ---- Semantic: accent action ---- */
+  --color-accent-display: var(--color-brand-orange);
+  --color-accent-default: var(--color-brand-orange-mid);
+  --color-accent-hover: var(--color-brand-rust);
+  --color-accent-active: #8b2c1d;
+  --color-accent-subtle: color-mix(in srgb, var(--color-brand-orange) 14%, transparent);
+
+  /* ---- Semantic: state ---- */
+  --color-state-disabled-bg: color-mix(in srgb, var(--color-brand-green) 8%, transparent);
+  --color-state-disabled-text: color-mix(in srgb, var(--color-base-black) 42%, transparent);
+  --color-state-sold-out: color-mix(in srgb, var(--color-base-black) 55%, transparent);
+  --color-state-limited: var(--color-brand-rust);
+
+  /* ---- Argyle ---- */
+  --color-argyle-dark: var(--color-brand-green);
+  --color-argyle-olive: var(--color-brand-olive);
+  --color-argyle-dot: var(--color-brand-orange-mid);
+
+  /* ---- Typography ---- */
+  --font-display: "Bitter", "Georgia", serif; /* headings, labels, buttons */
+  --font-body: "Source Serif 4", "Georgia", serif; /* body copy */
+
+  /* ---- Spacing (8px base) ---- */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+  --spacing-32: 128px;
+
+  /* ---- Section divider rule ---- */
+  --color-section-rule: var(--color-accent-default);
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 }
 
 @layer base {
   body {
-    background-color: var(--color-paper);
-    color: var(--color-ink);
+    background-color: var(--color-bg-page);
+    color: var(--color-text-primary);
   }
 }
 
 /*
- * Argyle diamond band — echoes the flyer's top/bottom borders:
- * alternating dark/light green diamonds with orange stitch dots between.
+ * Argyle diamond band — ported from Figma "Argyle Band" component set.
+ *
+ * The Figma uses three layers per variant:
+ *   1. Dark diamonds  — solid fill #31532D (argyle-dark)
+ *   2. Olive diamonds — solid fill #577233 (argyle-olive)
+ *   3. Dots           — round-capped dashed stroke #CD4628 (argyle-dot)
+ *                       along the diamond crosshatch seam lines.
+ *
+ * The dots are NOT filled circles — they are round stroke-linecap endpoints
+ * on a near-zero dash (dash=0.001, gap=N) path that traces the X-seams.
+ * This produces evenly-spaced dots at every diamond intersection, matching
+ * the Figma screenshot exactly.
+ *
+ * Tile: 88×44px (two diamonds wide, one diamond tall).
+ * Diamond half-width = 22px, half-height = 22px.
+ * Seam lines (the X crosshatch): two diagonals crossing the tile.
+ * Dot gap for standard (48px band): ~5px between dot centers.
+ * Dot gap for tall (88px band): ~5px (same, scaled naturally by tile size).
+ *
+ * The dot wave frequency is controlled by the tile width relative to the band
+ * height. The tile is 44px wide (one diamond wide) so the dot wave completes
+ * one full cycle per diamond, giving the correct density. Going narrower (44px)
+ * doubles the wave count vs the 88px tile.
  */
 .argyle-band {
-  height: 26px;
-  background-color: var(--color-paper);
+  background-color: var(--color-bg-page);
   background-repeat: repeat-x;
   background-position: center;
-  background-size: 72px 26px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='26' viewBox='0 0 72 26'%3E%3Cpath d='M18 1 L34 13 L18 25 L2 13 Z' fill='%232f4a34'/%3E%3Cpath d='M54 1 L70 13 L54 25 L38 13 Z' fill='%235a7050'/%3E%3Ccircle cx='36' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='0' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='72' cy='13' r='1.6' fill='%23e05e2b'/%3E%3Ccircle cx='18' cy='13' r='1.2' fill='%23e05e2b' opacity='0.7'/%3E%3Ccircle cx='54' cy='13' r='1.2' fill='%23e05e2b' opacity='0.7'/%3E%3C/svg%3E");
+  background-size: 44px 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3C!-- dark diamond --%3E%3Cpath d='M0 22 L22 0 L44 22 L22 44 Z' fill='%2331532D'/%3E%3C!-- crosshatch seam dots --%3E%3Cpath d='M0 0 L44 44' fill='none' stroke='%23CD4628' stroke-width='2.3' stroke-linecap='round' stroke-dasharray='0.001 5'/%3E%3Cpath d='M0 44 L44 0' fill='none' stroke='%23CD4628' stroke-width='2.3' stroke-linecap='round' stroke-dasharray='0.001 5'/%3E%3C/svg%3E");
 }
 
 /*
- * Ribbon banner with folded ends, like the flyer's #GrantsTALLBattle banner.
+ * NOTE: .ribbon-banner and .flyer-caps below reference OLD token names
+ * (--color-ribbon, --color-ribbon-dark, --font-display's old value) that no
+ * longer exist as of this token rewrite. Left as-is deliberately per the
+ * Phase 5.0 "clean break" decision (design/ROADMAP.md) — these will visibly
+ * break until Phase 5.3 rebuilds the pages/components that use them.
  */
 .ribbon-banner {
   position: relative;
@@ -73,6 +175,66 @@
 .ribbon-banner::after {
   right: -16px;
   clip-path: polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%);
+}
+
+/*
+ * Registration form modal detail rows — injected by sponsor-form.js at
+ * runtime. Must live in global.css (not a component <style> tag) because
+ * Astro scopes component styles with a hash attribute that JS-injected
+ * elements don't have, so scoped selectors never match them.
+ */
+.confirm-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-brand-green) 20%, transparent);
+}
+.confirm-row:last-child {
+  border-bottom: none;
+}
+.confirm-row-highlight {
+  background-color: color-mix(in srgb, var(--color-brand-rust) 8%, transparent);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0 -12px;
+}
+.confirm-dt {
+  font-family: "Bitter", "Georgia", serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--color-base-black) 62%, transparent);
+}
+.confirm-dd {
+  font-family: "Source Serif 4", "Georgia", serif;
+  font-size: 0.875rem;
+  color: var(--color-base-black);
+  margin: 0;
+  word-break: break-word;
+}
+.confirm-dd-highlight {
+  font-weight: 600;
+}
+.confirm-double-check {
+  font-family: "Bitter", "Georgia", serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-brand-rust);
+  margin: 8px 0 4px;
+  padding: 8px 12px;
+  background-color: color-mix(in srgb, var(--color-brand-rust) 8%, transparent);
+  border-radius: 4px;
+}
+.result-modal-icon-success {
+  background-color: color-mix(in srgb, var(--color-brand-green) 12%, transparent);
+  color: var(--color-brand-green);
+}
+.result-modal-icon-error {
+  background-color: color-mix(in srgb, var(--color-brand-rust) 12%, transparent);
+  color: var(--color-brand-rust);
 }
 
 /* Small-caps serif label, like the flyer's "TEEING OFF" */

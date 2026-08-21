@@ -1,0 +1,514 @@
+---
+/**
+ * Registration — Sponsorship Opportunities page, built from the Figma
+ * "Registration" frame. Sections top to bottom:
+ *   ArgyleBand + Nav (via BaseLayout) >
+ *   Page heading "Sponsorship Opportunities" >
+ *   Premium Sponsorship (1 tier) >
+ *   Meal Sponsorships (2 tiers) >
+ *   Hole Sponsorships (4 tiers) >
+ *   Golf Entry (1 tier) >
+ *   Other Ways to Support Us (callout card) >
+ *   Footer (via BaseLayout)
+ *
+ * Layout deviation from SponsorTierCard component: the Figma registration
+ * page uses a wide horizontal card layout (full-width row: benefits left,
+ * price + CTA right) rather than the narrow vertical card used on the
+ * sponsor-tier component page. The horizontal layout is implemented here
+ * with local CSS rather than extending the component, since the component
+ * is designed for a different context (narrow column grid). This is
+ * documented here per the project's deviation rule.
+ *
+ * Availability counts are hardcoded from the screenshots (design source of
+ * truth). These will need to be wired to live data when the backend is ready.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Badge from "../components/Badge.astro";
+import Button from "../components/Button.astro";
+
+interface Tier {
+  name: string;
+  badge: string;
+  badgeTone: "neutral" | "limited" | "soldout";
+  price: string;
+  sub: string;
+  benefits: string[];
+  href: string;
+}
+
+const premiumTiers: Tier[] = [
+  {
+    name: "Orange Ribbon Champion",
+    badge: "2 left",
+    badgeTone: "neutral",
+    price: "$5,000+",
+    sub: "Includes 8 golfers",
+    benefits: [
+      "Premier logo placement on event signage, flyer, and communication",
+      "Recognition in all social media posts & cart name tags",
+      "Logo displayed on signage at your designated hole",
+      "Complimentary entry for 2 foursomes (8 players); 10 lunch tickets",
+      "Speaking opportunity at awards ceremony",
+      "Includes Adopt-a-Hole at premier holes",
+    ],
+    href: "/registration/sponsor?tier=Orange+Ribbon+Champion+%E2%80%94+%245%2C000%2B",
+  },
+];
+
+const mealTiers: Tier[] = [
+  {
+    name: '"19th Hole" Lunch Sponsor',
+    badge: "2 left",
+    badgeTone: "neutral",
+    price: "$2,000",
+    sub: "Includes 4 golfers",
+    benefits: [
+      "Premier recognition as the sponsor of the tournament lunch",
+      "Logo featured on lunch signage",
+      "Acknowledgment during awards and lunch program",
+      "Complimentary entry for 1 foursome (4 players)",
+      "Promotional items in every golfer's goodie bag",
+    ],
+    href: '/registration/sponsor?tier=%2219th+Hole%22+Lunch+Sponsor+%E2%80%94+%242%2C000',
+  },
+  {
+    name: '"Pre-Round Fuel" Breakfast Sponsor',
+    badge: "2 left",
+    badgeTone: "neutral",
+    price: "$1,750",
+    sub: "Includes 4 golfers",
+    benefits: [
+      "Premier recognition as the sponsor of the tournament breakfast",
+      "Logo featured on breakfast signage",
+      "Acknowledgment during awards and lunch program",
+      "Complimentary entry for 1 foursome (4 players)",
+      "Promotional items in every golfer's goodie bag",
+    ],
+    href: '/registration/sponsor?tier=%22Pre-Round+Fuel%22+Breakfast+Sponsor+%E2%80%94+%241%2C750',
+  },
+];
+
+const holeTiers: Tier[] = [
+  {
+    name: "Premium Adopt-A-Hole — Contest Holes",
+    badge: "2 left",
+    badgeTone: "neutral",
+    price: "$1,750",
+    sub: "Includes 4 golfers",
+    benefits: [
+      "Drive Out Leukemia (Longest Drive) or Swing for Strength (Closest to the Pin)",
+      "Recognition in all social media posts",
+      "Logo displayed on signage at your designated hole",
+      "Hand out food, drinks, or giveaways at a hole",
+      "Complimentary entry for 1 foursome (4 players)",
+    ],
+    href: "/registration/sponsor?tier=Premium+Adopt-A-Hole+%E2%80%94+Contest+Holes+%E2%80%94+%241%2C750",
+  },
+  {
+    name: "Adopt-a-Hole Sponsor",
+    badge: "9 left",
+    badgeTone: "neutral",
+    price: "$1,500",
+    sub: "Includes 4 golfers",
+    benefits: [
+      "Recognition in all social media posts",
+      "Logo displayed on signage at your designated hole",
+      "Hand out food, drinks, or giveaways at a hole",
+      "Decorate the table with your branding",
+      "Complimentary entry for 1 foursome (4 players)",
+    ],
+    href: "/registration/sponsor?tier=Adopt-a-Hole+Sponsor+%E2%80%94+%241%2C500",
+  },
+  {
+    name: "Putting for a Cure Sponsor",
+    badge: "Only 1 left",
+    badgeTone: "limited",
+    price: "$1,000",
+    sub: "Includes 4 golfers",
+    benefits: [
+      "Host the putting contest",
+      "Logo displayed on signage at the putting green",
+      "Recognition in event program and website",
+      "Complimentary entry for 1 foursome (4 players)",
+    ],
+    href: "/registration/sponsor?tier=Putting+for+a+Cure+Sponsor+%E2%80%94+%241%2C000",
+  },
+  {
+    name: "Tee Sign Sponsor",
+    badge: "5 left",
+    badgeTone: "neutral",
+    price: "$250",
+    sub: "Signage only",
+    benefits: [
+      "Your name or logo on a tee sign at a hole",
+      "Promotional items in every golfer's goodie bag",
+    ],
+    href: "/registration/sponsor?tier=Tee+Sign+Sponsor+%E2%80%94+%24250",
+  },
+];
+
+const golfTiers: Tier[] = [
+  {
+    name: "Foursome Entry — Group Package",
+    badge: "11 left",
+    badgeTone: "neutral",
+    price: "$600",
+    sub: "Four players",
+    benefits: [
+      "18 holes for four players",
+      "Cart rental",
+      "Breakfast & lunch",
+      "Player swag bags",
+    ],
+    href: "/registration/foursome",
+  },
+];
+---
+
+<BaseLayout title="Registration — Teeing Off Fore Grant" navVariant="subpage">
+  <!-- Page heading -->
+  <section class="reg-hero">
+    <h1>Sponsorship Opportunities</h1>
+  </section>
+
+  <!-- Premium Sponsorship -->
+  <section class="reg-section">
+    <div class="reg-section-inner">
+      <div class="section-heading">
+        <h2>Premium Sponsorship</h2>
+        <div class="section-rule" aria-hidden="true"></div>
+      </div>
+      {premiumTiers.map((tier) => (
+        <div class="tier-row tier-row-featured">
+          <div class="tier-row-left">
+            <div class="tier-row-header">
+              <span class="tier-row-name">{tier.name}</span>
+              <Badge tone={tier.badgeTone}>{tier.badge}</Badge>
+            </div>
+            <ul class="tier-row-benefits">
+              {tier.benefits.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="tier-row-right">
+            <p class="tier-row-price">{tier.price}</p>
+            <p class="tier-row-sub">{tier.sub}</p>
+            <Button href={tier.href} variant="primary" size="medium">Register Now</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Meal Sponsorships -->
+  <section class="reg-section">
+    <div class="reg-section-inner">
+      <div class="section-heading">
+        <h2>Meal Sponsorships</h2>
+        <div class="section-rule" aria-hidden="true"></div>
+      </div>
+      {mealTiers.map((tier) => (
+        <div class="tier-row">
+          <div class="tier-row-left">
+            <div class="tier-row-header">
+              <span class="tier-row-name">{tier.name}</span>
+              <Badge tone={tier.badgeTone}>{tier.badge}</Badge>
+            </div>
+            <ul class="tier-row-benefits">
+              {tier.benefits.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="tier-row-right">
+            <p class="tier-row-price">{tier.price}</p>
+            <p class="tier-row-sub">{tier.sub}</p>
+            <Button href={tier.href} variant="primary" size="medium">Register Now</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Hole Sponsorships -->
+  <section class="reg-section">
+    <div class="reg-section-inner">
+      <div class="section-heading">
+        <h2>Hole Sponsorships</h2>
+        <div class="section-rule" aria-hidden="true"></div>
+      </div>
+      {holeTiers.map((tier) => (
+        <div class="tier-row">
+          <div class="tier-row-left">
+            <div class="tier-row-header">
+              <span class="tier-row-name">{tier.name}</span>
+              <Badge tone={tier.badgeTone}>{tier.badge}</Badge>
+            </div>
+            <ul class="tier-row-benefits">
+              {tier.benefits.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="tier-row-right">
+            <p class="tier-row-price">{tier.price}</p>
+            <p class="tier-row-sub">{tier.sub}</p>
+            <Button href={tier.href} variant="primary" size="medium">Register Now</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Golf Entry -->
+  <section class="reg-section">
+    <div class="reg-section-inner">
+      <div class="section-heading">
+        <h2>Golf Entry</h2>
+        <div class="section-rule" aria-hidden="true"></div>
+      </div>
+      {golfTiers.map((tier) => (
+        <div class="tier-row">
+          <div class="tier-row-left">
+            <div class="tier-row-header">
+              <span class="tier-row-name">{tier.name}</span>
+              <Badge tone={tier.badgeTone}>{tier.badge}</Badge>
+            </div>
+            <ul class="tier-row-benefits">
+              {tier.benefits.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="tier-row-right">
+            <p class="tier-row-price">{tier.price}</p>
+            <p class="tier-row-sub">{tier.sub}</p>
+            <Button href={tier.href} variant="primary" size="medium">Register Now</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Other Ways to Support -->
+  <section class="other-ways">
+    <div class="other-ways-inner">
+      <div class="callout">
+        <h2>Other Ways to Support Us!</h2>
+        <p>
+          If a sponsorship isn't possible, please consider donating products, services, or gift
+          certificates for our golf goodie bags, raffle, or silent auction. If you'd like to
+          contribute to the event, please contact Jessica. Otherwise, please consider donating to
+          Grant's GoFundMe. This event wouldn't be possible without the generous support of our
+          donors — your contribution makes a huge difference!
+        </p>
+        <Button href="https://gofund.me/" variant="primary" size="medium">Give to Grant's GoFundMe</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---- Page hero ---- */
+  .reg-hero {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-8);
+    text-align: center;
+  }
+  .reg-hero h1 {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.65px;
+    color: var(--color-text-primary);
+  }
+
+  /* ---- Section wrapper ---- */
+  .reg-section {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-6) var(--spacing-16) var(--spacing-8);
+  }
+  .reg-section-inner {
+    max-width: 1312px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  /* ---- Section heading with rule ---- */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-2);
+  }
+  .section-heading h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-brand);
+    white-space: nowrap;
+  }
+  .section-rule {
+    flex: 1;
+    height: 2px;
+    background-color: var(--color-section-rule);
+    border-radius: 1px;
+  }
+
+  /* ---- Tier row card — default (light) ---- */
+  .tier-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-8);
+    background-color: var(--color-bg-panel);
+    border: 2px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6) var(--spacing-8);
+  }
+
+  /* ---- Tier row card — featured (dark green, orange border) ---- */
+  .tier-row-featured {
+    background-color: var(--color-bg-inverse);
+    border-color: var(--color-accent-default);
+  }
+
+  /* Left: name + badge + benefits */
+  .tier-row-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    flex: 1;
+  }
+  .tier-row-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+  }
+  /* Default (light) card text colors */
+  .tier-row-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+  .tier-row-benefits {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding-left: var(--spacing-4);
+  }
+  .tier-row-benefits li {
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    position: relative;
+  }
+  .tier-row-benefits li::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--spacing-4));
+    top: 0.55em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--color-text-secondary);
+    opacity: 0.6;
+  }
+
+  /* Right: price + sub + CTA */
+  .tier-row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+    min-width: 160px;
+  }
+  .tier-row-price {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-text-accent);
+    line-height: 1;
+  }
+  .tier-row-sub {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-2);
+  }
+
+  /* Featured (dark green) card overrides text to cream/inverse */
+  .tier-row-featured .tier-row-name {
+    color: var(--color-brand-cream);
+  }
+  .tier-row-featured .tier-row-benefits li {
+    color: var(--color-text-inverse);
+  }
+  .tier-row-featured .tier-row-benefits li::before {
+    background-color: var(--color-text-inverse);
+  }
+  .tier-row-featured .tier-row-price {
+    color: var(--color-brand-cream);
+  }
+  .tier-row-featured .tier-row-sub {
+    color: var(--color-text-inverse);
+    opacity: 0.8;
+  }
+
+  /* ---- Other Ways callout ---- */
+  .other-ways {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-12) var(--spacing-16);
+  }
+  .other-ways-inner {
+    max-width: 1312px;
+    margin: 0 auto;
+  }
+  .callout {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-5);
+    text-align: center;
+  }
+  .callout h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--color-text-accent);
+  }
+  .callout p {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--color-text-primary);
+    max-width: 680px;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 700px) {
+    .tier-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .tier-row-right {
+      align-items: flex-start;
+      width: 100%;
+    }
+    .reg-hero h1 {
+      font-size: 32px;
+    }
+  }
+</style>

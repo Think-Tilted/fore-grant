@@ -1,0 +1,204 @@
+---
+/**
+ * FormField — ported from Figma "Form Field" component set
+ * (design/ROADMAP.md Phase 5.2).
+ *
+ * Figma source values (design/figma-file.json, "Form Field" page):
+ *   Label: 13px, black. Field box: 44px tall, radius-md (8px), white fill,
+ *     border-control (green @64%) 1px at rest -> solid green on hover ->
+ *     accent-default (orange) 2px on focus -> accent-hover/rust 2px on
+ *     error -> brand-subtle fill, no border, when disabled.
+ *   Helper text: 14px, black @62%, or text-accent (rust) when Error.
+ *   Value text: 16px, black @62% placeholder-style at rest/hover, solid
+ *     black once actually filled — matches native placeholder vs. value
+ *     styling, so this maps directly to CSS `::placeholder` rather than
+ *     needing a separate "Filled" markup state.
+ *
+ * State (Hover/Focus/Filled/Disabled) is handled via native CSS
+ * pseudo-classes/attributes wherever the browser already provides them
+ * (:hover, :focus, :disabled, :placeholder-shown) rather than separate
+ * markup per state — only Error needs an explicit prop, since "is this
+ * field currently invalid" isn't something CSS can infer on its own.
+ */
+export type FormFieldType = "text" | "email" | "tel" | "url" | "select" | "textarea" | "upload";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  type?: FormFieldType;
+  name: string;
+  label: string;
+  helper?: string;
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  value?: string;
+  options?: Option[];
+  rows?: number;
+  accept?: string;
+  class?: string;
+}
+
+const {
+  type = "text",
+  name,
+  label,
+  helper,
+  error,
+  required = false,
+  disabled = false,
+  placeholder,
+  value,
+  options = [],
+  rows = 4,
+  accept,
+  class: className = "",
+} = Astro.props as Props;
+
+const fieldId = `field-${name}`;
+
+const hasError = Boolean(error);
+const textInputTypes = ["text", "email", "tel", "url"] as const;
+type TextInputType = (typeof textInputTypes)[number];
+const inputType: TextInputType = (textInputTypes as readonly string[]).includes(type)
+  ? (type as TextInputType)
+  : "text";
+
+---
+
+<div class:list={["form-field", { "is-error": hasError, "is-disabled": disabled }, className]}>
+  <label for={fieldId} class="form-field-label">
+    {label}{required && <span class="form-field-required" aria-hidden="true"> *</span>}
+  </label>
+
+  {type === "select" ? (
+    <select id={fieldId} name={name} class="form-field-control" required={required} disabled={disabled}>
+      {placeholder && <option value="" selected disabled>{placeholder}</option>}
+      {options.map((opt: Option) => (
+
+        <option value={opt.value} selected={opt.value === value}>{opt.label}</option>
+      ))}
+    </select>
+  ) : type === "textarea" ? (
+    <textarea
+      id={fieldId}
+      name={name}
+      class="form-field-control form-field-textarea"
+      rows={rows}
+      placeholder={placeholder}
+      required={required}
+      disabled={disabled}
+    >{value}</textarea>
+  ) : type === "upload" ? (
+    <input
+      id={fieldId}
+      name={name}
+      type="file"
+      class="form-field-control form-field-upload"
+      accept={accept}
+      required={required}
+      disabled={disabled}
+    />
+  ) : (
+    <input
+      id={fieldId}
+      name={name}
+      type={inputType}
+      class="form-field-control"
+      placeholder={placeholder}
+      value={value}
+      required={required}
+      disabled={disabled}
+    />
+  )}
+
+  {(error || helper) && (
+    <p class="form-field-helper">{error ?? helper}</p>
+  )}
+</div>
+
+<style>
+  @layer components {
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .form-field-label {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--color-text-primary);
+    }
+
+    .form-field-required {
+      color: var(--color-text-accent);
+    }
+
+    .form-field-control {
+      height: 44px;
+      padding: 0 var(--spacing-4);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-control);
+      background-color: var(--color-base-white);
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--color-text-primary);
+      transition: border-color 0.15s ease;
+    }
+
+    .form-field-control::placeholder {
+      color: var(--color-text-secondary);
+    }
+
+    .form-field-control:hover:not(:disabled) {
+      border-color: var(--color-brand-default);
+    }
+
+    .form-field-control:focus:not(:disabled) {
+      outline: none;
+      border-color: var(--color-accent-default);
+      border-width: 2px;
+    }
+
+    .form-field-control:disabled {
+      background-color: var(--color-brand-subtle);
+      border-color: transparent;
+      color: var(--color-state-disabled-text);
+      cursor: not-allowed;
+    }
+
+    .form-field-textarea {
+      height: auto;
+      padding-top: var(--spacing-3);
+      padding-bottom: var(--spacing-3);
+      resize: vertical;
+      font-family: var(--font-body);
+    }
+
+    .form-field-upload {
+      padding-top: var(--spacing-2);
+      font-family: var(--font-body);
+      font-size: 15px;
+    }
+
+    .form-field-helper {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    /* ---- Error ---- */
+    .form-field.is-error .form-field-control {
+      border-color: var(--color-text-accent);
+      border-width: 2px;
+    }
+    .form-field.is-error .form-field-helper {
+      color: var(--color-text-accent);
+    }
+  }
+</style>
