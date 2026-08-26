@@ -1,0 +1,113 @@
+/* Teeing Off Fore Grant — design tokens
+   Six brand colours plus black and white. Everything else is one of those at a
+   documented opacity — no new hues.
+   Naming contract: Figma `color/bg/page` <-> CSS `--color-bg-page`.
+   Single theme by design; this brand has one light palette. */
+
+:root {
+  /* ---- Palette ---- */
+  --color-brand-green: #31532D;  /* C77 M43 Y92 K42 */
+  --color-brand-olive: #587333;  /* argyle second green — official, C67 M36 Y100 K21 */
+  --color-brand-orange: #F05323;  /* spot · C0 M83 Y100 K0 · DISPLAY ONLY, 3.16:1 */
+  --color-brand-orange-mid: #CD4628;  /* spot · C14 M87 Y100 K4 · interactive fills, 4.66:1 with white */
+  --color-brand-rust: #A53422;  /* C24 M91 Y100 K18 · hover; only orange safe as body text */
+  --color-brand-cream: #E4E1C5;  /* spot · C11 M7 Y24 K0 */
+  --color-brand-light: #F4F3E8;  /* derived — brand cream at 40% over white */
+  --color-base-black: #000000;
+  --color-base-white: #FFFFFF;
+
+  /* ---- Semantic — bind components to these only ---- */
+  --color-bg-page: var(--color-brand-light);
+  --color-bg-panel: var(--color-brand-cream);
+  --color-bg-field: var(--color-base-white);  /* input surface — reads on page ground and on a cream card */
+  --color-bg-inverse: var(--color-brand-green);
+  --color-bg-overlay: rgb(49 83 45 / .55);  /* green 55% — modal scrim */
+  --color-text-primary: var(--color-base-black);
+  --color-text-secondary: rgb(0 0 0 / .62);  /* black 62% — clears 4.5:1 on brand-subtle, the lightest ground it lands on */
+  --color-text-brand: var(--color-brand-green);
+  --color-text-accent: var(--color-brand-rust);
+  --color-text-on-brand: var(--color-base-white);
+  --color-text-on-accent: var(--color-base-white);
+  --color-text-inverse: var(--color-brand-cream);
+  --color-border-subtle: rgb(49 83 45 / .10);  /* green 10% — decorative */
+  --color-border-default: rgb(49 83 45 / .20);  /* green 20% — decorative panel edges, NOT form controls */
+  --color-border-control: rgb(49 83 45 / .64);  /* green 64% — 3:1 per WCAG 1.4.11; inputs and selects only */
+  --color-border-focus: var(--color-brand-orange-mid);
+  --color-brand-default: var(--color-brand-green);
+  --color-brand-hover: #2A4727;  /* brand green darkened 14% */
+  --color-brand-active: #243D21;  /* brand green darkened 26% */
+  --color-brand-subtle: rgb(49 83 45 / .08);
+  --color-accent-display: var(--color-brand-orange);  /* large display only */
+  --color-accent-default: var(--color-brand-orange-mid);  /* primary CTA fill */
+  --color-accent-hover: var(--color-brand-rust);
+  --color-accent-active: #8B2C1D;  /* brand rust darkened 16% */
+  --color-accent-subtle: rgb(240 83 35 / .14);  /* badge and tag fills */
+  --color-argyle-dark: var(--color-brand-green);
+  --color-argyle-olive: var(--color-brand-olive);
+  --color-argyle-dot: var(--color-brand-orange-mid);
+  --color-state-disabled-bg: rgb(49 83 45 / .08);
+  --color-state-disabled-text: rgb(0 0 0 / .42);  /* 3:1 on state-disabled-bg */
+  --color-state-sold-out: rgb(0 0 0 / .62);  /* clears 4.5:1 on bg-panel AND state-disabled-bg, where the badge sits */
+  --color-state-limited: var(--color-brand-rust);
+
+  /* ---- Type ----
+     Bitter: headings, display italic, the date line, tier names, buttons.
+     Source Serif 4: body copy, benefit lists, anything read at length. */
+  --font-heading: "Bitter", Georgia, "Times New Roman", serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --text-display-size: clamp(2.75rem, 7vw, 5rem);
+  --text-display-line: 0.98;
+  --text-display-track: -0.03em;
+  --text-h1-size: clamp(2rem, 4.4vw, 3rem);
+  --text-h1-line: 1.06;
+  --text-h1-track: -0.022em;
+  --text-h2-size: clamp(1.5rem, 2.8vw, 2rem);
+  --text-h2-line: 1.15;
+  --text-h2-track: -0.016em;
+  --text-h3-size: 1.25rem;
+  --text-h3-line: 1.25;
+  --text-body-size: 1.0625rem;
+  --text-body-line: 1.62;
+  --text-small-size: 0.9375rem;
+  --text-small-line: 1.5;
+  --text-label-size: 0.75rem;
+  --text-label-track: 0.14em;
+
+  /* ---- Scale — 8px base, matching the flyer's rhythm ---- */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
+  --space-32: 128px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;    /* the flyer's info panels */
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  --border-hairline: 1px;
+  --border-default: 2px;   /* the flyer's one outlined box */
+
+  --control-sm: 36px; --control-md: 44px; --control-lg: 52px;
+
+  /* ---- Motion — restrained; this is a print-derived brand ---- */
+  --motion-lift: -2px;        /* hover lift — the whole affordance; no shadow, the flyer has none */
+  --motion-duration-hover: 160ms;
+  --motion-scale-press: 0.98;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Argyle band ----
+     Flyer proportion: band is 8.7% of layout width. Below 48px the crosshatch
+     dots fall under 1px and read as mud — use the plain variant there. */
+  --argyle-band-h: clamp(28px, 5.2vw, 88px);
+  --argyle-trim-h: 24px;
+
+  /* ---- Elevation ----
+     The flyer has no shadows. Separation is flat tinted fills plus one 2px
+     outline used sparingly. Keep it that way. */
+  --shadow-none: none;
+  --shadow-overlay: 0 24px 64px rgba(34, 58, 32, 0.24);  /* modals only */
+}

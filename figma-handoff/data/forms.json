@@ -1,0 +1,205 @@
+{
+  "_comment": "Field contract for both register forms, extracted from Figma. `name` is the suggested payload key — agree it with Trevor before he wires validation, then it is fixed. Payment is Check/Cash/Venmo only: no card processing anywhere on this site.",
+  "paymentOptions": [
+    "Check",
+    "Cash",
+    "Venmo"
+  ],
+  "forms": {
+    "sponsor": {
+      "route": "/register?type=sponsor",
+      "prefill": "tier id from the Register Now button on the Registration page",
+      "sections": [
+        {
+          "title": "Company Information",
+          "fields": [
+            {
+              "name": "companyName",
+              "label": "Company name",
+              "type": "text",
+              "required": true,
+              "helper": "As it should appear on signage"
+            },
+            {
+              "name": "tierId",
+              "label": "Sponsor tier",
+              "type": "select",
+              "required": true,
+              "optionsFrom": "data/tiers.json",
+              "helper": "Carried in from your selection"
+            },
+            {
+              "name": "companyWebsite",
+              "label": "Company website",
+              "type": "url",
+              "required": false,
+              "helper": "example.com"
+            },
+            {
+              "name": "paymentType",
+              "label": "Payment type",
+              "type": "select",
+              "required": true,
+              "optionsFrom": "paymentOptions"
+            },
+            {
+              "name": "companyLogo",
+              "label": "Company logo",
+              "type": "file",
+              "required": false,
+              "accept": [
+                ".svg",
+                ".eps",
+                ".ai",
+                ".pdf",
+                ".png"
+              ],
+              "helper": "High-resolution required. Vector preferred — SVG, EPS or AI. This goes on signage."
+            }
+          ]
+        },
+        {
+          "title": "Player Information",
+          "fields": [
+            {
+              "name": "contactName",
+              "label": "Name",
+              "type": "text",
+              "required": true,
+              "helper": "First and last · team captain and primary contact"
+            },
+            {
+              "name": "contactPhone",
+              "label": "Phone number",
+              "type": "tel",
+              "required": true,
+              "helper": "For day-of contact only"
+            },
+            {
+              "name": "contactEmail",
+              "label": "Email address",
+              "type": "email",
+              "required": true,
+              "helper": "Confirmation and day-of details go here"
+            },
+            {
+              "name": "player2",
+              "label": "Player 2 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            },
+            {
+              "name": "player3",
+              "label": "Player 3 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            },
+            {
+              "name": "player4",
+              "label": "Player 4 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            }
+          ]
+        },
+        {
+          "title": "Special Requests or Comments",
+          "fields": [
+            {
+              "name": "comments",
+              "label": "Anything we should know?",
+              "type": "textarea",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "submitLabel": "Review your registration"
+    },
+    "golfer": {
+      "route": "/register?type=golfer",
+      "prefill": "foursome-entry-group-package",
+      "sections": [
+        {
+          "title": "Your Information",
+          "fields": [
+            {
+              "name": "contactName",
+              "label": "Name",
+              "type": "text",
+              "required": true,
+              "helper": "First and last · team captain and primary contact"
+            },
+            {
+              "name": "contactPhone",
+              "label": "Phone number",
+              "type": "tel",
+              "required": true,
+              "helper": "For day-of contact only"
+            },
+            {
+              "name": "contactEmail",
+              "label": "Email address",
+              "type": "email",
+              "required": true,
+              "helper": "Confirmation and day-of details go here"
+            },
+            {
+              "name": "paymentType",
+              "label": "Payment type",
+              "type": "select",
+              "required": true,
+              "optionsFrom": "paymentOptions"
+            }
+          ]
+        },
+        {
+          "title": "Team Information",
+          "fields": [
+            {
+              "name": "player2",
+              "label": "Player 2 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            },
+            {
+              "name": "player3",
+              "label": "Player 3 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            },
+            {
+              "name": "player4",
+              "label": "Player 4 name",
+              "type": "text",
+              "required": false,
+              "helper": "First and last"
+            }
+          ]
+        },
+        {
+          "title": "Special Requests or Comments",
+          "fields": [
+            {
+              "name": "comments",
+              "label": "Anything we should know?",
+              "type": "textarea",
+              "required": false,
+              "helper": "Dietary needs, cart preferences, accommodations, or questions"
+            }
+          ]
+        }
+      ],
+      "submitLabel": "Review your registration"
+    }
+  },
+  "openDecisions": [
+    "Where do submissions go? Recommendation: email to Jessica + a Google Sheet via a form service. No database needed.",
+    "Company logo upload needs file storage. Consider dropping it and asking sponsors to email the file — removes storage, validation and a security surface for ~a dozen sponsors."
+  ]
+}

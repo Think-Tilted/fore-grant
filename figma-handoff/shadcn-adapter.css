@@ -1,0 +1,63 @@
+/* shadcn ↔ Fore Grant token adapter
+   ------------------------------------------------------------------
+   The ONLY place shadcn's variable names meet ours. shadcn components
+   read these; our tokens stay authoritative. Never rename our tokens to
+   match shadcn — the library is the replaceable layer. */
+
+:root {
+  --background:          var(--color-bg-page);
+  --foreground:          var(--color-text-primary);
+  --card:                var(--color-bg-panel);
+  --card-foreground:     var(--color-text-primary);
+  --popover:             var(--color-bg-field);
+  --popover-foreground:  var(--color-text-primary);
+
+  --primary:             var(--color-accent-default);   /* #CD4628 — 4.66:1 with white */
+  --primary-foreground:  var(--color-text-on-accent);
+  --secondary:           var(--color-bg-inverse);
+  --secondary-foreground:var(--color-text-inverse);
+
+  --muted:               var(--color-brand-subtle);
+  --muted-foreground:    var(--color-text-secondary);
+  --accent:              var(--color-accent-subtle);
+  --accent-foreground:   var(--color-text-accent);
+
+  --destructive:         var(--color-brand-rust);
+  --destructive-foreground: var(--color-base-white);
+
+  --border:              var(--color-border-default);   /* decorative, 1.37:1 */
+  --input:               var(--color-border-control);   /* controls, 3:1 — NOT the same */
+  --ring:                var(--color-border-focus);
+  --radius:              var(--radius-md);
+}
+
+/* ---- Overrides for shadcn defaults that contradict this design system ----
+   Each one is a decision already made elsewhere in the project. */
+
+/* 1. NO SHADOWS. The flyer has none and neither does this. Hover is a 2px
+      lift. shadcn ships shadow-sm on cards, buttons, popovers and dialogs. */
+[data-slot="card"], [data-slot="popover-content"], [data-slot="dialog-content"],
+[data-slot="dropdown-menu-content"], [data-slot="select-content"], .shadow-sm, .shadow {
+  box-shadow: none !important;
+}
+
+/* 2. Focus ring is ours: 2px, 2px offset, orange-mid. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* 3. Hover on a primary button is a lift plus a fill darken — never elevation. */
+[data-slot="button"][data-variant="default"]:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-2px);
+}
+[data-slot="button"][data-variant="default"]:active {
+  background: var(--color-accent-active);
+  transform: scale(.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="button"] { transition: none !important; transform: none !important; }
+}

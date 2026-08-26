@@ -1,0 +1,270 @@
+/* Teeing Off Fore Grant — Tailwind v4 theme
+   ------------------------------------------------------------------
+   This file is the ONLY place Figma token names meet Tailwind utility
+   names. Token values are not restated here — every entry points at a
+   custom property defined in tokens.css, which stays the source of truth.
+
+       Figma variable  →  tokens.css  →  @theme alias  →  utility
+       color/bg/page   →  --color-bg-page  →  --color-page  →  bg-page
+
+   Why alias at all: Tailwind supplies the category in the utility, so a
+   literal mapping produces `bg-bg-page` and `text-text-primary`. The
+   aliases below drop the duplicated category and nothing else. The
+   mapping table is exhaustive — if a token is not listed, it has no
+   utility, and that is deliberate.
+
+   Change tokens in Figma → regenerate tokens.css → this file is untouched. */
+
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme {
+  /* ---- Surfaces ---------------------------------------------------- */
+  --color-page:            var(--color-bg-page);        /* bg-page */
+  --color-panel:           var(--color-bg-panel);       /* bg-panel */
+  --color-field:           var(--color-bg-field);       /* bg-field — inputs only */
+  --color-inverse:         var(--color-bg-inverse);     /* bg-inverse — the green ground */
+  --color-overlay:         var(--color-bg-overlay);
+
+  /* ---- Ink --------------------------------------------------------- */
+  --color-ink:             var(--color-text-primary);
+  --color-ink-muted:       var(--color-text-secondary);
+  --color-ink-brand:       var(--color-text-brand);
+  --color-ink-accent:      var(--color-text-accent);
+  --color-on-brand:        var(--color-text-on-brand);   /* white on green */
+  --color-on-accent:       var(--color-text-on-accent);  /* white on orange */
+  --color-on-inverse:      var(--color-text-inverse);    /* cream on green */
+
+  /* ---- Lines ------------------------------------------------------- */
+  /* line and line-control are NOT interchangeable. Decorative panel edges
+     are 1.37:1; form controls need 3:1 for WCAG 1.4.11. Never swap them. */
+  --color-line-subtle:     var(--color-border-subtle);
+  --color-line:            var(--color-border-default);
+  --color-line-control:    var(--color-border-control);
+  --color-line-focus:      var(--color-border-focus);
+
+  /* ---- Brand + accent ---------------------------------------------- */
+  --color-brand:           var(--color-brand-default);
+  --color-brand-hover:     var(--color-brand-hover);
+  --color-brand-active:    var(--color-brand-active);
+  --color-brand-subtle:    var(--color-brand-subtle);
+  /* accent-display is LARGE DISPLAY ONLY — 3.16:1. Never a button fill,
+     never body text. Buttons use accent (4.66:1 with white). */
+  --color-accent-display:  var(--color-accent-display);
+  --color-accent:          var(--color-accent-default);
+  --color-accent-hover:    var(--color-accent-hover);
+  --color-accent-active:   var(--color-accent-active);
+  --color-accent-subtle:   var(--color-accent-subtle);
+
+  /* ---- Argyle + state ---------------------------------------------- */
+  --color-argyle-dark:     var(--color-argyle-dark);
+  --color-argyle-olive:    var(--color-argyle-olive);
+  --color-argyle-dot:      var(--color-argyle-dot);
+  --color-disabled-bg:     var(--color-state-disabled-bg);
+  --color-disabled-text:   var(--color-state-disabled-text);
+  --color-sold-out:        var(--color-state-sold-out);
+  --color-limited:         var(--color-state-limited);
+
+  /* ---- Type families ----------------------------------------------- */
+  --font-heading: var(--font-heading);
+  --font-body:    var(--font-body);
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---- Type ramp ---------------------------------------------------
+     One entry per Figma text style, same names. `text-heading-section`
+     here IS `heading/section` there. 26 styles, 474 of 478 page text
+     nodes bound to them.
+     Line heights are SET (2026-08-21) and paired below each size. Ratios are
+     unitless so they scale with the size. The rule: the bigger the type, the
+     tighter it sets — display 1.05, headings 1.15-1.30, body 1.50-1.60.
+     Bullet markers deliberately match body leading so they sit on its baseline. */
+
+  /* Bitter — headings, labels, buttons */
+  --text-display-lg:        3.5rem;      /* 56 — page titles */
+  --text-display-lg--line-height: 1.05;
+  --text-display-price:     2.5rem;      /* 40 — tier prices */
+  --text-display-price--line-height: 1.1;
+  --text-heading-section:   2.25rem;     /* 36 — section headings, every page */
+  --text-heading-section--line-height: 1.15;
+  --text-heading-section-soft: 2.25rem;  /* 36 SemiBold — footer tagline */
+  --text-heading-section-soft--line-height: 1.15;
+  --text-heading-bucket:    1.75rem;     /* 28 — bucket heads */
+  --text-heading-bucket--line-height: 1.2;
+  --text-heading-tier:      1.375rem;    /* 22 — tier names, form sections */
+  --text-heading-tier--line-height: 1.25;
+  --text-heading-h3:        1.25rem;     /* 20 */
+  --text-heading-h3--line-height: 1.3;
+  --text-label-group:       1.1875rem;   /* 19 — group numbers */
+  --text-label-group--line-height: 1.2;
+  --text-button-lg:         1.125rem;    /* 18 */
+  --text-button-lg--line-height: 1.2;
+  --text-button-md:         1rem;        /* 16 — nav, buttons */
+  --text-button-md--line-height: 1.2;
+  --text-marker-md:         1rem;        /* 16 Bold — ▸ */
+  --text-marker-md--line-height: 1.5;
+  --text-label-badge:       0.875rem;    /* 14 — availability badges */
+  --text-label-badge--line-height: 1.2;
+  --text-marker-sm:         0.875rem;    /* 14 Bold — ▸ */
+  --text-marker-sm--line-height: 1.6;
+  --text-label-field:       0.8125rem;   /* 13 — form labels */
+  --text-label-field--line-height: 1.3;
+
+  /* Source Serif 4 — body */
+  --text-body-lead:         2rem;        /* 32 — CTA line */
+  --text-body-lead--line-height: 1.35;
+  --text-body-lead-soft:    2rem;        /* 32 Regular */
+  --text-body-lead-soft--line-height: 1.35;
+  --text-body-contact:      1.375rem;    /* 22 Bold */
+  --text-body-contact--line-height: 1.5;
+  --text-body-contact-soft: 1.375rem;    /* 22 Regular */
+  --text-body-contact-soft--line-height: 1.5;
+  --text-body-lg:           1.0625rem;   /* 17 */
+  --text-body-lg--line-height: 1.6;
+  --text-body-lg-strong:    1.0625rem;   /* 17 SemiBold */
+  --text-body-lg-strong--line-height: 1.6;
+  --text-body-md:           1rem;        /* 16 — the workhorse, 90 nodes */
+  --text-body-md--line-height: 1.6;
+  --text-body-md-strong:    1rem;        /* 16 SemiBold */
+  --text-body-md-strong--line-height: 1.6;
+  --text-body-sm:           0.9375rem;   /* 15 */
+  --text-body-sm--line-height: 1.55;
+  --text-body-xs:           0.8125rem;   /* 13 — helper/hint text, not prose */
+  --text-body-xs--line-height: 1.45;
+
+  /* JetBrains Mono — eyebrows and captions */
+  --text-mono-label:        0.875rem;    /* 14 */
+  --text-mono-label--line-height: 1.4;
+  --text-mono-caption:      0.75rem;     /* 12 */
+  --text-mono-caption--line-height: 1.4;
+
+  /* Present in Figma, unused by any page today. Mirrored so the ramp in
+     Figma and the ramp in CSS are the same list — a style on the Foundations
+     sheet with no matching utility is exactly the kind of gap that makes a
+     developer guess. */
+  --text-display-xl:        5rem;        /* 80 */
+  --text-display-xl--line-height: 1.02;
+  --text-display-italic:    2.5rem;      /* 40, Bitter Bold Italic */
+  --text-display-italic--line-height: 1.1;
+  --text-heading-h1:        3rem;        /* 48 */
+  --text-heading-h1--line-height: 1.08;
+  --text-heading-h2:        2rem;        /* 32 */
+  --text-heading-h2--line-height: 1.15;
+  --text-label-md:          0.75rem;     /* 12, tracked caps */
+  --text-label-md--line-height: 1.3;
+
+  /* ---- Mobile type ramp (<768) --------------------------------------
+     Same names with a `mobile-` prefix, mirroring Figma's `mobile/` folder.
+     DISPLAY SHRINKS, BODY DOES NOT — body at 16px is already right on a
+     phone, and shrinking it hurts exactly the day-of, outdoors, in-sunlight
+     reading the brief cares about. Only these 24 have a mobile step; the
+     six body/label steps are deliberately absent and simply do not change.
+
+     Usage:  text-mobile-heading-section  md:text-heading-section          */
+  --text-mobile-display-lg:        2.125rem;   /* 56 -> 34 */
+  --text-mobile-display-lg--line-height: 1.1;
+  --text-mobile-display-price:     1.75rem;    /* 40 -> 28 */
+  --text-mobile-display-price--line-height: 1.15;
+  --text-mobile-heading-section:   1.625rem;   /* 36 -> 26 */
+  --text-mobile-heading-section--line-height: 1.2;
+  --text-mobile-heading-section-soft: 1.625rem;/* 36 -> 26 */
+  --text-mobile-heading-section-soft--line-height: 1.2;
+  --text-mobile-heading-bucket:    1.3125rem;  /* 28 -> 21 */
+  --text-mobile-heading-bucket--line-height: 1.25;
+  --text-mobile-heading-tier:      1.1875rem;  /* 22 -> 19 */
+  --text-mobile-heading-tier--line-height: 1.3;
+  --text-mobile-heading-h3:        1.125rem;   /* 20 -> 18 */
+  --text-mobile-heading-h3--line-height: 1.3;
+  --text-mobile-label-group:       1.0625rem;  /* 19 -> 17 */
+  --text-mobile-label-group--line-height: 1.25;
+  --text-mobile-button-lg:         1rem;       /* 18 -> 16 */
+  --text-mobile-button-lg--line-height: 1.2;
+  --text-mobile-label-badge:       0.8125rem;  /* 14 -> 13 */
+  --text-mobile-label-badge--line-height: 1.25;
+  --text-mobile-marker-md:         0.875rem;   /* 16 -> 14 */
+  --text-mobile-marker-md--line-height: 1.6;
+  --text-mobile-marker-sm:         0.8125rem;  /* 14 -> 13 */
+  --text-mobile-marker-sm--line-height: 1.6;
+  --text-mobile-body-lead:         1.25rem;    /* 32 -> 20 */
+  --text-mobile-body-lead--line-height: 1.45;
+  --text-mobile-body-lead-soft:    1.25rem;    /* 32 -> 20 */
+  --text-mobile-body-lead-soft--line-height: 1.45;
+  --text-mobile-body-contact:      1.0625rem;  /* 22 -> 17 */
+  --text-mobile-body-contact--line-height: 1.55;
+  --text-mobile-body-contact-soft: 1.0625rem;  /* 22 -> 17 */
+  --text-mobile-body-contact-soft--line-height: 1.55;
+  --text-mobile-body-lg:           1rem;       /* 17 -> 16 */
+  --text-mobile-body-lg--line-height: 1.6;
+  --text-mobile-body-lg-strong:    1rem;       /* 17 -> 16 */
+  --text-mobile-body-lg-strong--line-height: 1.6;
+  --text-mobile-body-xs:           0.75rem;    /* 13 -> 12 — the ONE body size that shrinks;
+                                                  helper text is a label, not reading copy */
+  --text-mobile-body-xs--line-height: 1.45;
+  --text-mobile-body-sm:           0.875rem;   /* 15 -> 14 — tier benefit lines */
+  --text-mobile-body-sm--line-height: 1.4;
+  --text-mobile-mono-label:        0.75rem;    /* 14 -> 12 */
+  --text-mobile-mono-label--line-height: 1.4;
+  --text-mobile-mono-caption:      0.6875rem;  /* 12 -> 11 */
+  --text-mobile-mono-caption--line-height: 1.4;
+
+  /* Hero-only steps, added 2026-08-25 for the Home — 390 photo hero.
+     No desktop counterpart — the desktop hero is badge + buttons, no date line. */
+  --text-mobile-display-hero:      1.875rem;   /* 30 — sits between display-lg 34 and
+                                                  display-price 28; 34 overflows 390 */
+  --text-mobile-display-hero--line-height: 1.15;
+  --text-mobile-label-eyebrow:     0.9375rem;  /* 15, JetBrains Mono Medium */
+  --text-mobile-label-eyebrow--line-height: 1.4;
+
+  /* Unchanged at mobile, on purpose: button-md, body-md, body-md-strong,
+     body-sm, body-xs, label-field. */
+
+  /* ---- Tracking -----------------------------------------------------
+     Every Figma style carrying non-zero tracking is mirrored below as a
+     --text-*--letter-spacing pair, so a utility carries it automatically.
+     Figma states tracking as a % of font size, which is exactly `em`.
+     Every style NOT listed here is 0 in Figma and needs nothing. */
+  --text-display-xl--letter-spacing:      -0.03em;   /* -3%   */
+  --text-display-lg--letter-spacing:      -0.026em;  /* -2.6% */
+  --text-display-italic--letter-spacing:   0.02em;   /*  2%   */
+  --text-heading-h1--letter-spacing:      -0.022em;  /* -2.2% */
+  --text-heading-h2--letter-spacing:      -0.016em;  /* -1.6% */
+  --text-heading-h3--letter-spacing:      -0.01em;   /* -1%   */
+  --text-label-md--letter-spacing:         0.14em;   /* 14%   */
+  --text-button-md--letter-spacing:        0.02em;   /*  2%   */
+  --text-mobile-label-eyebrow--letter-spacing: 4px;  /* Figma states this one in px */
+
+  /* ---- Spacing ------------------------------------------------------ */
+  --spacing-1:  4px;   --spacing-2:  8px;   --spacing-3:  12px;
+  --spacing-4:  16px;  --spacing-5:  20px;  --spacing-6:  24px;
+  --spacing-8:  32px;  --spacing-10: 40px;  --spacing-12: 48px;
+  --spacing-16: 64px;  --spacing-20: 80px;  --spacing-24: 96px;
+  --spacing-32: 128px;
+
+  /* ---- Radius ------------------------------------------------------- */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 999px;
+
+  /* ---- Layout ------------------------------------------------------- */
+  /* One container width across the whole site: 1440 minus 64px each side. */
+  --container-site: 1312px;
+  --container-site-mobile: 350px;   /* 390 minus 20px each side */
+
+  /* Section rhythm: 80px vertical on desktop, 40 on mobile; gaps 32 -> 20. */
+  --section-y: 80px;
+  --section-y-mobile: 40px;
+  --section-x: 64px;
+  --section-x-mobile: 20px;
+
+  /* ---- Motion ------------------------------------------------------- */
+  /* Hover is a 2px LIFT, never a shadow. This design system has no shadows
+     anywhere — if a component library reintroduces one, strip it. */
+  --ease-hover: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* Tailwind ships shadow utilities. This project does not use them.
+   Kept as a visible reminder rather than a silent omission. */
+@utility shadow-none-always {
+  box-shadow: none !important;
+}
