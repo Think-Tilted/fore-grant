@@ -24,8 +24,10 @@ export interface Props {
 }
 
 const { variant = "home", currentPath = "" } = Astro.props;
-const isRegistration = currentPath === "/registration" ||
-                       currentPath.startsWith("/registration/");
+// Normalize trailing slash so /tournament-day/ matches /tournament-day
+const path = currentPath.replace(/\/$/, "") || "/";
+const isRegistration = path === "/registration" ||
+                       path.startsWith("/registration/");
 ---
 
 <header class:list={["nav", `nav-${variant}`]}>
@@ -38,10 +40,10 @@ const isRegistration = currentPath === "/registration" ||
         </a>
         <nav class="nav-yield nav-home-links" aria-label="Primary">
           <Button href="/registration" size="medium">Register Today</Button>
-          <NavLink href="/tournament-day" tone="light" active={currentPath === "/tournament-day"}>
+          <NavLink href="/tournament-day" tone="light" active={path === "/tournament-day"}>
             Tournament Day
           </NavLink>
-          <NavLink href="/contact" tone="light" active={currentPath === "/contact"}>
+          <NavLink href="/contact" tone="light" active={path === "/contact"}>
             Contact
           </NavLink>
         </nav>
@@ -58,11 +60,11 @@ const isRegistration = currentPath === "/registration" ||
             <Button href="/registration" size="medium">Register Today</Button>
           )}
           <NavLink href="/tournament-day" tone="dark"
-            active={!isRegistration && currentPath === "/tournament-day"}>
+            active={!isRegistration && path === "/tournament-day"}>
             Tournament Day
           </NavLink>
           <NavLink href="/contact" tone="dark"
-            active={!isRegistration && currentPath === "/contact"}>
+            active={!isRegistration && path === "/contact"}>
             Contact
           </NavLink>
         </nav>

@@ -39,7 +39,7 @@ import SocialIcon from "./SocialIcon.astro";
             @GrantsTALLBattle
           </a>
         </div>
-        <p class="footer-text">
+        <p class="footer-text footer-text--subtext">
           Photos, pairings and day-of updates. Tag your round with #GrantsTALLBattle.
         </p>
       </div>
@@ -106,23 +106,33 @@ import SocialIcon from "./SocialIcon.astro";
       align-items: start;
     }
 
-    @media (max-width: 767px) {
-      .footer-body {
-        padding: var(--spacing-10) var(--spacing-5) var(--spacing-8);
-      }
-      .footer-sections {
-        grid-template-columns: 1fr;
-      }
-      .footer-divider {
-        display: none;
-      }
-    }
-
     /* CLAUDE.md "Orange as structure": 2px accent/display vertical dividers */
     .footer-divider {
       width: 2px;
       align-self: stretch;
       background-color: var(--color-accent-display);
+    }
+
+    @media (max-width: 767px) {
+      .footer-body {
+        padding: var(--spacing-10) var(--spacing-5) var(--spacing-8);
+      }
+      .footer-tagline {
+        font-size: var(--text-heading-h3);
+        line-height: var(--text-heading-h3--line-height);
+      }
+      .footer-sections {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+      }
+      /* Horizontal orange leader lines between sections on mobile */
+      .footer-divider {
+        width: 100%;
+        height: 1px;
+        align-self: auto;
+      }
+      /* Instagram sub-text hidden on mobile */
+      .footer-text--subtext { display: none; }
     }
 
     /* Figma "h" nodes (Get Connected/Questions/Pages headings) — Bitter
