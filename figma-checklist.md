@@ -2,6 +2,22 @@ Here is the pre-Phase 5 aesthetic crosscheck checklist, organized component-by-c
 
 ---
 
+## Kyle's Wave 1 Bug Tracker
+
+- [x] **Row 2 — Argyle CSS** — Fixed: trimmed out-of-viewBox path segments causing bottom-left dots to be clipped; removed reference-only files from repo root.
+- [x] **Row 3 — Nav hover states** — Fixed: text now stays `text-brand` (light) / `text-inverse` (dark) on hover; orange underline is the sole hover/active indicator. Removed the color-change-on-hover that was making links unreadable or wrong-colored.
+- [x] **Row 4 — Icon color** — "SVG icons are not rendering with the correct colors. The golf ball icons on the home page should be #F4F3E8, and all icons on the Tournament Day page should be #F05323. Also, check Figma for icon sizing." Fixed: hardcoded fill colors directly in each SVG file (`icon-golf-ball.svg` → `#F4F3E8`; trophy/ticket/hamburger → `#F05323`). Icon sizing to be confirmed against Figma.
+- [x] **Row 5 — Footer** — "Tighten the footer to match Figma. Remove '© 2026 Teeing Off Fore Grant.' Set the Instagram icon to #F05323, and update the pagers list font to match the serif body font used throughout the rest of the footer. Add leader lines, font and spacing matches, etc." Fixed: removed copyright line and `<hr>`; Instagram icon set to `#F05323`; Pages links updated to `font-body` (Source Serif 4). Leader lines / detailed spacing to be confirmed against Figma.
+- [x] **Row 6 — Sponsor card layout (TierRow)** — "Sponsor card adjustments: Move the 'amount left' tags to the right of the header instead of positioning them next to the cost. On hover, invert the tag colors to match the hover text treatment for better visibility. also reduce lower padding/line spacing on mobile." Fixed: badge moved inline with tier name; badge inverts on hover (desktop) and open state (mobile); CTA pulled out of panel into its own grid row; desktop CTA in right column below price; mobile layout reordered to header→panel→price→CTA; button full-width on mobile via `:global(.btn)`; row-gap and panel padding tightened.
+- [x] **Row 7 — "Other Ways to Support Us" styling** — "The 'Other Ways to Support Us' section looks correct on the home page, but the same section on the Registration page is missing the orange border. Match the Registration page styling to the home page for this element." Fixed: added `border: 2px solid var(--color-accent-display)` to `.callout` on the Registration page.
+- [ ] **Row 8 — Hole assignments copy** — Tournament Day: remove helper text "Groups are posted the morning of the tournament." from the search area. In the pending state section, replace existing message with: "Groups and hole assignments will be posted closer to the event."
+- [ ] **Row 9 — Confirmation modal** — After clicking Review, replace red highlights around contact info with a single orange callout box outline around the entire contact review section (all three lines in one box). Red is for errors only.
+- [ ] **Row 10 — Special requests on mobile** — Add a line break after "Requests" in the "Special Requests or Comments" section header so text stays within card width. Mobile only.
+- [ ] **Row 11 — Form fields on mobile** — Forms cause horizontal scrolling. Adjust form and/or card widths so the page only scrolls vertically.
+- [ ] **Row 12 — Confirmation page post-modal** — Add an orange underline beneath "You're Registered." Reduce size of "Your Package" and "What Happens Next" subheadings. Improve mobile experience.
+
+---
+
 ## Pre-Phase 5 Aesthetic Crosscheck Checklist
 
 One item at a time — check it visually in the browser, fix anything off, mark it done before moving to the next.

@@ -70,6 +70,7 @@ const panelId = `tier-${tier.id}`;
         {tier.price}
       </span>
       <span class="tier-row__includes">{tier.includes}</span>
+      <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
     </p>
 
     <div class="tier-row__panel" id={panelId} role="region"
@@ -83,14 +84,17 @@ const panelId = `tier-${tier.id}`;
             </li>
           ))}
         </ul>
-        {tier.soldOut ? (
-          <Button variant="primary" size="medium" disabled>Sold Out</Button>
-        ) : (
-          <Button variant="primary" size="medium" href={registerHref}>
-            Register Now
-          </Button>
-        )}
       </div>
+    </div>
+
+    <div class="tier-row__cta">
+      {tier.soldOut ? (
+        <Button variant="primary" size="medium" disabled>Sold Out</Button>
+      ) : (
+        <Button variant="primary" size="medium" href={registerHref}>
+          Register Now
+        </Button>
+      )}
     </div>
   </div>
 </article>
@@ -116,25 +120,48 @@ const panelId = `tier-${tier.id}`;
     display: grid;
     grid-template-columns: 1fr auto;
     column-gap: var(--spacing-8);
-    row-gap: var(--spacing-3);
+    row-gap: var(--spacing-2);
   }
-  .tier-row__header { grid-column: 1; grid-row: 1; }
-  .tier-row__price { grid-column: 2; grid-row: 1; }
-  .tier-row__panel { grid-column: 1 / -1; grid-row: 2; }
+  .tier-row__header { grid-column: 1; grid-row: 1; align-self: start; }
+  .tier-row__price  { grid-column: 2; grid-row: 1; align-self: start; }
+  .tier-row__panel  { grid-column: 1; grid-row: 2; }
+  .tier-row__cta    { grid-column: 2; grid-row: 2; align-self: start; padding-top: var(--spacing-3); }
 
   .tier-row__toggle {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: var(--spacing-3);
+    width: 100%;
+  }
+  /* Chevron pushes to the far right via margin-left: auto;
+     the global components.css uses justify-content: space-between which
+     would push the badge right on desktop (chevron hidden). Override to
+     flex-start keeps badge immediately after the name. */
+  .tier-row__chevron {
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
-  /* Name: heading/tier (22px Bitter Bold) */
+  /* Name: heading/tier (22px Bitter Bold) — shrinks so badge stays visible */
   .tier-row__name {
     font-family: var(--font-heading);
     font-size: var(--text-heading-tier);
     line-height: var(--text-heading-tier--line-height);
     font-weight: 700;
     color: var(--color-text-brand);
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  /* Badge in toggle: visible on desktop only */
+  :global(.tier-row__badge) {
+    flex-shrink: 0;
+  }
+  /* Badge in price row: hidden on desktop, shown on mobile aligned right */
+  :global(.tier-row__badge-mobile) {
+    display: none;
+    flex-shrink: 0;
+    margin-left: auto;
   }
   /* Hover color overrides — scoped to hover-capable devices only.
      On touch screens :hover sticks after a tap, making rows look
@@ -170,11 +197,12 @@ const panelId = `tier-${tier.id}`;
     }
   }
 
-  /* Price column: price (display/price, 40px) right-aligned, includes below */
+  /* Price column: price (display/price, 40px) right-aligned, includes + badge below */
   .tier-row__price {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    justify-content: flex-start;
     text-align: right;
     gap: var(--spacing-1);
   }
@@ -220,38 +248,59 @@ const panelId = `tier-${tier.id}`;
     flex-shrink: 0;
   }
 
-  /* Panel: benefits on the left, CTA anchored to the price column's width
-     on the right — a two-column grid mirroring the header/price split. */
+  /* Panel: benefits then CTA below, stacked. Price floats in the right
+     grid column spanning both rows. */
   .tier-row__panel > div {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    column-gap: var(--spacing-8);
-    padding-top: var(--spacing-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding-top: var(--spacing-2);
   }
-  .tier-row__panel .tier-row__benefits { grid-column: 1; }
-  .tier-row__panel .btn { grid-column: 2; }
+  /* CTA button: justify centered */
+  .tier-row__cta :global(.btn) {
+    justify-content: center;
+  }
+
+  /* Badge inversion on hover and mobile open state — reversed tones on green bg */
+  @media (hover: hover) {
+    .tier-row:hover :global(.tier-row__badge) {
+      background-color: var(--color-bg-page);
+      color: var(--color-text-brand);
+    }
+  }
+  @media (max-width: 767px) {
+    .tier-row[data-open="true"] :global(.tier-row__badge-mobile) {
+      background-color: var(--color-bg-page);
+      color: var(--color-text-brand);
+    }
+  }
 
   @media (max-width: 767px) {
-    .tier-row { padding: var(--spacing-5); }
+    .tier-row { padding: var(--spacing-4) var(--spacing-4) var(--spacing-3); }
     .tier-row__grid {
       grid-template-columns: 1fr;
     }
+    /* Toggle badge hidden on mobile — price-row badge takes over */
+    :global(.tier-row__badge) { display: none; }
+    :global(.tier-row__badge-mobile) { display: inline-flex; }
+
+    /* Mobile: header (1) → panel/benefits (2) → price (3) → cta (4) */
     .tier-row__header { grid-column: 1; grid-row: 1; }
+    .tier-row__panel  { grid-column: 1; grid-row: 2; }
+    .tier-row__price  { grid-column: 1; grid-row: 3; align-self: auto; }
+    .tier-row__cta    { grid-column: 1; grid-row: 4; }
     .tier-row__price {
-      grid-column: 1; grid-row: 2;
       flex-direction: row;
       align-items: baseline;
       justify-content: flex-start;
       gap: var(--spacing-2);
       text-align: left;
     }
-    .tier-row__panel { grid-row: 3; }
-    .tier-row__panel > div {
-      grid-template-columns: 1fr;
-      justify-items: stretch;
-    }
-    .tier-row__panel .btn { grid-column: 1; }
+    /* CTA full width on mobile */
+    .tier-row__cta { display: block; width: 100%; }
+    .tier-row__cta :global(.btn) { display: flex; width: 100%; box-sizing: border-box; }
+    /* Hide cta when collapsed */
+    .tier-row[data-open="false"] .tier-row__cta { display: none; }
     .tier-row__name {
       font-size: var(--text-mobile-heading-tier);
       line-height: var(--text-mobile-heading-tier--line-height);

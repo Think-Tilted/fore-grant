@@ -69,11 +69,6 @@ import SocialIcon from "./SocialIcon.astro";
       </div>
     </div>
 
-    <hr class="footer-rule" />
-
-    <p class="footer-copyright">
-      &copy; {new Date().getFullYear()} Teeing Off Fore Grant
-    </p>
   </div>
 </footer>
 
@@ -171,6 +166,7 @@ import SocialIcon from "./SocialIcon.astro";
     }
 
     .footer-link {
+      font-family: var(--font-body);
       color: var(--color-text-inverse);
       text-decoration: none;
     }
@@ -183,18 +179,6 @@ import SocialIcon from "./SocialIcon.astro";
       flex-direction: column;
       align-items: flex-start;
       gap: var(--spacing-3);
-    }
-
-    .footer-rule {
-      border: none;
-      border-top: 1px solid var(--color-border-default);
-    }
-
-    .footer-copyright {
-      font-family: var(--font-body);
-      font-size: 14px;
-      color: var(--color-text-inverse);
-      text-align: center;
     }
   }
 </style>

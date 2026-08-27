@@ -8,8 +8,8 @@
  * when hovering a different item) is handled by the global rule in
  * components.css: `.nav:hover .nav-link[aria-current="page"]:not(:hover)`.
  *
- * Tone=Light: text-brand at rest, text-accent on hover/active.
- * Tone=Dark:  text-inverse at rest, bg-page on hover/active.
+ * Tone=Light: text-brand at rest and on hover — underline is the only indicator.
+ * Tone=Dark:  text-inverse at rest and on hover — underline is the only indicator.
  */
 interface Props {
   href: string;
@@ -50,13 +50,9 @@ const { href, tone = "light", active = false, class: className = "" } = Astro.pr
     border-bottom-width: 4px;
   }
 
-  /* Tone=Light (Home hero, light bg) */
+  /* Tone=Light (Home hero, light bg) — text stays brand-green, underline is the signal */
   .nav-link--light { color: var(--color-text-brand); }
-  .nav-link--light:hover,
-  .nav-link--light[aria-current="page"] { color: var(--color-text-accent); }
 
-  /* Tone=Dark (subpage bar, green bg) */
+  /* Tone=Dark (subpage bar, green bg) — text stays cream, underline is the signal */
   .nav-link--dark { color: var(--color-text-inverse); }
-  .nav-link--dark:hover,
-  .nav-link--dark[aria-current="page"] { color: var(--color-bg-page); }
 </style>
