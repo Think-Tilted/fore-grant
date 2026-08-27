@@ -51,6 +51,7 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
               {sponsorTiers.map((tier) => (
                 <option
                   value={`${tier.name} — ${tier.price}`}
+                  data-tier-id={tier.id}
                   selected={tier.id === preselected?.id}
                 >
                   {tier.name} — {tier.price}

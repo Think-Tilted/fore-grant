@@ -14,6 +14,22 @@
 // disallowed as a security measure). Living in public/ sidesteps that
 // bundling behavior entirely.
 
+// Pre-select sponsor tier from ?tier= URL param.
+// The HTML `selected` attribute is unreliable for non-first options in some
+// browsers — setting .value via JS after load is the reliable approach.
+// Uses data-tier-id on each <option> to match by tier id (what the URL carries)
+// rather than by the fragile "Name — Price" string.
+(function preselectTier() {
+  const tierId = new URLSearchParams(location.search).get("tier");
+  if (!tierId) return;
+  const select = document.getElementById("sponsorTier");
+  if (!select) return;
+  const matching = Array.from(select.options).find(
+    (opt) => opt.dataset.tierId === tierId
+  );
+  if (matching) select.value = matching.value;
+})();
+
 const form = document.getElementById("reg-form");
 
 const confirmModal = document.getElementById("confirm-modal");

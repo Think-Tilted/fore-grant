@@ -19,14 +19,18 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { allTiers } from "../data/tiers";
 
-const tierParam = Astro.url.searchParams.get("tier") ?? "";
-// tierParam is the "Name — Price" string carried from either form's
-// hidden/select field value (sponsor-form.js reads data.sponsorTier
-// verbatim). Match against each tier's own "Name — Price" formatting.
-const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
+// Tier data embedded as a JSON island — populated client-side by
+// confirmation.js since this is a static page and Astro.url.searchParams
+// is always empty at build time.
+const tiersJson = JSON.stringify(allTiers);
 ---
 
 <BaseLayout title="Registration Confirmed — Teeing Off Fore Grant" navVariant="subpage" noindex>
+  <!-- JSON data island — confirmation.js reads this to populate the receipt.
+       type="application/json" prevents the browser from executing it as JS
+       while keeping the content unparsed (no HTML entity escaping). -->
+  <script id="tier-data" type="application/json" set:html={tiersJson}></script>
+
   <!-- Page header: col · pad 80/0/40/0 · gap 24 · center -->
   <section class="confirm-header">
     <h1>You're registered.</h1>
@@ -38,15 +42,15 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     <div class="receipt">
       <div class="receipt-row">
         <span class="receipt-label">PACKAGE</span>
-        <span class="receipt-value">{tier?.name ?? "—"}</span>
+        <span class="receipt-value" id="receipt-package">—</span>
       </div>
       <div class="receipt-row">
         <span class="receipt-label">AMOUNT</span>
-        <span class="receipt-value receipt-value--price">{tier?.price ?? "—"}</span>
+        <span class="receipt-value receipt-value--price" id="receipt-amount">—</span>
       </div>
       <div class="receipt-row">
         <span class="receipt-label">ENTRY</span>
-        <span class="receipt-value">{tier?.includes ?? "—"}</span>
+        <span class="receipt-value" id="receipt-entry">—</span>
       </div>
       <div class="receipt-row">
         <span class="receipt-label">PAYMENT</span>
@@ -54,19 +58,10 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
       </div>
     </div>
 
-    {tier && (
-      <div class="receipt-included">
-        <h3 class="receipt-included-label">INCLUDED</h3>
-        <ul class="receipt-benefits">
-          {tier.benefits.map((b) => (
-            <li>
-              <span class="receipt-marker" aria-hidden="true">▸</span>
-              <span>{b}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    <div class="receipt-included" id="receipt-included" hidden>
+      <h3 class="receipt-included-label">INCLUDED</h3>
+      <ul class="receipt-benefits" id="receipt-benefits"></ul>
+    </div>
   </section>
 
   <!-- What happens next: col · pad 0/64/96/64 · gap 32, steps row 3-col -->
@@ -74,22 +69,24 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     <h2 class="confirm-section-label">What happens next</h2>
     <div class="next-steps">
       <div class="next-step">
-        <span class="next-step-num">1</span>
-        <h3>Check your email</h3>
-        <p>Your confirmation email is your invoice — it has the amount and how to pay.</p>
+        <span class="next-step-num">01</span>
+        <h3>Check your inbox</h3>
+        <p>A copy of this is on its way to you. That email is your invoice, so keep it.</p>
       </div>
       <div class="next-step">
-        <span class="next-step-num">2</span>
-        <h3>Pay by October 30</h3>
-        <p>Check, Venmo, or cash — payment is due on receipt, by Friday, October 30, 2026.</p>
+        <span class="next-step-num">02</span>
+        <h3>Send payment</h3>
+        <p>Sooner is better. Friday, October 30 is the final deadline, and you can pay by Venmo, check or cash.</p>
       </div>
       <div class="next-step">
-        <span class="next-step-num">3</span>
-        <h3>See you on the course</h3>
-        <p>Groups and hole assignments post to the Tournament Day page closer to the event.</p>
+        <span class="next-step-num">03</span>
+        <h3>See you on the 6th</h3>
+        <p>Your tee time and starting hole go out closer to the day, and are posted on Tournament Day.</p>
       </div>
     </div>
   </section>
+
+  <script is:inline src="/scripts/confirmation.js"></script>
 </BaseLayout>
 
 <style>
@@ -105,6 +102,9 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     letter-spacing: var(--text-display-lg--letter-spacing);
     font-weight: 700;
     color: var(--color-text-brand);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent-display);
+    text-underline-offset: 6px;
   }
 
   /* Your package: col · pad 0/64/56/64 · gap 24 */
@@ -116,10 +116,11 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     flex-direction: column;
     gap: var(--spacing-6);
   }
+  /* Subheadings smaller than h1 for clear hierarchy — Kyle Row 12 */
   .confirm-section-label {
     font-family: var(--font-heading);
-    font-size: var(--text-heading-section);
-    line-height: var(--text-heading-section--line-height);
+    font-size: var(--text-heading-bucket);
+    line-height: var(--text-heading-bucket--line-height);
     font-weight: 700;
     color: var(--color-text-brand);
   }
@@ -197,13 +198,11 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     gap: var(--spacing-2);
   }
   .next-step-num {
-    display: flex; align-items: center; justify-content: center;
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background-color: var(--color-bg-inverse);
-    color: var(--color-bg-page);
     font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: 1;
     font-weight: 700;
+    color: var(--color-accent-display);
     margin-bottom: var(--spacing-2);
   }
   .next-step h3 {
@@ -232,6 +231,19 @@ const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
     /* Value stacks under its label at 390 */
     .receipt-row { flex-direction: column; align-items: flex-start; gap: var(--spacing-1); }
     .receipt-value { text-align: left; }
+    /* Price is too large at mobile — scale down */
+    .receipt-value--price {
+      font-size: var(--text-mobile-display-price);
+      line-height: var(--text-mobile-display-price--line-height);
+    }
+    /* "Your package" label redundant on mobile — hidden */
+    .confirm-package > .confirm-section-label { display: none; }
+    /* h1 underline offset tighter on mobile */
+    .confirm-header h1 {
+      font-size: var(--text-mobile-display-lg);
+      line-height: var(--text-mobile-display-lg--line-height);
+      text-underline-offset: 4px;
+    }
   }
 </style>
 
