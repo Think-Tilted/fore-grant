@@ -103,7 +103,7 @@ import { paymentOptions } from "../../data/forms";
       <section class="form-section">
         <div class="section-header">
           <span class="section-num">03</span>
-          <h2 class="section-title">Special Requests or Comments</h2>
+          <h2 class="section-title">Special Requests<span class="section-title-break"> or Comments</span></h2>
           <div class="section-rule" aria-hidden="true"></div>
         </div>
         <div class="field">
@@ -187,7 +187,7 @@ import { paymentOptions } from "../../data/forms";
     font-size: var(--text-heading-tier);
     line-height: var(--text-heading-tier--line-height);
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--color-text-brand);
     white-space: nowrap;
   }
   .section-rule { flex: 1; height: 1px; background-color: var(--color-border-default); }
@@ -337,6 +337,7 @@ import { paymentOptions } from "../../data/forms";
     .form-section { padding: var(--spacing-5); }
     .section-rule { display: none; }
     .modal-footer { flex-direction: column-reverse; }
+    .section-title-break { display: block; }
   }
 </style>
 

@@ -53,31 +53,41 @@ function openConfirmModal(data) {
   confirmModalDetails.innerHTML = "";
   const rows = buildConfirmRows(data);
 
-  let contactHeaderInserted = false;
-  for (const { key, label, value } of rows) {
-    const isContactField = CONTACT_FIELDS.has(key);
+  // Separate contact fields from non-contact fields for grouped rendering.
+  const contactRows = rows.filter(({ key }) => CONTACT_FIELDS.has(key));
+  const otherRows = rows.filter(({ key }) => !CONTACT_FIELDS.has(key));
 
-    if (isContactField && !contactHeaderInserted) {
-      const notice = document.createElement("p");
-      notice.className = "confirm-double-check";
-      notice.textContent = "Please double-check your contact info:";
-      confirmModalDetails.appendChild(notice);
-      contactHeaderInserted = true;
-    }
-
+  function buildRow(label, value, highlight) {
     const row = document.createElement("div");
-    row.className = isContactField ? "confirm-row confirm-row-highlight" : "confirm-row";
-
+    row.className = "confirm-row";
     const dt = document.createElement("dt");
     dt.className = "confirm-dt";
     dt.textContent = label;
-
     const dd = document.createElement("dd");
-    dd.className = isContactField ? "confirm-dd confirm-dd-highlight" : "confirm-dd";
+    dd.className = highlight ? "confirm-dd confirm-dd-highlight" : "confirm-dd";
     dd.textContent = value;
-
     row.append(dt, dd);
-    confirmModalDetails.appendChild(row);
+    return row;
+  }
+
+  // Render non-contact rows normally.
+  for (const { label, value } of otherRows) {
+    confirmModalDetails.appendChild(buildRow(label, value, false));
+  }
+
+  // Wrap all contact rows in a single orange callout box.
+  if (contactRows.length > 0) {
+    const notice = document.createElement("p");
+    notice.className = "confirm-double-check";
+    notice.textContent = "Please double-check your contact info:";
+    confirmModalDetails.appendChild(notice);
+
+    const callout = document.createElement("div");
+    callout.className = "confirm-contact-callout";
+    for (const { label, value } of contactRows) {
+      callout.appendChild(buildRow(label, value, true));
+    }
+    confirmModalDetails.appendChild(callout);
   }
 
   confirmModal.classList.add("is-open");
