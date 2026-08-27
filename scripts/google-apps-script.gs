@@ -11,6 +11,9 @@
  * v1.3.0  2026-08-27  Internal alert email gets full brand treatment: dark green header,
  *                     orange accent bar, Georgia/Courier type, orange-bordered contact
  *                     callout, mono labels, right-aligned values, empty player rows omitted
+ * v1.5.0  2026-08-27  Width increased 600→700px on both email body and PDF — wider
+ *                     canvas eliminates line wrapping without touching font sizes.
+ *                     All font sizes restored to original values.
  * v1.4.0  2026-08-27  Sequential invoice numbers (FG-001, FG-002...) generated in trigger,
  *                     written to sheet column N; passed into PDF so number is consistent.
  *                     Email body rewritten as registrant-ready (no internal language).
@@ -190,7 +193,7 @@ function onSponsorRowAdded(e) {
     var ROW_I  = "border-bottom:1px solid #CDD3C3;";
     var firstName = (captainName || "").split(" ")[0] || captainName;
 
-    var htmlBody = "<table width='600' cellpadding='0' cellspacing='0' border='0' style='margin:0 auto;background:#F4F3E8;font-family:Georgia,serif;'>"
+    var htmlBody = "<table width='700' cellpadding='0' cellspacing='0' border='0' style='margin:0 auto;background:#F4F3E8;font-family:Georgia,serif;'>"
 
       // Header bar
       + "<tr><td bgcolor='#31532D' style='background:#31532D;padding:20px 32px;'>"
@@ -309,7 +312,7 @@ function buildInvoicePdf(d) {
 
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>'
     + '<body style="margin:0;padding:0;background:#F4F3E8;">'
-    + '<table width="600" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#F4F3E8;">'
+    + '<table width="700" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#F4F3E8;">'
 
     // Header bar — dark green
     + '<tr><td bgcolor="#31532D" style="background:#31532D;padding:24px 40px;">'
@@ -385,7 +388,9 @@ function buildInvoicePdfPart2(html, d, benefits, benefitRows, hasPlayers, player
     + '<td style="padding:10px 0;' + BODY + 'border-top:1px solid #CDD3C3;line-height:1.7;">'
     + 'Payable to Jessica Carlson, with &ldquo;Teeing Off Fore Grant&rdquo; on the memo line.<br>'
     + 'Bring it on the day, or mail it to:<br>'
-    + 'Jessica Carlson &middot; 907 Neighborly Lane &middot; Ramona, CA 92065</td></tr>'
+    + 'Jessica Carlson<br>'
+    + '907 Neighborly Lane<br>'
+    + 'Ramona, CA 92065</td></tr>'
     + '<tr><td style="padding:10px 0;vertical-align:top;' + MONO + 'border-top:1px solid #CDD3C3;">Cash</td>'
     + '<td style="padding:10px 0;' + BODY + 'border-top:1px solid #CDD3C3;">Hand it to us at check-in on tournament day.</td></tr>'
     + '</table></td></tr>'
