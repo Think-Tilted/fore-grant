@@ -130,8 +130,10 @@ const inputType: TextInputType = (textInputTypes as readonly string[]).includes(
     }
 
     .form-field-label {
-      font-family: var(--font-body);
-      font-size: 13px;
+      font-family: var(--font-heading);
+      font-size: var(--text-label-field);
+      line-height: var(--text-label-field--line-height);
+      font-weight: 600;
       color: var(--color-text-primary);
     }
 
@@ -140,15 +142,16 @@ const inputType: TextInputType = (textInputTypes as readonly string[]).includes(
     }
 
     .form-field-control {
-      height: 44px;
+      height: var(--control-md);
       padding: 0 var(--spacing-4);
       border-radius: var(--radius-md);
       border: 1px solid var(--color-border-control);
-      background-color: var(--color-base-white);
+      background-color: var(--color-bg-field);
       font-family: var(--font-body);
-      font-size: 16px;
+      font-size: var(--text-body-md);
+      line-height: var(--text-body-md--line-height);
       color: var(--color-text-primary);
-      transition: border-color 0.15s ease;
+      transition: border-color var(--motion-duration-hover) var(--motion-ease);
     }
 
     .form-field-control::placeholder {
@@ -159,10 +162,10 @@ const inputType: TextInputType = (textInputTypes as readonly string[]).includes(
       border-color: var(--color-brand-default);
     }
 
-    .form-field-control:focus:not(:disabled) {
-      outline: none;
-      border-color: var(--color-accent-default);
-      border-width: 2px;
+    .form-field-control:focus-visible:not(:disabled) {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+      border-color: var(--color-border-control);
     }
 
     .form-field-control:disabled {
@@ -188,7 +191,8 @@ const inputType: TextInputType = (textInputTypes as readonly string[]).includes(
 
     .form-field-helper {
       font-family: var(--font-body);
-      font-size: 14px;
+      font-size: var(--text-body-xs);
+      line-height: var(--text-body-xs--line-height);
       color: var(--color-text-secondary);
     }
 

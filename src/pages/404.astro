@@ -2,10 +2,43 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Not Found — Fore Grant">
-  <section class="py-16 lg:py-24 text-center">
-    <h1 class="font-display text-6xl font-bold text-ink">404</h1>
-    <p class="mt-4 text-ink-soft">This page doesn't exist.</p>
-    <a href="/" class="mt-6 inline-block text-clay hover:underline">Go home</a>
+<BaseLayout title="Not Found — Teeing Off Fore Grant">
+  <section class="not-found">
+    <h1>404</h1>
+    <p>This page doesn't exist.</p>
+    <a href="/">Go home →</a>
   </section>
 </BaseLayout>
+
+<style>
+  .not-found {
+    padding: var(--spacing-20) var(--spacing-16);
+    text-align: center;
+  }
+  .not-found h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+  .not-found p {
+    font-family: var(--font-body);
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-4);
+  }
+  .not-found a {
+    display: inline-block;
+    margin-top: var(--spacing-6);
+    font-family: var(--font-heading);
+    font-size: var(--text-button-md);
+    font-weight: 600;
+    color: var(--color-text-brand);
+    text-decoration: none;
+  }
+  .not-found a:hover {
+    color: var(--color-accent-hover);
+  }
+</style>

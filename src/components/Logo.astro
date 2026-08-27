@@ -1,22 +1,12 @@
 ---
 /**
- * Logo — ported from Figma "Logo" component set (design/ROADMAP.md
- * Phase 5.1).
+ * Logo — per figma-handoff/assets/MANIFEST.md.
  *
- * Figma defines 3 variants: Badge, White, Negative. Only White (for the
- * light Home nav background) and Negative (for the dark Subpage nav
- * background) are used in the actual Nav component today, so only those two
- * were exported. Exported as real SVG files via the Figma images API — see
- * design/ROADMAP.md "Exporting real assets from Figma" for the process —
- * and committed to public/logo-white.svg / public/logo-negative.svg.
- * Re-export both if the logo changes in Figma (node IDs: White=31:267,
- * Negative=31:293, on the "Logo" page, "Logo" component set).
- *
- * hero variant: the large centered hero logo on the Home page uses a
- * separate asset (public/hero-logo.svg) provided directly — not a Figma
- * export of the same component set. Documented here per the deviation rule.
+ * The site uses exactly two logo assets:
+ *   badge:    ForeGrant-Badge.svg — Home hero (520×378 per LAYOUT-SPEC)
+ *   negative: ForeGrant-hor-Neg.svg — subpage nav bar (165×64 per LAYOUT-SPEC)
  */
-export type LogoVariant = "white" | "negative" | "hero";
+export type LogoVariant = "badge" | "negative";
 
 interface Props {
   variant?: LogoVariant;
@@ -24,23 +14,20 @@ interface Props {
   class?: string;
 }
 
-const { variant = "white", alt = "Teeing Off Fore Grant", class: className = "" } = Astro.props;
+const { variant = "badge", alt = "Teeing Off Fore Grant", class: className = "" } = Astro.props;
 
-const src =
-  variant === "negative" ? "/logo-negative.svg" :
-  variant === "hero"     ? "/hero-logo.svg" :
-                           "/logo-white.svg";
+const src = variant === "negative"
+  ? "/logos/ForeGrant-hor-Neg.svg"
+  : "/logos/ForeGrant-Badge.svg";
 ---
 
 <img src={src} alt={alt} class:list={["logo", className]} />
 
 <style>
-  @layer components {
-    .logo {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
+  .logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 </style>

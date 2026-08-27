@@ -129,7 +129,7 @@ function closeResultModal() {
   resultModal.classList.add("hidden");
   document.body.style.overflow = "";
   if (wasSuccess) {
-    window.location.href = "/tournament-day";
+    window.location.href = window.__foreGrantConfirmRedirect || "/confirmation";
   }
 }
 
@@ -174,6 +174,11 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
         title: "You're Registered!",
         message: "Thank you! Your registration has been received. We'll be in touch with next steps. See you on the course!",
       });
+      // Carry the tier through to Confirmation via query param.
+      const tierParam = data.sponsorTier || data.tierId || "";
+      window.__foreGrantConfirmRedirect = tierParam
+        ? `/confirmation?tier=${encodeURIComponent(tierParam)}`
+        : "/confirmation";
     } else {
       openResultModal({
         success: false,

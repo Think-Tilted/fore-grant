@@ -39,9 +39,13 @@ const toneClass = `badge-${tone}${reversed ? "-reversed" : ""}`;
       border-radius: var(--radius-full);
       font-family: var(--font-display);
       font-weight: 600;
-      font-size: 14px;
+      font-size: var(--text-label-badge);
       line-height: 1;
       white-space: nowrap;
+    }
+
+    @media (max-width: 767px) {
+      .badge { font-size: var(--text-mobile-label-badge); }
     }
 
     /* ---- Neutral ---- */

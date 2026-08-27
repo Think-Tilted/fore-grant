@@ -1,16 +1,15 @@
 ---
 /**
- * NavLink — ported from Figma "Nav Link" component set
- * (design/ROADMAP.md Phase 5.1).
+ * NavLink — per figma-handoff/components.css nav-link spec + CLAUDE.md.
  *
- * Figma source values (design/figma-file.json, "Nav" page, "Nav Link" set):
- *   font: Bitter 16px semibold
- *   Tone=Light (used on the light Home header): default text-brand (green),
- *     hover/active text-accent (rust, #A53422)
- *   Tone=Dark (used on the dark Subpage header): default text-inverse
- *     (cream, #E4E1C5), hover/active near-white (#F4F3E8)
- *   Underline: hidden at rest, appears on hover (2px) and active (4px),
- *     always accent-display orange (#F05323), regardless of tone
+ * Bitter 16px/600, letter-spacing 0.03em. Underline: 4px solid transparent
+ * at rest (reserves space, no reflow). Hover shows 2px orange, active
+ * shows 4px orange. The yield behavior (current page underline drops
+ * when hovering a different item) is handled by the global rule in
+ * components.css: `.nav:hover .nav-link[aria-current="page"]:not(:hover)`.
+ *
+ * Tone=Light: text-brand at rest, text-accent on hover/active.
+ * Tone=Dark:  text-inverse at rest, bg-page on hover/active.
  */
 interface Props {
   href: string;
@@ -24,67 +23,40 @@ const { href, tone = "light", active = false, class: className = "" } = Astro.pr
 
 <a
   href={href}
-  class:list={["nav-link", `nav-link-${tone}`, { "is-active": active }, className]}
+  class:list={["nav-link", `nav-link--${tone}`, className]}
   aria-current={active ? "page" : undefined}
 >
-  <span class="nav-link-label"><slot /></span>
-  <span class="nav-link-underline" aria-hidden="true"></span>
+  <slot />
 </a>
 
 <style>
-  @layer components {
-    .nav-link {
-      position: relative;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 16px;
-      text-decoration: none;
-      padding-bottom: 8px;
-      /* Match the button height so all nav-links items share the same
-         flex baseline in the nav-links row. */
-      height: 44px;
-    }
-
-    .nav-link-underline {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background-color: var(--color-accent-display);
-      opacity: 0;
-      transition: opacity 0.15s ease, height 0.15s ease;
-    }
-
-    .nav-link:hover .nav-link-underline {
-      opacity: 1;
-    }
-
-    .nav-link.is-active .nav-link-underline {
-      opacity: 1;
-      height: 4px;
-    }
-
-    /* ---- Tone=Light ---- */
-    .nav-link-light .nav-link-label {
-      color: var(--color-text-brand);
-    }
-    .nav-link-light:hover .nav-link-label,
-    .nav-link-light.is-active .nav-link-label {
-      color: var(--color-text-accent);
-    }
-
-    /* ---- Tone=Dark ---- */
-    .nav-link-dark .nav-link-label {
-      color: var(--color-text-inverse);
-    }
-    .nav-link-dark:hover .nav-link-label,
-    .nav-link-dark.is-active .nav-link-label {
-      color: var(--color-brand-light);
-    }
+  .nav-link {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    padding: var(--spacing-2);
+    border-bottom: 4px solid transparent;
+    transition: border-color var(--motion-duration-hover) var(--motion-ease),
+                color var(--motion-duration-hover) var(--motion-ease);
   }
+  .nav-link:hover {
+    border-bottom-color: var(--color-accent-display);
+    border-bottom-width: 2px;
+  }
+  .nav-link[aria-current="page"] {
+    border-bottom-color: var(--color-accent-display);
+    border-bottom-width: 4px;
+  }
+
+  /* Tone=Light (Home hero, light bg) */
+  .nav-link--light { color: var(--color-text-brand); }
+  .nav-link--light:hover,
+  .nav-link--light[aria-current="page"] { color: var(--color-bg-page); }
+
+  /* Tone=Dark (subpage bar, green bg) */
+  .nav-link--dark { color: var(--color-text-inverse); }
+  .nav-link--dark:hover,
+  .nav-link--dark[aria-current="page"] { color: var(--color-bg-page); }
 </style>

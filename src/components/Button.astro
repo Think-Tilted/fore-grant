@@ -70,17 +70,20 @@ const Tag = href ? "a" : "button";
       text-decoration: none;
       cursor: pointer;
       border: 1px solid transparent;
-      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      transition: background-color var(--motion-duration-hover) var(--motion-ease),
+                  color var(--motion-duration-hover) var(--motion-ease),
+                  border-color var(--motion-duration-hover) var(--motion-ease),
+                  transform var(--motion-duration-hover) var(--motion-ease);
     }
 
     .btn-md {
-      height: 44px;
+      height: var(--control-md);
       padding: 0 var(--spacing-6);
       font-size: 16px;
     }
 
     .btn-lg {
-      height: 52px;
+      height: var(--control-lg);
       padding: 0 var(--spacing-8);
       font-size: 18px;
     }
@@ -92,15 +95,18 @@ const Tag = href ? "a" : "button";
     }
     .btn-primary:hover:not(:disabled) {
       background-color: var(--color-accent-hover);
+      transform: translateY(var(--motion-lift));
     }
     .btn-primary:active:not(:disabled) {
       background-color: var(--color-accent-active);
+      transform: scale(var(--motion-scale-press));
     }
     .btn-primary:disabled,
     .btn-primary[aria-disabled="true"] {
       background-color: var(--color-state-disabled-bg);
       color: var(--color-state-disabled-text);
       cursor: not-allowed;
+      transform: none;
     }
 
     /* ---- Secondary ---- */
@@ -148,6 +154,10 @@ const Tag = href ? "a" : "button";
     .btn:focus-visible {
       outline: 2px solid var(--color-border-focus);
       outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn { transition: none; transform: none; }
     }
   }
 </style>

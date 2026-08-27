@@ -1,41 +1,23 @@
 ---
 /**
- * Sponsorship Registration Form — /registration/sponsor
+ * Register Form — Sponsor — per LAYOUT-SPEC.md "Register Form — Sponsor
+ * 1440×2368" and figma-handoff/data/forms.json (sponsorForm).
  *
- * Reached from /registration by clicking "Register Now" on any sponsor tier.
- * The ?tier= URL param pre-fills the Sponsor Tier select so the user lands
- * with their chosen tier already selected.
+ * Page header: col · pad 48/0/32/64 · gap 20 — back link only.
+ * Form: col · pad 0/64/80/64 · gap 32. Section card: 1312, pad 48, gap 24.
+ * Field row: two 596 fields, gap 24 (single column on mobile).
  *
- * Sections (matching Figma "Register Form — Sponsor" frame):
- *   01 Company Information: company name*, sponsor tier*, company website,
- *      payment type*
- *      NOTE: Company logo upload is out of scope for this build — the Figma
- *      shows a drag-and-drop file upload field here. Skipped and documented
- *      as a future enhancement (design/ROADMAP.md).
- *   02 Player Information: name* (full, single field), phone*, email*,
- *      player 2/3/4 (optional)
- *   03 Special Requests or Comments
- *
- * Submits to /api/sponsor via sponsor-form.js (public/scripts/).
- * The foursome-only form (/registration/foursome) uses the same API endpoint
- * and the same JS — company fields are sent as empty strings on that form.
+ * ?tier= param pre-fills the Sponsor Tier select. Tier options and payment
+ * options are driven from src/data (tiers.ts / forms.ts) — no hardcoding.
+ * Company logo upload is deferred (HANDOFF.md future enhancement).
  */
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { allTiers, getTierById } from "../../data/tiers";
+import { paymentOptions } from "../../data/forms";
 
-const sponsorTiers = [
-  "Orange Ribbon Champion — $5,000+",
-  '"19th Hole" Lunch Sponsor — $2,000',
-  '"Pre-Round Fuel" Breakfast Sponsor — $1,750',
-  "Premium Adopt-A-Hole — Contest Holes — $1,750",
-  "Adopt-a-Hole Sponsor — $1,500",
-  "Putting for a Cure Sponsor — $1,000",
-  "Tee Sign Sponsor — $250",
-];
-
-const paymentOptions = ["Check", "Credit Card", "Venmo", "Invoice Me"];
-
-// Pre-fill tier from ?tier= query param
-const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
+const preselectedTierId = Astro.url.searchParams.get("tier") ?? "";
+const preselected = getTierById(preselectedTierId);
+const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-package");
 ---
 
 <BaseLayout title="Sponsor Registration — Teeing Off Fore Grant" navVariant="subpage">
@@ -43,7 +25,6 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
     <a href="/registration" class="back-link">← Back to sponsor packages</a>
 
     <form id="reg-form" class="reg-form" novalidate>
-      <!-- Section 01: Company Information -->
       <section class="form-section">
         <div class="section-header">
           <span class="section-num">01</span>
@@ -52,64 +33,47 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
         </div>
 
         <div class="field-grid">
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="companyName">
               Company name <span class="required">*</span>
             </label>
-            <input
-              id="companyName"
-              type="text"
-              name="companyName"
-              required
-              class="field-input"
-              data-label="Company Name"
-              autocomplete="organization"
-            />
+            <input id="companyName" type="text" name="companyName" required
+              class="field-input" data-label="Company Name" autocomplete="organization" />
             <p class="field-hint">As it should appear on signage</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="sponsorTier">
               Sponsor tier <span class="required">*</span>
             </label>
-            <select
-              id="sponsorTier"
-              name="sponsorTier"
-              required
-              class="field-input field-select"
-              data-label="Sponsor Tier"
-            >
+            <select id="sponsorTier" name="sponsorTier" required
+              class="field-input field-select" data-label="Sponsor Tier">
               {sponsorTiers.map((tier) => (
-                <option value={tier} selected={tier === preselectedTier}>{tier}</option>
+                <option
+                  value={`${tier.name} — ${tier.price}`}
+                  selected={tier.id === preselected?.id}
+                >
+                  {tier.name} — {tier.price}
+                </option>
               ))}
             </select>
+            <p class="field-hint">Carried in from your selection</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="companyWebsite">Company website</label>
-            <input
-              id="companyWebsite"
-              type="text"
-              name="companyWebsite"
-              class="field-input"
-              data-label="Company Website"
-              placeholder="example.com"
-              autocomplete="url"
-            />
+            <input id="companyWebsite" type="text" name="companyWebsite"
+              class="field-input" data-label="Company Website" placeholder="example.com"
+              autocomplete="url" />
             <p class="field-hint">example.com</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="paymentType">
               Payment type <span class="required">*</span>
             </label>
-            <select
-              id="paymentType"
-              name="paymentType"
-              required
-              class="field-input field-select"
-              data-label="Payment Type"
-            >
+            <select id="paymentType" name="paymentType" required
+              class="field-input field-select" data-label="Payment Type">
               <option value="">Select...</option>
               {paymentOptions.map((opt) => (
                 <option value={opt}>{opt}</option>
@@ -119,7 +83,6 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
         </div>
       </section>
 
-      <!-- Section 02: Player Information -->
       <section class="form-section">
         <div class="section-header">
           <span class="section-num">02</span>
@@ -128,111 +91,65 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
         </div>
 
         <div class="field-grid">
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="captainName">
               Name <span class="required">*</span>
             </label>
-            <input
-              id="captainName"
-              type="text"
-              name="captainName"
-              required
-              class="field-input"
-              data-label="Captain Name"
-              autocomplete="name"
-            />
+            <input id="captainName" type="text" name="captainName" required
+              class="field-input" data-label="Captain Name" autocomplete="name" />
             <p class="field-hint">First and last · team captain and primary contact</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="phone">
               Phone number <span class="required">*</span>
             </label>
-            <input
-              id="phone"
-              type="tel"
-              name="phone"
-              required
-              class="field-input"
-              data-label="Phone Number"
-              autocomplete="tel"
-            />
+            <input id="phone" type="tel" name="phone" required
+              class="field-input" data-label="Phone Number" autocomplete="tel" />
             <p class="field-hint">For day-of contact only</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="email">
               Email address <span class="required">*</span>
             </label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              required
-              class="field-input"
-              data-label="Email Address"
-              autocomplete="email"
-            />
+            <input id="email" type="email" name="email" required
+              class="field-input" data-label="Email Address" autocomplete="email" />
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="player2">Player 2 name</label>
-            <input
-              id="player2"
-              type="text"
-              name="player2"
-              class="field-input"
-              data-label="Player 2"
-              autocomplete="off"
-            />
+            <input id="player2" type="text" name="player2"
+              class="field-input" data-label="Player 2" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="player3">Player 3 name</label>
-            <input
-              id="player3"
-              type="text"
-              name="player3"
-              class="field-input"
-              data-label="Player 3"
-              autocomplete="off"
-            />
+            <input id="player3" type="text" name="player3"
+              class="field-input" data-label="Player 3" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
 
-          <div class="field field-half">
+          <div class="field">
             <label class="field-label" for="player4">Player 4 name</label>
-            <input
-              id="player4"
-              type="text"
-              name="player4"
-              class="field-input"
-              data-label="Player 4"
-              autocomplete="off"
-            />
+            <input id="player4" type="text" name="player4"
+              class="field-input" data-label="Player 4" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
         </div>
       </section>
 
-      <!-- Section 03: Special Requests or Comments -->
       <section class="form-section">
         <div class="section-header">
           <span class="section-num">03</span>
           <h2 class="section-title">Special Requests or Comments</h2>
           <div class="section-rule" aria-hidden="true"></div>
         </div>
-
         <div class="field">
           <label class="field-label" for="comments">Anything we should know?</label>
-          <textarea
-            id="comments"
-            name="comments"
-            rows="5"
-            class="field-input field-textarea"
-            data-label="Comments"
-          ></textarea>
+          <textarea id="comments" name="comments" rows="5"
+            class="field-input field-textarea" data-label="Comments"></textarea>
         </div>
       </section>
 
@@ -242,7 +159,6 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
     </form>
   </div>
 
-  <!-- Confirmation modal -->
   <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-heading">
     <div class="modal-box">
       <div class="modal-header">
@@ -257,7 +173,6 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
     </div>
   </div>
 
-  <!-- Result modal -->
   <div id="result-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="result-modal-heading">
     <div class="modal-box modal-box-result">
       <div id="result-modal-icon" class="result-modal-icon"></div>
@@ -268,307 +183,201 @@ const preselectedTier = Astro.url.searchParams.get("tier") ?? "";
   </div>
 </BaseLayout>
 
+
 <style>
-  @layer components {
-    .form-page {
-      background-color: var(--color-bg-page);
-      padding: var(--spacing-8) var(--spacing-6) var(--spacing-16);
-      max-width: 900px;
-      margin: 0 auto;
-    }
+  .form-page {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-20);
+    max-width: 1312px;
+    margin: 0 auto;
+  }
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: var(--text-button-md);
+    font-weight: 600;
+    color: var(--color-text-brand);
+    text-decoration: none;
+    border: 1.5px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2) var(--spacing-4);
+    margin-bottom: var(--spacing-5);
+    transition: background-color var(--motion-duration-hover) var(--motion-ease);
+  }
+  .back-link:hover { background-color: var(--color-bg-panel); }
 
-    .back-link {
-      display: inline-block;
-      font-family: var(--font-display);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--color-text-brand);
-      text-decoration: none;
-      border: 1.5px solid var(--color-border-default);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-2) var(--spacing-4);
-      margin-bottom: var(--spacing-8);
-      transition: background-color 0.15s ease;
-    }
-    .back-link:hover {
-      background-color: var(--color-bg-panel);
-    }
+  .reg-form { display: flex; flex-direction: column; gap: var(--spacing-8); }
 
-    .reg-form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-6);
-    }
+  .form-section {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    display: flex; flex-direction: column; gap: var(--spacing-6);
+  }
 
-    /* Form section card */
-    .form-section {
-      background-color: var(--color-bg-panel);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-8) var(--spacing-8);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-6);
-    }
+  .section-header { display: flex; align-items: center; gap: var(--spacing-3); }
+  .section-num {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700;
+    color: var(--color-text-accent);
+  }
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-tier);
+    line-height: var(--text-heading-tier--line-height);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+  .section-rule { flex: 1; height: 1px; background-color: var(--color-border-default); }
 
-    /* Section header: number + title + rule */
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-3);
-    }
-    .section-num {
-      font-family: var(--font-display);
-      font-size: var(--text-2xl);
-      font-weight: 700;
-      color: var(--color-text-accent);
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .section-title {
-      font-family: var(--font-display);
-      font-size: var(--text-xl);
-      font-weight: 700;
-      color: var(--color-text-primary);
-      white-space: nowrap;
-    }
-    .section-rule {
-      flex: 1;
-      height: 1.5px;
-      background-color: var(--color-border-default);
-      border-radius: 1px;
-    }
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-5) var(--spacing-6);
+  }
+  .field { display: flex; flex-direction: column; gap: var(--spacing-1); }
+  .field-label {
+    font-family: var(--font-heading);
+    font-size: var(--text-label-field);
+    line-height: var(--text-label-field--line-height);
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  .required { color: var(--color-text-accent); }
+  .field-hint {
+    font-family: var(--font-body);
+    font-size: var(--text-body-xs);
+    line-height: var(--text-body-xs--line-height);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .field-input {
+    display: block; width: 100%;
+    height: var(--control-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-control);
+    background-color: var(--color-bg-field);
+    padding: 0 var(--spacing-3);
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    color: var(--color-text-primary);
+    transition: border-color var(--motion-duration-hover) var(--motion-ease);
+  }
+  .field-input:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+  .field-select {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232f4a34'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-3) center;
+    background-size: 1rem;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+  .field-textarea { height: auto; padding: var(--spacing-3); resize: vertical; }
 
-    /* Field grid */
-    .field-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-5) var(--spacing-6);
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-1);
-    }
-    .field-half {
-      /* default: takes one column */
-    }
+  .form-submit { display: flex; justify-content: center; padding-top: var(--spacing-2); }
+  .submit-btn {
+    font-family: var(--font-heading);
+    font-size: var(--text-button-md);
+    font-weight: 700;
+    color: var(--color-text-on-accent);
+    background-color: var(--color-accent-default);
+    border: none;
+    border-radius: var(--radius-md);
+    height: var(--control-lg);
+    padding: 0 var(--spacing-10);
+    cursor: pointer;
+    transition: background-color var(--motion-duration-hover) var(--motion-ease),
+                transform var(--motion-duration-hover) var(--motion-ease);
+  }
+  .submit-btn:hover { background-color: var(--color-accent-hover); transform: translateY(var(--motion-lift)); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .field-label {
-      font-family: var(--font-display);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
-    .required {
-      color: var(--color-text-accent);
-    }
-    .field-hint {
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-      margin: 0;
-    }
+  /* Modals */
+  .modal {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background-color: var(--color-bg-overlay);
+    padding: var(--spacing-4);
+  }
+  .modal.hidden { display: none; }
+  .modal.is-open { display: flex; }
+  .modal-box {
+    background-color: var(--color-bg-page);
+    border-radius: var(--radius-xl);
+    width: 100%; max-width: 520px; max-height: 90vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: var(--shadow-overlay);
+  }
+  .modal-box-result {
+    max-width: 420px; align-items: center; text-align: center;
+    padding: var(--spacing-10); gap: var(--spacing-4);
+  }
+  .modal-header {
+    padding: var(--spacing-6) var(--spacing-8);
+    border-bottom: 1px solid var(--color-border-default);
+    background-color: var(--color-bg-panel);
+  }
+  .modal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-tier);
+    font-weight: 700; color: var(--color-text-brand); margin: 0;
+  }
+  .modal-subtitle {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-secondary);
+    margin: var(--spacing-1) 0 0;
+  }
+  .modal-details { flex: 1; overflow-y: auto; padding: var(--spacing-4) var(--spacing-8) var(--spacing-6); }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: var(--spacing-3);
+    padding: var(--spacing-5) var(--spacing-8);
+    border-top: 1px solid var(--color-border-default);
+    background-color: var(--color-bg-panel);
+  }
+  .modal-btn-cancel {
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-page);
+    border: 1.5px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2) var(--spacing-6);
+    cursor: pointer;
+  }
+  .modal-btn-cancel:hover { background-color: var(--color-bg-panel); }
+  .modal-btn-confirm {
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: 700;
+    color: var(--color-text-on-accent);
+    background-color: var(--color-accent-default);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2) var(--spacing-6);
+    cursor: pointer;
+  }
+  .modal-btn-confirm:hover { background-color: var(--color-accent-hover); }
+  .modal-btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+  .result-modal-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 3.5rem; height: 3.5rem; border-radius: 50%;
+  }
 
-    .field-input {
-      display: block;
-      width: 100%;
-      height: 2.75rem;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--color-border-default);
-      background-color: var(--color-bg-page);
-      padding: 0 var(--spacing-3);
-      font-family: var(--font-body);
-      font-size: var(--text-base);
-      color: var(--color-text-primary);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .field-input:focus {
-      outline: none;
-      border-color: var(--color-text-brand);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-text-brand) 15%, transparent);
-    }
-    .field-select {
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232f4a34'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right var(--spacing-3) center;
-      background-size: 1rem;
-      padding-right: 2.25rem;
-      cursor: pointer;
-    }
-    .field-textarea {
-      height: auto;
-      padding: var(--spacing-3);
-      resize: vertical;
-    }
-
-    /* Submit button */
-    .form-submit {
-      display: flex;
-      justify-content: center;
-      padding-top: var(--spacing-2);
-    }
-    .submit-btn {
-      font-family: var(--font-display);
-      font-size: var(--text-base);
-      font-weight: 700;
-      color: var(--color-text-inverse);
-      background-color: var(--color-text-accent);
-      border: none;
-      border-radius: var(--radius-md);
-      padding: var(--spacing-3) var(--spacing-10);
-      cursor: pointer;
-      transition: opacity 0.15s ease;
-    }
-    .submit-btn:hover {
-      opacity: 0.88;
-    }
-    .submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* ---- Modals ---- */
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgb(0 0 0 / 0.6);
-      padding: var(--spacing-4);
-    }
-    .modal.hidden {
-      display: none;
-    }
-    .modal.is-open {
-      display: flex;
-    }
-
-    .modal-box {
-      background-color: var(--color-bg-page);
-      border-radius: var(--radius-xl);
-      width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgb(0 0 0 / 0.3);
-    }
-    .modal-box-result {
-      max-width: 420px;
-      align-items: center;
-      text-align: center;
-      padding: var(--spacing-10);
-      gap: var(--spacing-4);
-    }
-
-    .modal-header {
-      padding: var(--spacing-6) var(--spacing-8);
-      border-bottom: 1px solid var(--color-border-default);
-      background-color: var(--color-bg-panel);
-    }
-    .modal-title {
-      font-family: var(--font-display);
-      font-size: var(--text-xl);
-      font-weight: 700;
-      color: var(--color-text-brand);
-      margin: 0;
-    }
-    .modal-subtitle {
-      font-family: var(--font-body);
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-      margin: var(--spacing-1) 0 0;
-    }
-
-    .modal-details {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--spacing-4) var(--spacing-8) var(--spacing-6);
-    }
-
-    /* .confirm-row, .confirm-dt, .confirm-dd, .confirm-double-check, etc.
-       are defined in global.css — they are injected by sponsor-form.js at
-       runtime and must be globally scoped to avoid Astro's hash-scoping. */
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--spacing-3);
-      padding: var(--spacing-5) var(--spacing-8);
-      border-top: 1px solid var(--color-border-default);
-      background-color: var(--color-bg-panel);
-    }
-    .modal-btn-cancel {
-      font-family: var(--font-display);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--color-text-primary);
-      background-color: var(--color-bg-page);
-      border: 1.5px solid var(--color-border-default);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-2) var(--spacing-6);
-      cursor: pointer;
-      transition: background-color 0.15s ease;
-    }
-    .modal-btn-cancel:hover {
-      background-color: var(--color-bg-panel);
-    }
-    .modal-btn-confirm {
-      font-family: var(--font-display);
-      font-size: var(--text-sm);
-      font-weight: 700;
-      color: var(--color-text-inverse);
-      background-color: var(--color-text-accent);
-      border: none;
-      border-radius: var(--radius-md);
-      padding: var(--spacing-2) var(--spacing-6);
-      cursor: pointer;
-      transition: opacity 0.15s ease;
-    }
-    .modal-btn-confirm:hover {
-      opacity: 0.88;
-    }
-    .modal-btn-confirm:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .result-modal-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 3.5rem;
-      height: 3.5rem;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-    .result-modal-icon-success {
-      background-color: color-mix(in srgb, var(--color-text-brand) 12%, transparent);
-      color: var(--color-text-brand);
-    }
-    .result-modal-icon-error {
-      background-color: color-mix(in srgb, var(--color-text-accent) 12%, transparent);
-      color: var(--color-text-accent);
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      .field-grid {
-        grid-template-columns: 1fr;
-      }
-      .form-section {
-        padding: var(--spacing-6) var(--spacing-5);
-      }
-      .modal-footer {
-        flex-direction: column-reverse;
-      }
-    }
+  @media (max-width: 767px) {
+    .form-page { padding: var(--spacing-6) var(--spacing-5) var(--spacing-10); }
+    .field-grid { grid-template-columns: 1fr; }
+    .form-section { padding: var(--spacing-5); }
+    .section-rule { display: none; }
+    .modal-footer { flex-direction: column-reverse; }
   }
 </style>
 

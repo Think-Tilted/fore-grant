@@ -1,0 +1,237 @@
+---
+/**
+ * Confirmation — NEW page, per LAYOUT-SPEC.md "Confirmation — 1440×2213"
+ * and CLAUDE.md "Confirmation is a receipt, not a card" (2026-08-26,
+ * supersedes BUILD-SPEC §8's earlier "Tier Row instance" language).
+ *
+ * The package block is a LIST WITH HAIRLINES — no card fill, no border,
+ * no radius. PACKAGE / AMOUNT / ENTRY / PAYMENT as label-value lines in
+ * mono/label, then an INCLUDED benefits list. Desktop: label+value one
+ * line. Mobile (390): value stacks under its label.
+ *
+ * Payment is offline only — copy reflects "invoice follows, nothing
+ * charged online" (CLAUDE.md "Confirmation email IS the invoice").
+ * noindex per LAYOUT-SPEC "Things that are logic, not layout" #2 —
+ * exposes personal payment/contact details.
+ *
+ * Not a nav destination — BaseLayout's nav carries no active state here.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { allTiers } from "../data/tiers";
+
+const tierParam = Astro.url.searchParams.get("tier") ?? "";
+// tierParam is the "Name — Price" string carried from either form's
+// hidden/select field value (sponsor-form.js reads data.sponsorTier
+// verbatim). Match against each tier's own "Name — Price" formatting.
+const tier = allTiers.find((t) => `${t.name} — ${t.price}` === tierParam);
+---
+
+<BaseLayout title="Registration Confirmed — Teeing Off Fore Grant" navVariant="subpage" noindex>
+  <!-- Page header: col · pad 80/0/40/0 · gap 24 · center -->
+  <section class="confirm-header">
+    <h1>You're registered.</h1>
+  </section>
+
+  <!-- Your package: col · pad 0/64/56/64 · gap 24 -->
+  <section class="confirm-package">
+    <h2 class="confirm-section-label">Your package</h2>
+    <div class="receipt">
+      <div class="receipt-row">
+        <span class="receipt-label">PACKAGE</span>
+        <span class="receipt-value">{tier?.name ?? "—"}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-label">AMOUNT</span>
+        <span class="receipt-value receipt-value--price">{tier?.price ?? "—"}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-label">ENTRY</span>
+        <span class="receipt-value">{tier?.includes ?? "—"}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-label">PAYMENT</span>
+        <span class="receipt-value">Invoice to follow — nothing charged online</span>
+      </div>
+    </div>
+
+    {tier && (
+      <div class="receipt-included">
+        <h3 class="receipt-included-label">INCLUDED</h3>
+        <ul class="receipt-benefits">
+          {tier.benefits.map((b) => (
+            <li>
+              <span class="receipt-marker" aria-hidden="true">▸</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </section>
+
+  <!-- What happens next: col · pad 0/64/96/64 · gap 32, steps row 3-col -->
+  <section class="confirm-next">
+    <h2 class="confirm-section-label">What happens next</h2>
+    <div class="next-steps">
+      <div class="next-step">
+        <span class="next-step-num">1</span>
+        <h3>Check your email</h3>
+        <p>Your confirmation email is your invoice — it has the amount and how to pay.</p>
+      </div>
+      <div class="next-step">
+        <span class="next-step-num">2</span>
+        <h3>Pay by October 30</h3>
+        <p>Check, Venmo, or cash — payment is due on receipt, by Friday, October 30, 2026.</p>
+      </div>
+      <div class="next-step">
+        <span class="next-step-num">3</span>
+        <h3>See you on the course</h3>
+        <p>Groups and hole assignments post to the Tournament Day page closer to the event.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Page header: col · pad 80/0/40/0 · gap 24 · center */
+  .confirm-header {
+    padding: var(--spacing-20) 0 var(--spacing-10);
+    text-align: center;
+  }
+  .confirm-header h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    letter-spacing: var(--text-display-lg--letter-spacing);
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+
+  /* Your package: col · pad 0/64/56/64 · gap 24 */
+  .confirm-package {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-16) 56px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+  .confirm-section-label {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+
+  /* Receipt: list, no fill/border/radius, 1px hairlines between rows */
+  .receipt { display: flex; flex-direction: column; }
+  .receipt-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding: var(--spacing-3) 0;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+  .receipt-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+  }
+  .receipt-value {
+    font-family: var(--font-body);
+    font-size: var(--text-body-md-strong);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: right;
+  }
+  .receipt-value--price {
+    font-family: var(--font-heading);
+    font-size: var(--text-display-price);
+    line-height: var(--text-display-price--line-height);
+    font-weight: 700;
+    color: var(--color-text-accent);
+  }
+
+  .receipt-included { margin-top: var(--spacing-4); }
+  .receipt-included-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-3);
+  }
+  .receipt-benefits {
+    display: flex; flex-direction: column; gap: var(--spacing-2);
+    list-style: none; padding: 0; margin: 0;
+  }
+  .receipt-benefits li {
+    display: flex; gap: var(--spacing-2);
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    color: var(--color-text-primary);
+  }
+  .receipt-marker { color: var(--color-text-accent); flex-shrink: 0; }
+
+  /* What happens next: col · pad 0/64/96/64 · gap 32, steps row 3-col */
+  .confirm-next {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-16) var(--spacing-24);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+  }
+  .next-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-8);
+  }
+  .next-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  .next-step-num {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-bg-inverse);
+    color: var(--color-bg-page);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-bottom: var(--spacing-2);
+  }
+  .next-step h3 {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-h3);
+    line-height: var(--text-heading-h3--line-height);
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+  .next-step p {
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 767px) {
+    .confirm-header { padding: var(--spacing-8) 0 var(--spacing-4); }
+    .confirm-header h1 {
+      font-size: var(--text-mobile-display-lg);
+      line-height: var(--text-mobile-display-lg--line-height);
+    }
+    .confirm-package { padding: 0 var(--spacing-5) var(--spacing-8); gap: var(--spacing-4); }
+    .confirm-next { padding: 0 var(--spacing-5) var(--spacing-10); gap: var(--spacing-5); }
+    .next-steps { grid-template-columns: 1fr; gap: var(--spacing-5); }
+    /* Value stacks under its label at 390 */
+    .receipt-row { flex-direction: column; align-items: flex-start; gap: var(--spacing-1); }
+    .receipt-value { text-align: left; }
+  }
+</style>
+

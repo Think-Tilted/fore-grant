@@ -1,189 +1,188 @@
 ---
 /**
- * Nav — ported from Figma "Nav" component set (design/ROADMAP.md Phase 5.1).
+ * Nav — per figma-handoff LAYOUT-SPEC.md, BUILD-SPEC.md §2, CLAUDE.md.
  *
- * Figma has two variants that are structurally different, not just
- * re-colored:
- *   Variant=Home: full-bleed light hero band, large centered logo (520×378),
- *     links row centered below it, 40px gap between links
- *   Variant=Subpage: slim 100px-tall dark green header bar, small logo
- *     (104×76) left-aligned, links right-aligned, 32px gap between links
+ * Desktop:
+ *   Home:    light bg, centered badge logo (520×378), links below, gap 40.
+ *            LAYOUT-SPEC: col · pad 48/0/40/0 · gap 32 · center.
+ *   Subpage: 100px dark green bar, hor-neg logo (165×64) left, links right.
+ *            LAYOUT-SPEC: row · pad 12/40/12/40 · space-between.
  *
- * Both variants' link row contains the same 3 items: a "Register Today"
- * Button (Primary/Medium), then two Nav Links (Tournament Day, Contact).
+ * Mobile (<768): ONE 72px dark bar on every page, hamburger right.
+ *   Home hides the bar's logo (badge sits directly below).
+ *   Hamburger opens MobileMenu overlay.
  *
- * Logo: Home variant sits on a light background, so it uses the White logo
- * mark (which reads correctly against light because the wordmark itself is
- * the colored/green version — "White" refers to the Figma stage background
- * it was designed against, not the mark's own color); Subpage sits on the
- * dark green header bar, so it uses the Negative (light-on-dark) mark.
+ * On Registration: Register button becomes plain Home link, nothing active.
  */
 import NavLink from "./NavLink.astro";
 import Button from "./Button.astro";
 import Logo from "./Logo.astro";
 
-interface Props {
+export interface Props {
   variant?: "home" | "subpage";
   currentPath?: string;
 }
 
 const { variant = "home", currentPath = "" } = Astro.props;
-const tone = variant === "home" ? "light" : "dark";
-const logoVariant = variant === "home" ? "hero" : "negative";
+const isRegistration = currentPath === "/registration" ||
+                       currentPath.startsWith("/registration/");
 ---
 
 <header class:list={["nav", `nav-${variant}`]}>
-  <div class="nav-inner">
-    <a href="/" class="nav-logo" aria-label="Teeing Off Fore Grant — home">
-      <Logo variant={logoVariant} />
-    </a>
-
-    <nav class="nav-links" aria-label="Primary">
-      <Button href="/registration" size="medium">Register Today</Button>
-      <NavLink href="/tournament-day" tone={tone} active={currentPath === "/tournament-day"}>
-        Tournament Day
-      </NavLink>
-      <NavLink href="/contact" tone={tone} active={currentPath === "/contact"}>
-        Contact
-      </NavLink>
-    </nav>
+  <!-- Desktop nav -->
+  <div class="nav-desktop">
+    {variant === "home" ? (
+      <div class="nav-home-inner">
+        <a href="/" class="nav-home-logo" aria-label="Teeing Off Fore Grant — home">
+          <Logo variant="badge" />
+        </a>
+        <nav class="nav-yield nav-home-links" aria-label="Primary">
+          <Button href="/registration" size="medium">Register Today</Button>
+          <NavLink href="/tournament-day" tone="light" active={currentPath === "/tournament-day"}>
+            Tournament Day
+          </NavLink>
+          <NavLink href="/contact" tone="light" active={currentPath === "/contact"}>
+            Contact
+          </NavLink>
+        </nav>
+      </div>
+    ) : (
+      <div class="nav-sub-inner">
+        <a href="/" class="nav-sub-logo" aria-label="Teeing Off Fore Grant — home">
+          <Logo variant="negative" />
+        </a>
+        <nav class="nav-yield nav--dark nav-sub-links" aria-label="Primary">
+          {isRegistration ? (
+            <NavLink href="/" tone="dark">Home</NavLink>
+          ) : (
+            <Button href="/registration" size="medium">Register Today</Button>
+          )}
+          <NavLink href="/tournament-day" tone="dark"
+            active={!isRegistration && currentPath === "/tournament-day"}>
+            Tournament Day
+          </NavLink>
+          <NavLink href="/contact" tone="dark"
+            active={!isRegistration && currentPath === "/contact"}>
+            Contact
+          </NavLink>
+        </nav>
+      </div>
+    )}
   </div>
 
-  {variant === "home" && (
-    <div class="scroll-hint" aria-hidden="true">
-      <svg class="scroll-chevron" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9" />
+  <!-- Mobile nav bar (all pages, <768 only) -->
+  <div class="nav-mobile">
+    <a href="/" class="nav-mobile-logo" aria-label="Teeing Off Fore Grant — home">
+      <Logo variant="negative" />
+    </a>
+    <button
+      type="button"
+      class="nav-hamburger"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-toggle
+    >
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
       </svg>
-    </div>
-  )}
+    </button>
+  </div>
 </header>
 
 <style>
-  @layer components {
-    .nav {
-      width: 100%;
-    }
+  .nav { width: 100%; }
+  .nav-desktop { display: block; }
+  .nav-mobile { display: none; }
 
-    /* ---- Variant=Home ---- */
-    /* Deviation from Figma: the home nav is stretched to fill the full
-       viewport height (100dvh) so the hero logo + nav links are the only
-       thing visible above the fold, with Meet Grant revealed on scroll.
-       Figma's own frame has fixed padding values (48/40px) that don't
-       account for viewport height — this is an intentional UX improvement
-       beyond the source design, documented here per the deviation rule.
-       The ArgyleBand above this is 88px tall (--argyle-band-height), so
-       the nav itself gets calc(100dvh - 88px) to fill the remaining space. */
-    .nav-home {
-      background-color: var(--color-bg-page);
-      min-height: calc(100dvh - 88px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: var(--spacing-12) var(--spacing-6) var(--spacing-10);
-      position: relative;
-    }
-    .nav-home .nav-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-8);
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .nav-home .nav-logo {
-      width: 100%;
-      max-width: min(720px, 80vw);
-    }
-    .nav-home .nav-links {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-10);
-    }
-
-    /* Scroll hint — pinned to the bottom of the hero section, centered.
-       Fades in after 1.2s (gives the page a moment to settle) then bobs
-       up/down with a gentle bounce. Fades out once the user scrolls past
-       the hero via JS below. Not in Figma — documented deviation. */
-    .scroll-hint {
-      position: absolute;
-      bottom: var(--spacing-8);
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--color-text-brand);
-      opacity: 0;
-      animation:
-        scroll-hint-fadein 0.8s ease 1.2s forwards,
-        scroll-hint-bob 2s ease-in-out 2s infinite;
-      pointer-events: none;
-    }
-    @keyframes scroll-hint-fadein {
-      to { opacity: 0.55; }
-    }
-    @keyframes scroll-hint-bob {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50%       { transform: translateX(-50%) translateY(6px); }
-    }
-    .scroll-hint.hidden {
-      opacity: 0 !important;
-      transition: opacity 0.4s ease;
-    }
+  /* Nav underline yield — components.css defines the global rule against
+     `.nav`, which we can't reuse here without inheriting its width: 100%
+     (that's what stretched the home links row and broke centering).
+     Mirror the same behavior scoped to nav-yield instead. */
+  :global(.nav-yield:hover .nav-link[aria-current="page"]:not(:hover)) {
+    border-bottom-color: transparent;
   }
-</style>
 
-<script>
-  const hint = document.querySelector(".scroll-hint");
-  if (hint) {
-    const hide = () => {
-      if (window.scrollY > 60) {
-        hint.classList.add("hidden");
-        window.removeEventListener("scroll", hide);
-      }
-    };
-    window.addEventListener("scroll", hide, { passive: true });
+  /* Home hero: col · pad 48/0/40/0 · gap 32 · center */
+  .nav-home .nav-desktop {
+    background-color: var(--color-bg-page);
   }
-</script>
+  .nav-home-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-12) 0 var(--spacing-10);
+    gap: var(--spacing-8);
+  }
+  .nav-home-logo {
+    width: 520px;
+    max-width: 80vw;
+  }
+  .nav-home-links {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-10);
+  }
 
-<style>
-  @layer components {
-    /* ---- Variant=Subpage ---- */
-    /* Figma "nav" instance: paddingTop/Bottom 12, paddingLeft/Right 40. Was
-       previously padding: var(--spacing-6) (24px all sides), doubling the
-       vertical padding and stacking with the page header's own top padding
-       to make subpage headers read as oversized. */
-    .nav-subpage {
-      background-color: var(--color-bg-inverse);
-      padding: var(--spacing-3) var(--spacing-10);
-    }
-    .nav-subpage .nav-inner {
+  /* Subpage bar: row · pad 12/40/12/40 · space-between, 100px tall */
+  .nav-subpage .nav-desktop {
+    background-color: var(--color-bg-inverse);
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+  .nav-sub-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: var(--spacing-3) var(--spacing-10);
+  }
+  .nav-sub-logo {
+    width: 165px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+  .nav-sub-links {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-8);
+  }
+
+  /* Mobile nav bar (<768) */
+  @media (max-width: 767px) {
+    .nav-desktop,
+    .nav-subpage .nav-desktop,
+    .nav-home .nav-desktop { display: none; }
+    .nav-mobile {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      max-width: 1344px;
-      margin: 0 auto;
+      height: 72px;
+      background-color: var(--color-bg-inverse);
+      padding: 0 var(--spacing-5);
     }
-    .nav-subpage .nav-logo {
-      /* The SVG is 560×408 (aspect ratio ~1.37:1). We want the logo to be
-         as tall as the nav content area without growing the nav bar.
-         The nav has 12px padding top/bottom. We constrain the wrapper to
-         a fixed height and let the img fill it via object-fit:contain.
-         Width is derived from the aspect ratio: 56px tall × (560/408) ≈ 77px.
-         We give it a bit more room (120px) so it reads clearly. */
-      height: 56px;
-      width: 120px;
-      flex-shrink: 0;
-      overflow: hidden;
+    .nav-mobile-logo {
+      height: 40px;
+      width: auto;
     }
-    .nav-subpage .nav-logo :global(img) {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      object-position: left center;
-    }
-    .nav-subpage .nav-links {
+    .nav-hamburger {
       display: flex;
       align-items: center;
-      gap: var(--spacing-8);
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: none;
+      border: none;
+      color: var(--color-text-inverse);
+      cursor: pointer;
+      padding: 0;
     }
   }
 </style>
+

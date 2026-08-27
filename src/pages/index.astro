@@ -1,76 +1,86 @@
 ---
 /**
- * Home — rebuilt from scratch against the Figma "Home" frame
- * (design/figma-file.json node 45:412 "Meet Grant" and siblings under
- * "00 — REVIEW (start here) > Home"). Every value below was read directly
- * from that node tree (padding/gap/color/radius/type), not eyeballed —
- * see design/ROADMAP.md Phase 5.3 workflow.
+ * Home — per LAYOUT-SPEC.md "Home — 1440×4077 · mobile 390×4120".
  *
- * Sections, top to bottom, matching Figma's own frame order:
- *   hero nav (Nav "home" variant, provided by BaseLayout) > Meet Grant >
- *   Sponsor CTA > Sponsors (logo ticker) > Last year (Carousel) >
- *   Other Ways > Find Us > footer
+ * Sections top to bottom:
+ *   Argyle band (88px, via BaseLayout) → hero nav (via BaseLayout) →
+ *   Meet Grant → Sponsor CTA → Sponsors ticker (HIDDEN — V2) →
+ *   Last year (carousel) → Other Ways → Find Us → Footer (via BaseLayout)
  *
- * Real photo assets (Meet Grant photo, 3 "Last year" carousel photos, San
- * Vicente Resort logo) were exported from Figma via the images API
- * (design/ROADMAP.md "Exporting real assets from Figma") and live in
- * public/photos/ and public/logos/ — this closes Gap Register G5, which
- * previously required the flyer PNGs as a stand-in.
- *
- * GAP: see design/ROADMAP.md G6 — the "Sponsors" ticker section below uses
- * literal "LOGO" placeholder tiles because that's exactly what Figma's own
- * source file specifies (each node is named `PLACEHOLDER — sponsor logo N`
- * by the designer) — there is no real sponsor logo data yet. This is the
- * one deliberate placeholder left on this page per project direction; every
- * other image on Home is a real exported asset.
+ * Grant is 11, not 10 (CLAUDE.md copy correction).
+ * Sponsor ticker ships hidden per Kyle's direction (HANDOFF.md §10).
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Button from "../components/Button.astro";
 import Carousel from "../components/Carousel.astro";
+import Logo from "../components/Logo.astro";
 
-const lastYearImages = [
-  { src: "/photos/last-year-1.png", alt: "Golfers teeing off at last year's Fore Grant tournament" },
-  { src: "/photos/last-year-2.png", alt: "Group photo from last year's Fore Grant tournament" },
-  { src: "/photos/last-year-3.png", alt: "Foursome on the green at last year's Fore Grant tournament" },
-];
-
-// GAP: see design/ROADMAP.md G6 — no real sponsor logos exist yet; these 7
-// slots and the literal "LOGO" label are exactly what the Figma source
-// names them (`PLACEHOLDER — sponsor logo 1`..`7`), not an invented stand-in.
-const sponsorPlaceholderCount = 7;
+const carouselImages = Array.from({ length: 27 }, (_, i) => {
+  const n = i < 27 ? String(i + 1).padStart(2, "0") : "29";
+  return {
+    src: `/photos/carousel/tourney-${n}.jpg`,
+    alt: `Photo from last year's Fore Grant tournament`,
+  };
+});
+// tourney-28 was pulled; numbering skips it
+carouselImages.push({
+  src: "/photos/carousel/tourney-29.jpg",
+  alt: "Photo from last year's Fore Grant tournament",
+});
 ---
 
 <BaseLayout title="Teeing Off Fore Grant — Charity Golf Tournament" navVariant="home">
-  <!-- Meet Grant -->
+
+  <!-- Mobile hero — only shown on mobile (<768).
+       col · pad 44/24/40/24 · gap 18 · bg bg/inverse.
+       Background photo deferred — using bg/inverse fill for now.
+       Desktop uses the full hero nav rendered inside Nav.astro (nav-desktop). -->
+  <div class="home-hero-mobile">
+    <a href="/" class="home-hero-logo" aria-label="Teeing Off Fore Grant — home">
+      <Logo variant="badge" />
+    </a>
+    <p class="home-hero-eyebrow">The 2nd Annual</p>
+    <h1 class="home-hero-date">Friday, November 6, 2026</h1>
+    <p class="home-hero-venue">San Vicente Golf Course · Ramona</p>
+    <p class="home-hero-time">9:00 AM shotgun start</p>
+    <Button href="/registration" size="large" variant="primary" class="home-hero-cta">
+      Register Today
+    </Button>
+  </div>
+
+  <!-- Meet Grant: col · pad 80/64/80/64 · gap 40 → row 1312×470, gap 48
+       Mobile: photo moves inside the card, top-left beside the heading. -->
   <section class="meet-grant">
     <div class="meet-grant-row">
-      <img
-        class="meet-grant-photo"
-        src="/photos/meet-grant.png"
-        alt="Grant, smiling"
-      />
+      <!-- Desktop only: standalone photo left of the card -->
+      <img class="meet-grant-photo" src="/photos/meet-grant.png" alt="Grant, smiling" />
       <div class="meet-grant-story">
-        <div class="meet-grant-story-inner">
+        <div class="meet-grant-inner">
+          <!-- Mobile only: photo + heading in a top row inside the card -->
+          <div class="meet-grant-card-top">
+            <img class="meet-grant-card-photo" src="/photos/meet-grant.png" alt="Grant, smiling" />
+            <h2 class="meet-grant-card-heading">Meet Grant: Join the Fight</h2>
+          </div>
           <div class="meet-grant-text">
-            <h2>Meet Grant: Join the Fight</h2>
+            <!-- Desktop only heading (hidden on mobile) -->
+            <h2 class="meet-grant-desktop-heading">Meet Grant: Join the Fight</h2>
             <p>
               Grant is a strong and inspiring 11-year-old who is bravely battling leukemia. This
               tournament is more than a game — it's a way to come together and rally around Grant and
-              his family. By becoming a sponsor, you are helping provide hope, strength, and support
-              when it's needed most.
+              his family.
+            </p>
+            <p>
+              By becoming a sponsor, a player, or simply spreading the word, you are helping provide
+              hope, strength, and support when it's needed most. His fight is our fight.
             </p>
           </div>
-          <img
-            class="his-fight-logo"
-            src="/logos/his-fight-is-our-fight.png"
-            alt="His Fight Is Our Fight"
-          />
+          <img class="his-fight-logo" src="/logos/his-fight-is-our-fight.png" alt="His Fight Is Our Fight" />
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Sponsor CTA -->
+  <!-- Sponsor CTA: col · pad 48/64/58/64 → card bg/inverse, pad 48, gap 24 -->
   <section class="sponsor-cta">
     <div class="cta-card">
       <div class="golf-balls" aria-hidden="true">
@@ -87,33 +97,16 @@ const sponsorPlaceholderCount = 7;
     </div>
   </section>
 
-  <!-- Sponsors -->
-  <section class="sponsors">
-    <h2>Thank You to Our Sponsors</h2>
-    <div class="sponsor-ticker">
-      <div class="sponsor-track" aria-hidden="false">
-        {Array.from({ length: sponsorPlaceholderCount }).map(() => (
-          <div class="sponsor-tile">
-            <span class="sponsor-tile-label">LOGO</span>
-          </div>
-        ))}
-        <!-- duplicate set for a seamless CSS marquee loop -->
-        {Array.from({ length: sponsorPlaceholderCount }).map(() => (
-          <div class="sponsor-tile" aria-hidden="true">
-            <span class="sponsor-tile-label">LOGO</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+  <!-- Sponsors ticker: HIDDEN — V2, do not build -->
 
-  <!-- Last year -->
+  <!-- Last year: col · pad 80/64/80/64 · gap 32 · bg bg/panel -->
   <section class="last-year">
     <h2>Last year was a hit!</h2>
-    <Carousel images={lastYearImages} />
+    <Carousel images={carouselImages} />
   </section>
 
-  <!-- Other Ways -->
+
+  <!-- Other Ways: col · pad 64/64/64/64 · gap 32 → callout bg/panel, pad 48, gap 20 -->
   <section class="other-ways">
     <div class="callout">
       <h2>Other Ways to Support Us!</h2>
@@ -123,369 +116,354 @@ const sponsorPlaceholderCount = 7;
         possible without the generous support of our donors. Your contribution makes a huge
         difference!
       </p>
-      <div class="gofundme">
-        <Button href="https://gofund.me/" variant="primary" size="large">Give to Grant's GoFundMe</Button>
-      </div>
+      <Button href="https://www.gofundme.com/f/support-grant-through-his-tall-battle" variant="primary" size="large">
+        Give to Grant's GoFundMe
+      </Button>
     </div>
   </section>
 
-  <!-- Find Us -->
+  <!-- Find Us: col · pad 41/64/24/64 · gap 23 -->
   <section class="find-us">
     <h2>Find Us at San Vicente Golf Course</h2>
-    <p class="find-us-addr">
-      24157 San Vicente Rd, Ramona, CA 92065
-    </p>
-    <div class="map-embed">
-      <iframe
-        title="San Vicente Golf Course location map"
-        src="https://www.google.com/maps?q=San+Vicente+Golf+Course,24157+San+Vicente+Rd,Ramona,CA+92065&output=embed"
-        width="100%"
-        height="360"
-        style="border:0; display: block;"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-      ></iframe>
+    <p class="find-us-addr">24157 San Vicente Rd, Ramona, CA 92065</p>
+    <div class="find-us-container">
+      <div class="find-us__map">
+        <iframe
+          title="Map to San Vicente Resort, Ramona, California"
+          src="https://www.google.com/maps?q=San+Vicente+Resort,+24157+San+Vicente+Rd,+Ramona,+CA+92065&z=15&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
     </div>
-    <img
-      class="resort-logo"
-      src="/logos/san-vicente-resort.png"
-      alt="San Vicente Golf Resort logo"
-    />
-    <!--
-      Not in the Figma frame — this "Get directions" link is an intentional
-      addition beyond the source design (genuinely useful wayfinding UX,
-      doesn't conflict with any Figma-specified element). Documented here
-      per the project's "deviations must be justified" rule rather than
-      silently added.
-    -->
-    <p class="find-us-directions">
-      <a
-        href="https://www.google.com/maps/dir/?api=1&destination=San+Vicente+Golf+Course,24157+San+Vicente+Rd,Ramona,CA+92065"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Get directions to San Vicente Golf Course &nbsp;→
-      </a>
-    </p>
+    <img class="resort-logo" src="/logos/san-vicente-resort.png" alt="San Vicente Golf Resort logo" />
   </section>
 </BaseLayout>
 
+
 <style>
-  /* ---- Meet Grant — Figma node 45:412: bg-page, row gap 48
-     (--spacing-12), outer padding 80/64 (--spacing-20/--spacing-16) ---- */
+  /* ---- Mobile home hero: hidden on desktop, shown on mobile only ---- */
+  .home-hero-mobile {
+    display: none;
+  }
+
+  /* ---- Meet Grant: col · pad 80/64/80/64 · gap 40 ---- */
+  /* Mobile card elements hidden on desktop */
+  .meet-grant-card-top { display: none; }
+  .meet-grant-card-photo { display: none; }
+  .meet-grant-card-heading { display: none; }
+
   .meet-grant {
     background-color: var(--color-bg-page);
     padding: var(--spacing-20) var(--spacing-16);
   }
+  /* LAYOUT-SPEC: row is 1312×470 — a fixed track, not sized by content.
+     `height` on a grid CONTAINER does not constrain an implicit auto row —
+     the row still grows to fit its tallest child and overflows past the
+     stated height. grid-template-rows fixes the actual row track, and
+     overflow: hidden on the story card stops its content (esp. the tall
+     portrait His Fight logo) from forcing the card past that track. */
   .meet-grant-row {
     max-width: 1312px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 2fr 3fr;
+    grid-template-rows: 470px;
     gap: var(--spacing-12);
-    align-items: stretch;
   }
-  @media (max-width: 900px) {
-    .meet-grant-row {
-      grid-template-columns: 1fr;
-    }
-  }
-  /* "photo — Grant" (45:414): real exported Figma image, radius-lg,
-     border --color-border-default @ 1px. Height 100% so it stretches
-     to match the story card's natural height (grid align-items: stretch). */
   .meet-grant-photo {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: cover;
+    /* Default center crop was clipping the top of Grant's head — shift
+       the visible window down slightly so his face/head stay in frame. */
+    object-position: center 20%;
     border-radius: var(--radius-lg);
-    display: block;
-  }
-  /* "His Fight Is Our Fight" logo — sits inside the story card (right
-     column) per the Figma screenshot: boxing glove + text lockup on the
-     right side of the Meet Grant card. Constrained to a reasonable max
-     so it doesn't overpower the body copy. */
-  .his-fight-logo {
-    max-width: 220px;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    align-self: flex-end;
-  }
-  /* "story" (45:416): 2px orange border (--color-brand-orange), radius-lg,
-     padding 40 all sides (--spacing-10), gap 24 (--spacing-6) between
-     h/body, then the "His Fight" logo sits at the bottom-right of the card.
-     The story column is itself a flex column; the logo is pushed to the
-     right via align-self: flex-end. */
-  /* Inner row: text on the left, logo on the right, side by side */
-  .meet-grant-story-inner {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--spacing-6);
-  }
-  .meet-grant-text {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-6);
-    flex: 1;
   }
   .meet-grant-story {
     border: 2px solid var(--color-brand-orange);
     border-radius: var(--radius-lg);
     padding: var(--spacing-10);
+    height: 100%;
+    overflow: hidden;
   }
-  /* "text > h" — fill #F05323 = --color-brand-orange (NOT rust/text-accent
-     — a real bug in the previous build, corrected here). Bitter 36px/700,
-     ls -0.65px. */
-  .meet-grant-story h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
+  .meet-grant-inner {
+    display: flex; align-items: center; gap: var(--spacing-6);
+    height: 100%;
+  }
+  .meet-grant-text {
+    display: flex; flex-direction: column; gap: var(--spacing-6); flex: 1;
+    min-width: 0;
+  }
+  .meet-grant-story h2,
+  .meet-grant-desktop-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
     font-weight: 700;
-    letter-spacing: -0.65px;
     color: var(--color-brand-orange);
   }
-  /* "text > body" — Source Serif 4 18px/400, lh 29.7px (~1.65), black. */
   .meet-grant-story p {
     font-family: var(--font-body);
-    font-size: 18px;
-    line-height: 1.65;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
     color: var(--color-text-primary);
   }
+  /* Constrained by HEIGHT, not width — the logo is portrait (1200×1734).
+     Sizing it by max-width alone renders it ~318px tall at 220px wide,
+     which overflows the 470px card once combined with the heading,
+     body copy, and 40px padding on all sides. Capping height keeps it
+     proportional and lets it shrink to whatever room the text leaves. */
+  .his-fight-logo {
+    max-height: 100%;
+    width: auto;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
 
-  /* ---- Sponsor CTA — Figma node 47:466: bg-page section, padding
-     48/64/58 (top/sides/bottom — 58px is a one-off, non-scale value in
-     the source file, left as literal px rather than snapped to
-     --spacing-20, same treatment as Find Us's own one-offs below). Dark
-     green card, radius-xl, padding 48 all sides (--spacing-12), gap 24
-     (--spacing-6). ---- */
+  /* ---- Sponsor CTA ---- */
   .sponsor-cta {
     background-color: var(--color-bg-page);
     padding: var(--spacing-12) var(--spacing-16) 58px;
   }
   .cta-card {
-    max-width: 1312px;
-    margin: 0 auto;
+    max-width: 1312px; margin: 0 auto;
     background-color: var(--color-bg-inverse);
     border-radius: var(--radius-xl);
     padding: var(--spacing-12);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-6);
-    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--spacing-6); text-align: center;
   }
-  /* "golf balls — decorative" (145:1142): 3 golf ball SVG icons exported
-     from Figma node 145:1143/1152/1161 — cream fill (#F4F3E8) circle with
-     dimple dots, 57×54px each, gap 20px (--spacing-5). */
-  .golf-balls {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-5);
-  }
+  .golf-balls { display: flex; align-items: center; gap: var(--spacing-5); }
   .cta-card h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.65px;
-    color: var(--color-bg-page);
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700; color: var(--color-bg-page);
   }
   .cta-card p {
     font-family: var(--font-body);
-    font-size: 20px;
-    line-height: 1.6;
-    color: var(--color-bg-panel);
-    max-width: 640px;
+    font-size: var(--text-heading-h3); line-height: 1.6;
+    color: var(--color-bg-panel); max-width: 640px;
   }
 
-  /* ---- Sponsors — Figma node 127:1150: bg-page, gap 32 (--spacing-8),
-     padding 27/64/80 (top is a one-off literal, same pattern as Sponsor
-     CTA's 58px and Find Us's one-offs). White rounded ribbon (radius-xl),
-     track itemSpacing 48 (--spacing-12). ---- */
-  .sponsors {
-    background-color: var(--color-bg-page);
-    padding: 27px var(--spacing-16) var(--spacing-20);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-8);
-  }
-  .sponsors h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--color-bg-inverse);
-  }
-  .sponsor-ticker {
-    width: 100%;
-    max-width: 1312px;
-    background-color: var(--color-base-white);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    padding: var(--spacing-8) 0;
-  }
-  /* "track — auto-scrolls left, pauses on hover" — CSS-driven marquee
-     rather than JS: the track's own content is duplicated once in the
-     markup above so the looping translateX animation has a seamless
-     second copy to hand off to, then pauses via :hover per the layer's
-     own name. */
-  .sponsor-track {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-12);
-    width: max-content;
-    animation: sponsor-scroll 30s linear infinite;
-  }
-  .sponsor-ticker:hover .sponsor-track {
-    animation-play-state: paused;
-  }
-  @keyframes sponsor-scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  /* "PLACEHOLDER — sponsor logo N" (127:1154..1166): white fill,
-     border-subtle, radius-md. GAP: see design/ROADMAP.md G6. */
-  .sponsor-tile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 180px;
-    height: 88px;
-    flex-shrink: 0;
-    background-color: var(--color-base-white);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-md);
-  }
-  /* "LOGO" text node — Figma spec's font is JetBrains Mono, not part of
-     this project's type system (same fallback rationale documented in
-     Carousel.astro's counter). */
-  .sponsor-tile-label {
-    font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-bg-inverse);
-  }
-
-  /* ---- Last year — Figma node 46:417: bg-panel, gap 32 (--spacing-8),
-     padding 80/64 (--spacing-20/--spacing-16) ---- */
+  /* ---- Last year: bg/panel ---- */
   .last-year {
     background-color: var(--color-bg-panel);
     padding: var(--spacing-20) var(--spacing-16);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
     gap: var(--spacing-8);
   }
   .last-year h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.65px;
-    color: var(--color-bg-inverse);
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700; color: var(--color-bg-inverse);
   }
-  .last-year :global(.carousel) {
-    max-width: 1312px;
-    width: 100%;
-  }
+  .last-year :global(.carousel) { max-width: 1312px; width: 100%; }
 
-  /* ---- Other Ways — Figma node 46:497: bg-page, cream callout card,
-     orange border ---- */
+  /* ---- Other Ways ---- */
   .other-ways {
     background-color: var(--color-bg-page);
     padding: var(--spacing-16);
   }
   .callout {
-    max-width: 1312px;
-    margin: 0 auto;
+    max-width: 1312px; margin: 0 auto;
     background-color: var(--color-bg-panel);
     border: 2px solid var(--color-argyle-dot);
     border-radius: var(--radius-lg);
     padding: var(--spacing-12);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-5);
-    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--spacing-5); text-align: center;
   }
   .callout h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.65px;
-    color: var(--color-text-accent);
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700; color: var(--color-text-accent);
   }
   .callout p {
     font-family: var(--font-body);
-    font-size: 17px;
-    line-height: 1.65;
-    color: var(--color-text-primary);
-    max-width: 720px;
-  }
-  .gofundme {
-    padding-top: var(--spacing-3);
+    font-size: var(--text-body-lg); line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-primary); max-width: 720px;
   }
 
-  /* ---- Find Us — Figma node 46:501: bg-page. Gap (23px) and paddingTop
-     (41px) are one-off, non-scale values in the source file (visual-
-     balance choices, same pattern as Tournament Day's 29px/26px one-offs)
-     — left as literal px rather than snapped to the nearest spacing
-     token. paddingBottom (24px) does match --spacing-6. ---- */
+  /* ---- Find Us ---- */
   .find-us {
     background-color: var(--color-bg-page);
     padding: 41px var(--spacing-16) var(--spacing-6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 23px;
-    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 23px; text-align: center;
   }
-
   .find-us h2 {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.65px;
-    color: var(--color-bg-inverse);
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700; color: var(--color-bg-inverse);
   }
-  /* "addr" — Source Serif 4 17px/400, lh 25.5px (= 1.5). */
   .find-us-addr {
     font-family: var(--font-body);
-    font-size: 17px;
-    line-height: 1.5;
+    font-size: var(--text-body-lg); line-height: 1.5;
     color: var(--color-text-secondary);
   }
-  .map-embed {
+  /* Match the site's 1312 container — .find-us__map's own width:100%
+     otherwise stretches to the section's full padded width. */
+  .find-us-container {
     width: 100%;
     max-width: 1312px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid var(--color-border-control);
-    margin-top: var(--spacing-4);
   }
-  /* "San Vicente Resort logo" (137:1150): real exported Figma image,
-     radius-md, 170×110 in the source frame. */
   .resort-logo {
-    width: 170px;
-    height: 110px;
-    object-fit: contain;
-    border-radius: var(--radius-md);
+    width: 170px; height: 110px;
+    object-fit: contain; border-radius: var(--radius-md);
     margin-top: var(--spacing-4);
   }
-  .find-us-directions {
-    margin-top: var(--spacing-4);
-  }
-  .find-us-directions a {
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.48px;
-    color: var(--color-bg-inverse);
-    text-decoration: none;
-  }
-  .find-us-directions a:hover {
-    color: var(--color-accent-hover);
+
+  /* ---- Mobile ---- */
+  @media (max-width: 767px) {
+    /* Mobile hero: col · pad 44/24/40/24 · gap 18 · bg bg/inverse
+       tourney-05.jpg as background, darkened with a green overlay so text
+       stays readable. bg-inverse is the fallback while the image loads. */
+    .home-hero-mobile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 44px var(--spacing-6) var(--spacing-10);
+      gap: 18px;
+      background-color: var(--color-bg-inverse);
+      background-image:
+        linear-gradient(rgba(49, 83, 45, 0.72), rgba(49, 83, 45, 0.72)),
+        url("/photos/carousel/tourney-05.jpg");
+      background-size: cover;
+      background-position: center;
+    }
+    .home-hero-logo {
+      width: 200px;
+      display: block;
+    }
+    /* "THE 2ND ANNUAL" — mono/caption treatment, spaced caps */
+    .home-hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--text-mono-caption);
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-text-inverse);
+      margin: 0;
+    }
+    /* "Friday, November 6, 2026" — single line, tan/cream */
+    .home-hero-date {
+      font-family: var(--font-heading);
+      font-size: var(--text-mobile-heading-section);
+      line-height: var(--text-mobile-heading-section--line-height);
+      font-weight: 700;
+      color: var(--color-text-inverse);
+      white-space: nowrap;
+      margin: 0;
+    }
+    /* Venue and time — body/md on text/inverse */
+    .home-hero-venue,
+    .home-hero-time {
+      font-family: var(--font-body);
+      font-size: var(--text-body-md);
+      line-height: var(--text-body-md--line-height);
+      color: var(--color-text-inverse);
+      margin: 0;
+    }
+    /* CTA full width */
+    :global(.home-hero-cta) {
+      width: 100%;
+      justify-content: center;
+      margin-top: var(--spacing-2);
+    }
+
+    /* Mobile Meet Grant: col · pad 32/20/32/20 · gap 20
+       The photo moves inside the card — top row is photo+heading side by side,
+       body text below full-width, His Fight logo centered at bottom. */
+    .meet-grant { padding: var(--spacing-8) var(--spacing-5); }
+
+    /* Grid collapses to 1 col but photo is now inside the card, so the
+       row is just the single story card — hide the standalone photo. */
+    .meet-grant-row {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      gap: 0;
+      height: auto;
+    }
+    .meet-grant-photo { display: none; }
+
+    /* Card: reset height/overflow from desktop, keep border + radius */
+    .meet-grant-story {
+      height: auto;
+      overflow: visible;
+      padding: var(--spacing-5);
+    }
+
+    /* Inner: column — photo+heading row on top, text below, logo at bottom */
+    .meet-grant-inner {
+      flex-direction: column;
+      height: auto;
+      gap: var(--spacing-4);
+    }
+
+    /* Top row: small photo + heading side by side */
+    .meet-grant-inner::before {
+      display: none; /* no pseudo elements needed */
+    }
+    .meet-grant-text { gap: var(--spacing-4); }
+
+    /* Mobile card top: photo + heading side by side */
+    .meet-grant-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-4);
+    }
+    .meet-grant-card-photo {
+      display: block;
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      object-position: center 20%;
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+    .meet-grant-card-heading {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: var(--text-mobile-heading-section);
+      line-height: var(--text-mobile-heading-section--line-height);
+      font-weight: 700;
+      color: var(--color-brand-orange);
+    }
+    /* Desktop heading hidden on mobile */
+    .meet-grant-desktop-heading { display: none; }
+
+    /* His Fight logo: show on mobile, centered */
+    .his-fight-logo {
+      display: block;
+      max-width: 160px;
+      max-height: none;
+      width: auto;
+      margin: var(--spacing-2) auto 0;
+    }
+
+    .cta-card h2,
+    .last-year h2,
+    .callout h2,
+    .find-us h2 {
+      font-size: var(--text-mobile-heading-section);
+      line-height: var(--text-mobile-heading-section--line-height);
+    }
+    .sponsor-cta { padding: 28px var(--spacing-5); }
+    .last-year { padding: var(--spacing-10) var(--spacing-5); }
+    .other-ways { padding: var(--spacing-10) var(--spacing-5); }
+    .find-us { padding: 28px var(--spacing-5) var(--spacing-6); }
+    .meet-grant-story h2,
+    .cta-card h2,
+    .last-year h2,
+    .callout h2,
+    .find-us h2 {
+      font-size: var(--text-mobile-heading-section);
+      line-height: var(--text-mobile-heading-section--line-height);
+    }
   }
 </style>

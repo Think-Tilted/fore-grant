@@ -1,40 +1,41 @@
 ---
 /**
- * ArgyleBand — ported from Figma "Argyle Band" component set
- * (design/ROADMAP.md Phase 5.1).
+ * ArgyleBand — per figma-handoff/assets/argyle.css + design-brief.md.
  *
- * Figma defines 3 heights: Trim (24px), Standard (48px), Tall (88px) — same
- * repeating diamond pattern at each size, just more/fewer rows. The diamond
- * background-image tile lives in global.css (.argyle-band). Heights and
- * repeat direction are set here in @layer components so they win over
- * Tailwind v4's preflight reset without needing inline styles or !important.
+ * Three variants: full (with crosshatch dots), plain (no crosshatch),
+ * mono (single color). Two sizes: tall (88px, header band) and trim
+ * (24px, email/tight spaces — pair with plain variant since dots fall
+ * under 1px below 48px and read as mud).
+ *
+ * The tile is 46.9×48.735px (one dark + one olive diamond, point to
+ * point). background-size: auto 100% + repeat-x scales to any band
+ * height and crops at narrow widths — NEVER squash. The background
+ * images are the handoff's exact SVG data URIs from argyle.css.
  */
-export type ArgyleSize = "trim" | "standard" | "tall";
+export type ArgyleSize = "tall" | "trim";
+export type ArgyleVariant = "full" | "plain" | "mono";
 
 interface Props {
   size?: ArgyleSize;
+  variant?: ArgyleVariant;
   class?: string;
 }
 
-const { size = "trim", class: className = "" } = Astro.props;
+const { size = "tall", variant = "full", class: className = "" } = Astro.props;
 ---
 
-<div class:list={["argyle-band", `argyle-band-${size}`, className]}></div>
+<div
+  class:list={["argyle-band", `argyle-band--${size}`, `argyle--${variant}`, className]}
+  aria-hidden="true"
+></div>
 
 <style>
-  @layer components {
-    .argyle-band-trim {
-      height: 24px;
-    }
-    .argyle-band-standard {
-      height: 48px;
-      background-repeat: repeat;
-      background-size: 44px 48px;
-    }
-    .argyle-band-tall {
-      height: 88px;
-      background-repeat: repeat;
-      background-size: 44px 88px;
-    }
+  .argyle-band {
+    background-color: var(--color-bg-page);
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: auto 100%;
   }
+  .argyle-band--tall { height: 88px; }
+  .argyle-band--trim { height: 24px; }
 </style>

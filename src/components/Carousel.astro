@@ -35,7 +35,7 @@ const { images, class: className = "" } = Astro.props;
 const total = images.length;
 ---
 
-<div class:list={["carousel", className]} data-carousel data-total={total}>
+<div class:list={["carousel", className]} data-carousel data-total={total} data-images={JSON.stringify(images.map((img) => img.src))}>
   <div class="carousel-track">
     <img class="carousel-slide carousel-slide-prev" data-slide="prev" src={images[(total - 1) % total]?.src} alt="" aria-hidden="true" />
     <img class="carousel-slide carousel-slide-active" data-slide="active" src={images[0]?.src} alt={images[0]?.alt ?? ""} />
@@ -49,50 +49,7 @@ const total = images.length;
   </div>
 </div>
 
-<script>
-  // Vanilla JS only — no client-side framework in this project, and this
-  // keeps the component compatible with the CSP script-src 'self'
-  // constraint noted in design/ROADMAP.md (inline <script> in .astro files
-  // is bundled to a hashed/external file by Astro, not left inline).
-  const carousels = document.querySelectorAll<HTMLElement>("[data-carousel]");
-
-  carousels.forEach((carousel) => {
-    const total = Number(carousel.dataset.total ?? "0");
-    if (total < 1) return;
-
-    // Image sources/alt text are re-read from the rendered <img> tags
-    // rather than duplicated into a data attribute, since Astro already
-    // put them in the DOM — avoids keeping two copies of the same list
-    // in sync. Order: [prev, active, next] as rendered server-side.
-    const allImgs = Array.from(carousel.querySelectorAll<HTMLImageElement>("img"));
-    const sources = allImgs.map((img) => img.src);
-
-    let current = 0;
-
-    const prevImg = carousel.querySelector<HTMLImageElement>("[data-slide='prev']")!;
-    const activeImg = carousel.querySelector<HTMLImageElement>("[data-slide='active']")!;
-    const nextImg = carousel.querySelector<HTMLImageElement>("[data-slide='next']")!;
-    const counter = carousel.querySelector<HTMLElement>("[data-counter]")!;
-
-    function render() {
-      const prevIndex = (current - 1 + total) % total;
-      const nextIndex = (current + 1) % total;
-      prevImg.src = sources[prevIndex] ?? "";
-      activeImg.src = sources[current] ?? "";
-      nextImg.src = sources[nextIndex] ?? "";
-      counter.textContent = `${String(current + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
-    }
-
-    carousel.querySelector("[data-action='prev']")?.addEventListener("click", () => {
-      current = (current - 1 + total) % total;
-      render();
-    });
-    carousel.querySelector("[data-action='next']")?.addEventListener("click", () => {
-      current = (current + 1) % total;
-      render();
-    });
-  });
-</script>
+<script is:inline src="/scripts/carousel.js"></script>
 
 <style>
   @layer components {
@@ -132,7 +89,7 @@ const total = images.length;
       opacity: 0.5;
     }
 
-    @media (min-width: 900px) {
+    @media (min-width: 768px) {
       .carousel-slide-prev,
       .carousel-slide-next {
         display: block;
@@ -173,12 +130,11 @@ const total = images.length;
       outline-offset: 2px;
     }
 
-    /* See top-of-file note: Figma specifies JetBrains Mono, which isn't part
-       of this project's type system — falls back to a generic monospace
-       stack rather than silently substituting Bitter/Source Serif. */
+    /* JetBrains Mono is now a real token: --font-mono / --text-mono-label */
     .carousel-counter {
-      font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
-      font-size: 14px;
+      font-family: var(--font-mono);
+      font-size: var(--text-mono-label);
+      line-height: var(--text-mono-label--line-height);
       font-weight: 500;
       letter-spacing: 0.14em;
       color: var(--color-text-secondary);

@@ -1,106 +1,227 @@
+/* Teeing Off Fore Grant — global stylesheet
+   Source of truth: figma-handoff/tokens.css + figma-handoff/tailwind.css
+   This file wires those into the Astro/Tailwind v4 build. */
+
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./argyle.css";
+@import "./components.css";
 
-/*
- * Design tokens — ported directly from the Figma design system
- * ("Teeing Off Fore Grant — Design System", 01 Foundations page).
- * See ../../design/ROADMAP.md for full source tables and rationale.
- *
- * Clean break from the old hand-coded theme (paper/fairway/ribbon/ink) —
- * no aliases kept. Anything in src/ still referencing old names is expected
- * to break until it's rebuilt against these tokens (see design/ROADMAP.md
- * Phase 5.0 decision note).
- */
+/* ---- Tailwind v4 @theme — maps Figma tokens to utility names ----
+   This is the ONLY place Figma token names meet Tailwind utility names.
+   Every entry points at a custom property from tokens.css.
+   See figma-handoff/tailwind.css for the full rationale. */
+
 @theme {
-  /* ---- Brand palette ---- */
-  --color-brand-green: #31532d;
-  --color-brand-olive: #577233; /* argyle only — not on swatch card */
-  --color-brand-orange: #f05323;
-  --color-brand-orange-mid: #cd4628;
-  --color-brand-rust: #a53422;
-  --color-brand-cream: #e4e1c5;
-  --color-base-black: #000000;
-  --color-base-white: #ffffff;
-  /* derived — cream 40% over white */
-  --color-brand-light: #f4f3e8;
+  /* ---- Surfaces ---- */
+  --color-page:            var(--color-bg-page);
+  --color-panel:           var(--color-bg-panel);
+  --color-field:           var(--color-bg-field);
+  --color-inverse:         var(--color-bg-inverse);
+  --color-overlay:         var(--color-bg-overlay);
 
-  /* ---- Semantic: background ---- */
-  --color-bg-page: var(--color-brand-light);
-  --color-bg-panel: var(--color-brand-cream);
-  --color-bg-inverse: var(--color-brand-green);
-  --color-bg-overlay: color-mix(in srgb, var(--color-brand-green) 55%, transparent);
+  /* ---- Ink ---- */
+  --color-ink:             var(--color-text-primary);
+  --color-ink-muted:       var(--color-text-secondary);
+  --color-ink-brand:       var(--color-text-brand);
+  --color-ink-accent:      var(--color-text-accent);
+  --color-on-brand:        var(--color-text-on-brand);
+  --color-on-accent:       var(--color-text-on-accent);
+  --color-on-inverse:      var(--color-text-inverse);
 
-  /* ---- Semantic: text ---- */
-  --color-text-primary: var(--color-base-black);
-  /* 62% per design/audit-reports/page-tournament-day.md (card descriptions,
-     helper text, table headers) — corrected from a hand-copied 56%. */
-  --color-text-secondary: color-mix(in srgb, var(--color-base-black) 62%, transparent);
+  /* ---- Lines ---- */
+  --color-line-subtle:     var(--color-border-subtle);
+  --color-line:            var(--color-border-default);
+  --color-line-control:    var(--color-border-control);
+  --color-line-focus:      var(--color-border-focus);
 
-  --color-text-brand: var(--color-brand-green);
-  --color-text-accent: var(--color-brand-rust);
-  --color-text-on-brand: var(--color-base-white);
-  --color-text-on-accent: var(--color-base-white);
-  --color-text-inverse: var(--color-brand-cream);
+  /* ---- Brand + accent ---- */
+  --color-brand:           var(--color-brand-default);
+  --color-brand-hover:     var(--color-brand-hover);
+  --color-brand-active:    var(--color-brand-active);
+  --color-brand-subtle:    var(--color-brand-subtle);
+  --color-accent-display:  var(--color-accent-display);
+  --color-accent:          var(--color-accent-default);
+  --color-accent-hover:    var(--color-accent-hover);
+  --color-accent-active:   var(--color-accent-active);
+  --color-accent-subtle:   var(--color-accent-subtle);
 
-  /* ---- Semantic: border ---- */
-  --color-border-subtle: color-mix(in srgb, var(--color-brand-green) 10%, transparent);
-  --color-border-default: color-mix(in srgb, var(--color-brand-green) 20%, transparent);
-  --color-border-control: color-mix(in srgb, var(--color-brand-green) 64%, transparent);
-  --color-border-focus: var(--color-brand-orange-mid);
+  /* ---- Argyle + state ---- */
+  --color-argyle-dark:     var(--color-argyle-dark);
+  --color-argyle-olive:    var(--color-argyle-olive);
+  --color-argyle-dot:      var(--color-argyle-dot);
+  --color-disabled-bg:     var(--color-state-disabled-bg);
+  --color-disabled-text:   var(--color-state-disabled-text);
+  --color-sold-out:        var(--color-state-sold-out);
+  --color-limited:         var(--color-state-limited);
 
-  /* ---- Semantic: brand action ---- */
-  --color-brand-default: var(--color-brand-green);
-  --color-brand-hover: #2a4727;
-  --color-brand-active: #243d21;
-  --color-brand-subtle: color-mix(in srgb, var(--color-brand-green) 8%, transparent);
+  /* ---- Type families ---- */
+  --font-heading: var(--font-heading);
+  --font-body:    var(--font-body);
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
 
-  /* ---- Semantic: accent action ---- */
-  --color-accent-display: var(--color-brand-orange);
-  --color-accent-default: var(--color-brand-orange-mid);
-  --color-accent-hover: var(--color-brand-rust);
-  --color-accent-active: #8b2c1d;
-  --color-accent-subtle: color-mix(in srgb, var(--color-brand-orange) 14%, transparent);
+  /* ---- Type ramp — desktop ---- */
+  --text-display-lg:        3.5rem;
+  --text-display-lg--line-height: 1.05;
+  --text-display-price:     2.5rem;
+  --text-display-price--line-height: 1.1;
+  --text-heading-section:   2.25rem;
+  --text-heading-section--line-height: 1.15;
+  --text-heading-section-soft: 2.25rem;
+  --text-heading-section-soft--line-height: 1.15;
+  --text-heading-bucket:    1.75rem;
+  --text-heading-bucket--line-height: 1.2;
+  --text-heading-tier:      1.375rem;
+  --text-heading-tier--line-height: 1.25;
+  --text-heading-h3:        1.25rem;
+  --text-heading-h3--line-height: 1.3;
+  --text-label-group:       1.1875rem;
+  --text-label-group--line-height: 1.2;
+  --text-button-lg:         1.125rem;
+  --text-button-lg--line-height: 1.2;
+  --text-button-md:         1rem;
+  --text-button-md--line-height: 1.2;
+  --text-marker-md:         1rem;
+  --text-marker-md--line-height: 1.5;
+  --text-label-badge:       0.875rem;
+  --text-label-badge--line-height: 1.2;
+  --text-marker-sm:         0.875rem;
+  --text-marker-sm--line-height: 1.6;
+  --text-label-field:       0.8125rem;
+  --text-label-field--line-height: 1.3;
 
-  /* ---- Semantic: state ---- */
-  --color-state-disabled-bg: color-mix(in srgb, var(--color-brand-green) 8%, transparent);
-  --color-state-disabled-text: color-mix(in srgb, var(--color-base-black) 42%, transparent);
-  --color-state-sold-out: color-mix(in srgb, var(--color-base-black) 55%, transparent);
-  --color-state-limited: var(--color-brand-rust);
+  /* Source Serif 4 — body */
+  --text-body-lead:         2rem;
+  --text-body-lead--line-height: 1.35;
+  --text-body-lead-soft:    2rem;
+  --text-body-lead-soft--line-height: 1.35;
+  --text-body-contact:      1.375rem;
+  --text-body-contact--line-height: 1.5;
+  --text-body-contact-soft: 1.375rem;
+  --text-body-contact-soft--line-height: 1.5;
+  --text-body-lg:           1.0625rem;
+  --text-body-lg--line-height: 1.6;
+  --text-body-lg-strong:    1.0625rem;
+  --text-body-lg-strong--line-height: 1.6;
+  --text-body-md:           1rem;
+  --text-body-md--line-height: 1.6;
+  --text-body-md-strong:    1rem;
+  --text-body-md-strong--line-height: 1.6;
+  --text-body-sm:           0.9375rem;
+  --text-body-sm--line-height: 1.55;
+  --text-body-xs:           0.8125rem;
+  --text-body-xs--line-height: 1.45;
 
-  /* ---- Argyle ---- */
-  --color-argyle-dark: var(--color-brand-green);
-  --color-argyle-olive: var(--color-brand-olive);
-  --color-argyle-dot: var(--color-brand-orange-mid);
+  /* JetBrains Mono */
+  --text-mono-label:        0.875rem;
+  --text-mono-label--line-height: 1.4;
+  --text-mono-caption:      0.75rem;
+  --text-mono-caption--line-height: 1.4;
 
-  /* ---- Typography ---- */
-  --font-display: "Bitter", "Georgia", serif; /* headings, labels, buttons */
-  --font-body: "Source Serif 4", "Georgia", serif; /* body copy */
+  /* Legacy unused (mirrored so Figma and CSS ramps match) */
+  --text-display-xl:        5rem;
+  --text-display-xl--line-height: 1.02;
+  --text-display-italic:    2.5rem;
+  --text-display-italic--line-height: 1.1;
+  --text-heading-h1:        3rem;
+  --text-heading-h1--line-height: 1.08;
+  --text-heading-h2:        2rem;
+  --text-heading-h2--line-height: 1.15;
+  --text-label-md:          0.75rem;
+  --text-label-md--line-height: 1.3;
 
-  /* ---- Spacing (8px base) ---- */
-  --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
-  --spacing-10: 40px;
-  --spacing-12: 48px;
-  --spacing-16: 64px;
-  --spacing-20: 80px;
-  --spacing-24: 96px;
+  /* ---- Mobile type ramp (<768) ---- */
+  --text-mobile-display-lg:        2.125rem;
+  --text-mobile-display-lg--line-height: 1.1;
+  --text-mobile-display-price:     1.75rem;
+  --text-mobile-display-price--line-height: 1.15;
+  --text-mobile-heading-section:   1.625rem;
+  --text-mobile-heading-section--line-height: 1.2;
+  --text-mobile-heading-section-soft: 1.625rem;
+  --text-mobile-heading-section-soft--line-height: 1.2;
+  --text-mobile-heading-bucket:    1.3125rem;
+  --text-mobile-heading-bucket--line-height: 1.25;
+  --text-mobile-heading-tier:      1.1875rem;
+  --text-mobile-heading-tier--line-height: 1.3;
+  --text-mobile-heading-h3:        1.125rem;
+  --text-mobile-heading-h3--line-height: 1.3;
+  --text-mobile-label-group:       1.0625rem;
+  --text-mobile-label-group--line-height: 1.25;
+  --text-mobile-button-lg:         1rem;
+  --text-mobile-button-lg--line-height: 1.2;
+  --text-mobile-label-badge:       0.8125rem;
+  --text-mobile-label-badge--line-height: 1.25;
+  --text-mobile-marker-md:         0.875rem;
+  --text-mobile-marker-md--line-height: 1.6;
+  --text-mobile-marker-sm:         0.8125rem;
+  --text-mobile-marker-sm--line-height: 1.6;
+  --text-mobile-body-lead:         1.25rem;
+  --text-mobile-body-lead--line-height: 1.45;
+  --text-mobile-body-lead-soft:    1.25rem;
+  --text-mobile-body-lead-soft--line-height: 1.45;
+  --text-mobile-body-contact:      1.0625rem;
+  --text-mobile-body-contact--line-height: 1.55;
+  --text-mobile-body-contact-soft: 1.0625rem;
+  --text-mobile-body-contact-soft--line-height: 1.55;
+  --text-mobile-body-lg:           1rem;
+  --text-mobile-body-lg--line-height: 1.6;
+  --text-mobile-body-lg-strong:    1rem;
+  --text-mobile-body-lg-strong--line-height: 1.6;
+  --text-mobile-body-xs:           0.75rem;
+  --text-mobile-body-xs--line-height: 1.45;
+  --text-mobile-body-sm:           0.875rem;
+  --text-mobile-body-sm--line-height: 1.4;
+  --text-mobile-mono-label:        0.75rem;
+  --text-mobile-mono-label--line-height: 1.4;
+  --text-mobile-mono-caption:      0.6875rem;
+  --text-mobile-mono-caption--line-height: 1.4;
+  --text-mobile-display-hero:      1.875rem;
+  --text-mobile-display-hero--line-height: 1.15;
+  --text-mobile-label-eyebrow:     0.9375rem;
+  --text-mobile-label-eyebrow--line-height: 1.4;
+
+  /* ---- Tracking ---- */
+  --text-display-xl--letter-spacing:      -0.03em;
+  --text-display-lg--letter-spacing:      -0.026em;
+  --text-display-italic--letter-spacing:   0.02em;
+  --text-heading-h1--letter-spacing:      -0.022em;
+  --text-heading-h2--letter-spacing:      -0.016em;
+  --text-heading-h3--letter-spacing:      -0.01em;
+  --text-label-md--letter-spacing:         0.14em;
+  --text-button-md--letter-spacing:        0.02em;
+  --text-mobile-label-eyebrow--letter-spacing: 4px;
+
+  /* ---- Spacing ---- */
+  --spacing-1:  4px;   --spacing-2:  8px;   --spacing-3:  12px;
+  --spacing-4:  16px;  --spacing-5:  20px;  --spacing-6:  24px;
+  --spacing-8:  32px;  --spacing-10: 40px;  --spacing-12: 48px;
+  --spacing-16: 64px;  --spacing-20: 80px;  --spacing-24: 96px;
   --spacing-32: 128px;
 
-  /* ---- Section divider rule ---- */
-  --color-section-rule: var(--color-accent-default);
-
   /* ---- Radius ---- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-full: 9999px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 999px;
+
+  /* ---- Layout ---- */
+  --container-site: 1312px;
+  --container-site-mobile: 350px;
+  --section-y: 80px;
+  --section-y-mobile: 40px;
+  --section-x: 64px;
+  --section-x-mobile: 20px;
+
+  /* ---- Motion ---- */
+  --ease-hover: cubic-bezier(.2, 0, 0, 1);
 }
 
+@utility shadow-none-always {
+  box-shadow: none !important;
+}
+
+/* ---- Base ---- */
 @layer base {
   body {
     background-color: var(--color-bg-page);
@@ -108,110 +229,40 @@
   }
 }
 
-/*
- * Argyle diamond band — ported from Figma "Argyle Band" component set.
- *
- * The Figma uses three layers per variant:
- *   1. Dark diamonds  — solid fill #31532D (argyle-dark)
- *   2. Olive diamonds — solid fill #577233 (argyle-olive)
- *   3. Dots           — round-capped dashed stroke #CD4628 (argyle-dot)
- *                       along the diamond crosshatch seam lines.
- *
- * The dots are NOT filled circles — they are round stroke-linecap endpoints
- * on a near-zero dash (dash=0.001, gap=N) path that traces the X-seams.
- * This produces evenly-spaced dots at every diamond intersection, matching
- * the Figma screenshot exactly.
- *
- * Tile: 88×44px (two diamonds wide, one diamond tall).
- * Diamond half-width = 22px, half-height = 22px.
- * Seam lines (the X crosshatch): two diagonals crossing the tile.
- * Dot gap for standard (48px band): ~5px between dot centers.
- * Dot gap for tall (88px band): ~5px (same, scaled naturally by tile size).
- *
- * The dot wave frequency is controlled by the tile width relative to the band
- * height. The tile is 44px wide (one diamond wide) so the dot wave completes
- * one full cycle per diamond, giving the correct density. Going narrower (44px)
- * doubles the wave count vs the 88px tile.
- */
-.argyle-band {
-  background-color: var(--color-bg-page);
-  background-repeat: repeat-x;
-  background-position: center;
-  background-size: 44px 44px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3C!-- dark diamond --%3E%3Cpath d='M0 22 L22 0 L44 22 L22 44 Z' fill='%2331532D'/%3E%3C!-- crosshatch seam dots --%3E%3Cpath d='M0 0 L44 44' fill='none' stroke='%23CD4628' stroke-width='2.3' stroke-linecap='round' stroke-dasharray='0.001 5'/%3E%3Cpath d='M0 44 L44 0' fill='none' stroke='%23CD4628' stroke-width='2.3' stroke-linecap='round' stroke-dasharray='0.001 5'/%3E%3C/svg%3E");
-}
+/* ---- Runtime globals ----
+   Styles for elements injected by sponsor-form.js at runtime.
+   Must be global (not component-scoped) because Astro's hash scoping
+   doesn't reach JS-created DOM nodes. */
 
-/*
- * NOTE: .ribbon-banner and .flyer-caps below reference OLD token names
- * (--color-ribbon, --color-ribbon-dark, --font-display's old value) that no
- * longer exist as of this token rewrite. Left as-is deliberately per the
- * Phase 5.0 "clean break" decision (design/ROADMAP.md) — these will visibly
- * break until Phase 5.3 rebuilds the pages/components that use them.
- */
-.ribbon-banner {
-  position: relative;
-  display: inline-block;
-  background-color: var(--color-ribbon);
-  color: #fff;
-  padding: 0.5rem 1.75rem;
-}
-
-.ribbon-banner::before,
-.ribbon-banner::after {
-  content: "";
-  position: absolute;
-  top: 8px;
-  width: 24px;
-  height: 100%;
-  background-color: var(--color-ribbon-dark);
-  z-index: -1;
-}
-
-.ribbon-banner::before {
-  left: -16px;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 35% 50%);
-}
-
-.ribbon-banner::after {
-  right: -16px;
-  clip-path: polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%);
-}
-
-/*
- * Registration form modal detail rows — injected by sponsor-form.js at
- * runtime. Must live in global.css (not a component <style> tag) because
- * Astro scopes component styles with a hash attribute that JS-injected
- * elements don't have, so scoped selectors never match them.
- */
 .confirm-row {
   display: grid;
   grid-template-columns: 140px 1fr;
   align-items: baseline;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-brand-green) 20%, transparent);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 .confirm-row:last-child {
   border-bottom: none;
 }
 .confirm-row-highlight {
-  background-color: color-mix(in srgb, var(--color-brand-rust) 8%, transparent);
-  border-radius: 8px;
-  padding: 12px;
-  margin: 0 -12px;
+  background-color: var(--color-accent-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin: 0 calc(-1 * var(--space-3));
 }
 .confirm-dt {
-  font-family: "Bitter", "Georgia", serif;
-  font-size: 0.75rem;
+  font-family: var(--font-heading);
+  font-size: var(--text-mono-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--color-base-black) 62%, transparent);
+  color: var(--color-text-secondary);
 }
 .confirm-dd {
-  font-family: "Source Serif 4", "Georgia", serif;
-  font-size: 0.875rem;
-  color: var(--color-base-black);
+  font-family: var(--font-body);
+  font-size: var(--text-label-badge);
+  color: var(--color-text-primary);
   margin: 0;
   word-break: break-word;
 }
@@ -219,28 +270,20 @@
   font-weight: 600;
 }
 .confirm-double-check {
-  font-family: "Bitter", "Georgia", serif;
-  font-size: 0.75rem;
+  font-family: var(--font-heading);
+  font-size: var(--text-mono-caption);
   font-weight: 700;
-  color: var(--color-brand-rust);
-  margin: 8px 0 4px;
-  padding: 8px 12px;
-  background-color: color-mix(in srgb, var(--color-brand-rust) 8%, transparent);
-  border-radius: 4px;
+  color: var(--color-text-accent);
+  margin: var(--space-2) 0 var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-accent-subtle);
+  border-radius: var(--radius-sm);
 }
 .result-modal-icon-success {
-  background-color: color-mix(in srgb, var(--color-brand-green) 12%, transparent);
-  color: var(--color-brand-green);
+  background-color: var(--color-brand-subtle);
+  color: var(--color-text-brand);
 }
 .result-modal-icon-error {
-  background-color: color-mix(in srgb, var(--color-brand-rust) 12%, transparent);
-  color: var(--color-brand-rust);
-}
-
-/* Small-caps serif label, like the flyer's "TEEING OFF" */
-.flyer-caps {
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  background-color: var(--color-accent-subtle);
+  color: var(--color-text-accent);
 }

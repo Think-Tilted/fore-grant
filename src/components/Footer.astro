@@ -21,7 +21,6 @@
  */
 import ArgyleBand from "./ArgyleBand.astro";
 import SocialIcon from "./SocialIcon.astro";
-import NavLink from "./NavLink.astro";
 ---
 
 <footer class="footer">
@@ -35,7 +34,7 @@ import NavLink from "./NavLink.astro";
       <div class="footer-section">
         <h3 class="footer-heading">Follow Us on Instagram</h3>
         <div class="footer-handle">
-          <SocialIcon platform="instagram" href="https://instagram.com/GrantsTALLBattle" label="@GrantsTALLBattle on Instagram" />
+          <SocialIcon href="https://instagram.com/GrantsTALLBattle" label="@GrantsTALLBattle on Instagram" />
           <a href="https://instagram.com/GrantsTALLBattle" class="footer-handle-text" target="_blank" rel="noopener noreferrer">
             @GrantsTALLBattle
           </a>
@@ -63,9 +62,9 @@ import NavLink from "./NavLink.astro";
       <div class="footer-section">
         <h3 class="footer-heading">Pages</h3>
         <div class="footer-links">
-          <NavLink href="/registration" tone="dark">Registration</NavLink>
-          <NavLink href="/tournament-day" tone="dark">Tournament Day</NavLink>
-          <NavLink href="/contact" tone="dark">Contact</NavLink>
+          <a href="/registration" class="footer-link">Registration</a>
+          <a href="/tournament-day" class="footer-link">Tournament Day</a>
+          <a href="/contact" class="footer-link">Contact</a>
         </div>
       </div>
     </div>
@@ -84,19 +83,25 @@ import NavLink from "./NavLink.astro";
       background-color: var(--color-bg-inverse);
     }
 
+    /* LAYOUT-SPEC: body pad 64/64/48/64 · gap 40 */
     .footer-body {
       max-width: 1312px;
       margin: 0 auto;
-      padding: var(--spacing-10) var(--spacing-6);
+      padding: var(--spacing-16) var(--spacing-16) var(--spacing-12);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-10);
     }
 
+    /* CLAUDE.md: "Section headings are all 36px everywhere... the footer
+       tagline." SemiBold, not Bold — --text-heading-section-soft. */
     .footer-tagline {
-      font-family: var(--font-display);
-      font-size: 20px;
+      font-family: var(--font-heading);
+      font-size: var(--text-heading-section-soft);
+      line-height: var(--text-heading-section-soft--line-height);
       font-weight: 600;
       color: var(--color-text-inverse);
       text-align: center;
-      margin-bottom: var(--spacing-10);
     }
 
     .footer-sections {
@@ -106,7 +111,10 @@ import NavLink from "./NavLink.astro";
       align-items: start;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
+      .footer-body {
+        padding: var(--spacing-10) var(--spacing-5) var(--spacing-8);
+      }
       .footer-sections {
         grid-template-columns: 1fr;
       }
@@ -115,10 +123,11 @@ import NavLink from "./NavLink.astro";
       }
     }
 
+    /* CLAUDE.md "Orange as structure": 2px accent/display vertical dividers */
     .footer-divider {
-      width: 1px;
+      width: 2px;
       align-self: stretch;
-      background-color: color-mix(in srgb, var(--color-brand-cream) 20%, transparent);
+      background-color: var(--color-accent-display);
     }
 
     /* Figma "h" nodes (Get Connected/Questions/Pages headings) — Bitter
@@ -178,8 +187,7 @@ import NavLink from "./NavLink.astro";
 
     .footer-rule {
       border: none;
-      border-top: 1px solid color-mix(in srgb, var(--color-brand-cream) 20%, transparent);
-      margin: var(--spacing-10) 0 var(--spacing-6);
+      border-top: 1px solid var(--color-border-default);
     }
 
     .footer-copyright {

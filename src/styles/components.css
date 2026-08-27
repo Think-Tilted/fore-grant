@@ -1,0 +1,333 @@
+/* Teeing Off Fore Grant — interaction contracts
+   Generated from the Figma component set. Every value is a token. */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-heading); font-weight: 600; letter-spacing: .02em;
+  border-radius: var(--radius-md);
+  height: var(--control-md);
+  padding-inline: var(--space-6);
+  border: 0; cursor: pointer;
+  transition: background-color var(--motion-duration-hover) var(--motion-ease),
+              transform var(--motion-duration-hover) var(--motion-ease);
+}
+.btn--primary { background: var(--color-accent-default); color: var(--color-text-on-accent); }
+
+/* Hover is a lift, not a shadow. The flyer has no shadows and neither does this. */
+.btn--primary:hover  { background: var(--color-accent-hover); transform: translateY(var(--motion-lift)); }
+.btn--primary:active { background: var(--color-accent-active); transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible   { outline: var(--border-default) solid var(--color-border-focus); outline-offset: 2px; }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--color-state-disabled-bg); color: var(--color-state-disabled-text);
+  cursor: not-allowed; transform: none;
+}
+
+/* Nav: hover IS the orange rule. Active is the same orange, heavier, plus brighter text. */
+.nav-link {
+  font-family: var(--font-heading); font-weight: 600; font-size: 1rem; letter-spacing: .03em;
+  color: var(--color-text-brand);
+  padding: var(--space-2); text-decoration: none;
+  border-bottom: 4px solid transparent;
+  transition: border-color var(--motion-duration-hover) var(--motion-ease),
+              color var(--motion-duration-hover) var(--motion-ease);
+}
+.nav-link:hover            { border-bottom-color: var(--color-accent-display); border-bottom-width: 2px; }
+.nav-link[aria-current="page"] { border-bottom-color: var(--color-accent-display); border-bottom-width: 4px; }
+
+/* On the green subpage bar */
+.nav--dark .nav-link { color: var(--color-text-inverse); }
+.nav--dark .nav-link:hover,
+.nav--dark .nav-link[aria-current="page"] { color: var(--color-bg-page); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn--primary:hover, .btn--primary:active { transition: none; transform: none; }
+}
+
+/* ── Tier rows ──────────────────────────────────────────────────────────────
+   Every row looks the SAME at rest. Green is the hover state and nothing else —
+   if a row is dark, the pointer is on it. That is the whole language.
+
+   The featured tier is marked by its ORANGE EDGE alone. It used to be dark at
+   rest, which made it read as already-selected and stole the meaning of hover;
+   with eight rows stacked that was worse, not better.
+
+   This removed a variant. `FeaturedMuted` existed only to lighten a dark
+   featured row while a different row was hovered — and with featured no longer
+   dark, it had no job. The `.tier-list:hover` yield rule went with it. */
+
+.tier-row {
+  background: var(--color-bg-panel);
+  border: var(--border-default) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  transition: background-color var(--motion-duration-hover) var(--ease-hover),
+              border-color var(--motion-duration-hover) var(--ease-hover),
+              color var(--motion-duration-hover) var(--ease-hover);
+}
+
+/* the only thing that marks the premium tier at rest */
+.tier-row--featured { border-color: var(--color-accent-default); }
+
+/* green means the pointer is here — nothing else in this component uses it.
+   Scoped to hover-capable devices (mice/trackpads) only — on touch screens
+   :hover sticks after a tap and makes rows look permanently selected. */
+@media (hover: hover) {
+  .tier-row:hover {
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .tier-row:hover .tier-row__price { color: var(--color-bg-page); }
+  .tier-row:hover .tier-row__marker { color: var(--color-accent-display); }
+}
+
+/* Mobile expanded state — same green language as desktop hover.
+   Only applies below 768 where the accordion is active. */
+@media (max-width: 767px) {
+  .tier-row[data-open="true"] {
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .tier-row[data-open="true"] .tier-row__price { color: var(--color-bg-page); }
+  .tier-row[data-open="true"] .tier-row__marker { color: var(--color-accent-display); }
+}
+
+/* Header carries identity + the control. Availability sits on the PRICE line,
+   not the header — three things on one line crowded, and with a wrapping tier
+   name the badge and chevron stranded themselves against a two-line title.
+   Availability is also a commercial fact: "how much / what you get / how many
+   left" belongs together, at the point the decision gets made.
+
+   For a sold-out tier the same slot carries the Sold Out badge, which is what
+   explains the muted treatment rather than leaving it unexplained. */
+.tier-row__price {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-3);
+}
+.tier-row__money { display: inline-flex; align-items: baseline; gap: var(--space-2); white-space: nowrap; }
+
+/* Register Now keeps its own hover on top of the row's. */
+.tier-row .btn { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) { .tier-row { transition: none; } }
+
+/* ── Group lookup ───────────────────────────────────────────────────────────
+   A name match highlights ONE group, not the whole hole row. The match reads
+   dark green with light text — the same language as every other hover on the
+   site. It used to be a red/orange tint, which read as an error state. */
+
+.group-card--match {
+  background: var(--color-bg-inverse);
+  border: var(--border-default) solid var(--color-accent-default);
+  color: var(--color-text-inverse);
+}
+.group-card--match .group-card__no { color: var(--color-bg-page); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tier-row { transition: none; }
+}
+
+/* ── Nav: the current page yields while another is hovered ──────────────────
+   The current page is underlined at rest. The moment the pointer lands on a
+   DIFFERENT nav item, the current page's underline drops out — one underline on
+   screen at a time, and it always belongs to whatever the pointer is addressing.
+   Move the pointer off the nav and the current page takes its underline back.
+
+   Colour is deliberately NOT dropped: the current page keeps its brighter text,
+   so the user never loses track of where they are — only the rule moves. */
+
+.nav:hover .nav-link[aria-current="page"]:not(:hover) {
+  border-bottom-color: transparent;
+}
+
+/* Reserve the rule's 4px in every state so nothing reflows as it hides. */
+.nav-link { border-bottom: 4px solid transparent; }
+
+/* ── Find Us: map embed ─────────────────────────────────────────────────────
+   San Vicente Resort · 24157 San Vicente Rd, Ramona, CA 92065
+   33.0022215, -116.8058419
+
+   This form of the embed needs NO API key and no billing account, which is
+   the right call for a one-day charity event. If you later want styling
+   control or a custom marker, that requires the Maps Embed API and a key.
+
+   The wrapper enforces the aspect ratio; the iframe fills it. Always keep the
+   text address above it — a map iframe is not accessible on its own, and it
+   will not render if a visitor blocks third-party frames. */
+
+.find-us__map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1312 / 420;         /* desktop; mobile falls back below */
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--color-border-default);
+  background: var(--color-bg-panel);   /* shows while the frame loads */
+}
+.find-us__map iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+}
+@media (max-width: 767px) {
+  .find-us__map { aspect-ratio: 4 / 3; }
+}
+
+/* Markup:
+
+<div class="find-us__map">
+  <iframe
+    title="Map to San Vicente Resort, Ramona, California"
+    src="https://www.google.com/maps?q=San+Vicente+Resort,+24157+San+Vicente+Rd,+Ramona,+CA+92065&z=15&output=embed"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    allowfullscreen></iframe>
+</div>
+
+The venue logo beneath the map links to the course:
+<a href="https://www.sanvicenteresort.com/" rel="noopener">…San Vicente Resort logo…</a>
+It replaced a separate "Get directions" row, so it is the only outbound
+link in that section — keep it a real anchor, not a decorative image. */
+
+/* ── Sponsor ticker: hidden until there are logos ───────────────────────────
+   The section is built and tokenized but has no content yet. Render it only
+   when at least one logo exists, rather than shipping an empty ribbon. */
+.sponsors:empty,
+.sponsors[hidden] { display: none; }
+
+/* ── Group player names: two and two on mobile ──────────────────────────────
+   A foursome is four names. At 390 a single wrapped line breaks mid-name
+   ("Jessica" / "Hall"), which reads as a rendering bug. Lay the four out as a
+   2×2 grid so each name stays whole and the pairs align.
+
+   Do NOT ship this as a hardcoded <br> — names vary in length and a break at a
+   fixed index will be wrong the moment the pairings change. The grid holds
+   for any four names. In Figma the break is authored literally, because Figma
+   has no grid-with-separators; the CSS below is the real implementation. */
+
+.group-card__players {
+  display: grid;
+  grid-template-columns: 1fr;          /* desktop: one flowing line */
+  gap: 0;
+}
+.group-card__players li { display: inline; }
+.group-card__players li:not(:last-child)::after { content: " · "; }
+
+@media (max-width: 767px) {
+  .group-card__players {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+  }
+  .group-card__players li { display: block; min-width: 0; }
+  /* the separator belongs to the pair, not the grid — drop it and let the
+     columns do the separating */
+  .group-card__players li::after { content: none; }
+}
+
+/* ── Helper text ────────────────────────────────────────────────────────────
+   `body/xs` is the helper/hint style — form field hints, the group-lookup
+   prompt. It is NOT reading copy, which is why it is the one body size that
+   DOES shrink on mobile (13 → 12). The "body does not shrink" rule protects
+   prose; a hint is a label. */
+.field__helper { font-size: var(--text-body-xs); color: var(--color-text-secondary); }
+@media (max-width: 767px) {
+  .field__helper { font-size: var(--text-mobile-body-xs); }
+}
+
+/* ── Tier rows: accordion on mobile, always open on desktop ─────────────────
+   Eight tiers at full height is ~3,400px of scrolling on a phone — you cannot
+   compare options you cannot see. Collapsed, the whole ladder fits in about two
+   screens: name, price, availability. Expand for benefits and Register Now.
+
+   Desktop keeps every row open. There is room, and the benefit lists ARE the
+   sell — hiding them there would cost more than it saves.
+
+   IMPORTANT — this changes an older rule. "The card is not a link, Register Now
+   is the only click target" was written to stop the card's hover competing with
+   the button's. With an accordion the header IS a control (it toggles) and
+   Register Now is a separate action inside the panel. Two targets, different
+   levels, no ambiguity. The rule is superseded, not broken. */
+
+.tier-row__toggle {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  background: none; border: 0; padding: 0;
+  font: inherit; color: inherit; text-align: left;
+  cursor: pointer;
+}
+.tier-row__panel { display: grid; grid-template-rows: 1fr; }
+.tier-row__panel > div { overflow: hidden; }
+/* The chevron lives INSIDE the toggle button, on the header, and is present in
+   BOTH states — down when closed, up when open. Two reasons it must persist:
+
+   1. An expanded panel with no control looks like it cannot be closed. "They
+      know they opened it" only holds for the person who just tapped it — not
+      for someone who opened four rows and scrolled back up, returned to the
+      page later, or arrived on a deep link with a row already open.
+   2. `aria-expanded` tells a screen reader the state. The rotated chevron is
+      the sighted equivalent. Dropping it leaves visual users with less state
+      information than assistive-tech users, which is backwards.
+
+   It must also not MOVE between states. A control that relocates is a control
+   the user has to find twice. */
+.tier-row__chevron {
+  flex: none; width: 20px; height: 20px;
+  transition: transform var(--motion-duration-hover) var(--ease-hover);
+}
+
+@media (max-width: 767px) {
+  /* collapsed */
+  .tier-row[data-open="false"] .tier-row__panel { grid-template-rows: 0fr; }
+  .tier-row[data-open="false"] .tier-row__chevron { transform: rotate(0deg); }
+  /* open */
+  .tier-row[data-open="true"] .tier-row__chevron { transform: rotate(180deg); }
+}
+
+@media (min-width: 768px) {
+  /* no accordion above the breakpoint — always open, no affordance */
+  .tier-row__panel { grid-template-rows: 1fr !important; }
+  .tier-row__chevron { display: none; }
+  .tier-row__toggle { cursor: default; pointer-events: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tier-row__panel, .tier-row__chevron { transition: none; }
+}
+
+/* NOTE for the Figma file: the collapsed variant HIDES the benefits list and the
+   CTA rather than removing them. Removing the node destroys every per-instance
+   override on it — seven tiers lost their benefit lists that way once already.
+   In code this is the same distinction: render the panel and collapse it, do not
+   conditionally unmount it, or you lose scroll position and any form state inside.
+
+   Markup — the accessibility is the point, don't shortcut it:
+
+<article class="tier-row" data-open="false">
+  <h3>
+    <button class="tier-row__toggle" aria-expanded="false" aria-controls="tier-adopt-a-hole">
+      <span class="tier-row__name">Adopt-a-Hole Sponsor</span>
+      <svg class="tier-row__chevron" aria-hidden="true" focusable="false">…</svg>
+    </button>
+  </h3>
+  <p class="tier-row__price">
+    <span class="tier-row__money">$1,500 <span>Includes 4 golfers</span></span>
+    <span class="badge">9 left</span>
+  </p>
+  <div class="tier-row__panel" id="tier-adopt-a-hole" role="region" aria-label="Adopt-a-Hole Sponsor details">
+    <div>
+      <ul>…benefits…</ul>
+      <a class="btn btn--primary" href="/register?tier=adopt-a-hole">Register Now</a>
+    </div>
+  </div>
+</article>
+
+- `aria-expanded` on the BUTTON and `data-open` on the row must stay in sync.
+- Above 768 the panel is forced open, so the button is inert — but leave
+  `aria-expanded="true"` on it rather than lying to a screen reader.
+- Every row ships CLOSED. Rows toggle independently — opening one must never
+  close another, because comparing two packages is the main job of this page.
+- The chevron is `aria-hidden`: the button's `aria-expanded` already conveys
+  state, so announcing the icon too would be redundant.
+- `grid-template-rows: 0fr → 1fr` animates height without hardcoding one, which
+  matters because benefit lists run 2 to 6 items. */

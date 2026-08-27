@@ -1,0 +1,269 @@
+---
+/**
+ * Player Roster — NEW page, per LAYOUT-SPEC.md "Player Roster — 1440×2324"
+ * and CLAUDE.md.
+ *
+ * Same skeleton as register forms. Sections: Your Group (350) · Players
+ * (617) · Anything We Should Know (302) · submit.
+ *
+ * NOT in the nav — reached only from an email link ~4 weeks before the
+ * event, to collect final player names for the course. Group name
+ * prefills from ?group= query param; phone and payment type are hidden
+ * because registration already captured them; the back link is hidden
+ * because the page is reached cold from an email.
+ *
+ * Submit is an INLINE SUCCESS STATE, not a new route — a light utility
+ * form doesn't need a confirmation page.
+ *
+ * noindex per LAYOUT-SPEC "Things that are logic, not layout" #2.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const prefillGroup = Astro.url.searchParams.get("group") ?? "";
+---
+
+<BaseLayout title="Player Roster — Teeing Off Fore Grant" navVariant="subpage" noindex>
+  <div class="form-page">
+    <form id="roster-form" class="reg-form" novalidate>
+      <section class="form-section">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <h2 class="section-title">Your Group</h2>
+          <div class="section-rule" aria-hidden="true"></div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label class="field-label" for="groupName">
+              Group / team captain name <span class="required">*</span>
+            </label>
+            <input id="groupName" type="text" name="groupName" required
+              class="field-input" value={prefillGroup} data-label="Group" />
+            <p class="field-hint">Prefilled from your registration</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2 class="section-title">Players</h2>
+          <div class="section-rule" aria-hidden="true"></div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label class="field-label" for="player1">Player 1 name <span class="required">*</span></label>
+            <input id="player1" type="text" name="player1" required class="field-input" data-label="Player 1" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="player2">Player 2 name</label>
+            <input id="player2" type="text" name="player2" class="field-input" data-label="Player 2" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="player3">Player 3 name</label>
+            <input id="player3" type="text" name="player3" class="field-input" data-label="Player 3" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="player4">Player 4 name</label>
+            <input id="player4" type="text" name="player4" class="field-input" data-label="Player 4" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title">Anything We Should Know?</h2>
+          <div class="section-rule" aria-hidden="true"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="comments">Dietary needs, accommodations, or questions</label>
+          <textarea id="comments" name="comments" rows="4" class="field-input field-textarea" data-label="Comments"></textarea>
+        </div>
+      </section>
+
+      <div class="form-submit">
+        <button type="submit" class="submit-btn">Submit Roster</button>
+      </div>
+    </form>
+
+    <!-- Inline success state — not a route -->
+    <div id="roster-success" class="roster-success hidden">
+      <div class="roster-success-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h2>Roster received</h2>
+      <p>Thanks — your player names are locked in for tournament day.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Player Roster is its own tiny form — no confirm modal, no API tie-in
+  // yet (the Sheets pairings write-back doesn't exist — see roadmap
+  // Phase 6). Submit swaps to an inline success state.
+  const form = document.getElementById("roster-form");
+  const success = document.getElementById("roster-success");
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    form.classList.add("hidden");
+    success?.classList.remove("hidden");
+  });
+</script>
+
+<style>
+  .form-page {
+    background-color: var(--color-bg-page);
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-20);
+    max-width: 1312px;
+    margin: 0 auto;
+  }
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: var(--text-button-md);
+    font-weight: 600;
+    color: var(--color-text-brand);
+    text-decoration: none;
+    border: 1.5px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2) var(--spacing-4);
+    margin-bottom: var(--spacing-5);
+    transition: background-color var(--motion-duration-hover) var(--motion-ease);
+  }
+  .back-link:hover { background-color: var(--color-bg-panel); }
+
+  .reg-form { display: flex; flex-direction: column; gap: var(--spacing-8); }
+
+  .form-section {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    display: flex; flex-direction: column; gap: var(--spacing-6);
+  }
+
+  .section-header { display: flex; align-items: center; gap: var(--spacing-3); }
+  .section-num {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700;
+    color: var(--color-text-accent);
+  }
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-tier);
+    line-height: var(--text-heading-tier--line-height);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+  .section-rule { flex: 1; height: 1px; background-color: var(--color-border-default); }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-5) var(--spacing-6);
+  }
+  .field { display: flex; flex-direction: column; gap: var(--spacing-1); }
+  .field-label {
+    font-family: var(--font-heading);
+    font-size: var(--text-label-field);
+    line-height: var(--text-label-field--line-height);
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  .required { color: var(--color-text-accent); }
+  .field-hint {
+    font-family: var(--font-body);
+    font-size: var(--text-body-xs);
+    line-height: var(--text-body-xs--line-height);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .field-input {
+    display: block; width: 100%;
+    height: var(--control-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-control);
+    background-color: var(--color-bg-field);
+    padding: 0 var(--spacing-3);
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    color: var(--color-text-primary);
+    transition: border-color var(--motion-duration-hover) var(--motion-ease);
+  }
+  .field-input:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+  .field-select {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232f4a34'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-3) center;
+    background-size: 1rem;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+  .field-textarea { height: auto; padding: var(--spacing-3); resize: vertical; }
+
+  .form-submit { display: flex; justify-content: center; padding-top: var(--spacing-2); }
+  .submit-btn {
+    font-family: var(--font-heading);
+    font-size: var(--text-button-md);
+    font-weight: 700;
+    color: var(--color-text-on-accent);
+    background-color: var(--color-accent-default);
+    border: none;
+    border-radius: var(--radius-md);
+    height: var(--control-lg);
+    padding: 0 var(--spacing-10);
+    cursor: pointer;
+    transition: background-color var(--motion-duration-hover) var(--motion-ease),
+                transform var(--motion-duration-hover) var(--motion-ease);
+  }
+  .submit-btn:hover { background-color: var(--color-accent-hover); transform: translateY(var(--motion-lift)); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Inline success state */
+  .roster-success {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-3);
+  }
+  .roster-success.hidden { display: none; }
+  .roster-success-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 3.5rem; height: 3.5rem; border-radius: 50%;
+    background-color: var(--color-brand-subtle);
+    color: var(--color-text-brand);
+  }
+  .roster-success h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-tier);
+    line-height: var(--text-heading-tier--line-height);
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+  .roster-success p {
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    color: var(--color-text-secondary);
+  }
+  .reg-form.hidden { display: none; }
+
+  @media (max-width: 767px) {
+    .form-page { padding: var(--spacing-6) var(--spacing-5) var(--spacing-10); }
+    .field-grid { grid-template-columns: 1fr; }
+    .form-section { padding: var(--spacing-5); }
+    .section-rule { display: none; }
+  }
+</style>

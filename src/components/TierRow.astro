@@ -1,199 +1,272 @@
 ---
 /**
- * TierRow — ported from Figma "Tier Row" component set (design/ROADMAP.md
- * Phase 5.2). Condensed horizontal list-row variant of tier display,
- * distinct from `SponsorTierCard`'s grid-card layout — used where tiers
- * are browsed as a vertical list (e.g. the Registration page).
+ * TierRow — per figma-handoff components.css + BUILD-SPEC.md §5c.
  *
- * 🚨 Reads Design/Infra Gap Register row G1 before using this component —
- * see design/ROADMAP.md. Same caveat as SponsorTierCard: `state` is a
- * caller-supplied prop, no real capacity logic lives here.
+ * Every row looks the SAME at rest. Featured is marked by its orange
+ * edge alone. Hover turns the row dark green with light text.
  *
- * Figma source values (design/figma-file.json, "Tier Row" page): unlike
- * Sponsor Tier Card, Tier Row's variants are a single State axis (Default/
- * Hover/Featured/SoldOut), not a State×Availability grid — Default/Hover/
- * Featured all represent "available" tiers at different visual emphasis,
- * SoldOut is its own terminal state.
- *   Row: full-width (1312px design width), radius-lg (16px), cream fill +
- *     green@20% border by default; Hover/Featured fill solid green
- *     (Featured adds an orange-mid border); SoldOut stays cream but at
- *     42-62% opacity throughout (muted, not just re-colored).
- *   Two-column layout: benefits detail (left) + price/CTA action block
- *     (right, right-aligned).
+ * Mobile (<768): accordion. Ships collapsed. Rows open independently.
+ * Sold out never expands and carries no chevron.
+ * Height animates grid-template-rows: 0fr → 1fr.
+ *
+ * Desktop (≥768): always open, toggle is inert, chevron hidden.
+ *
+ * Markup follows components.css verbatim for ARIA compliance (class names,
+ * aria-expanded/aria-controls, data-open). The DESKTOP INTERIOR LAYOUT is a
+ * documented deviation from the components.css reference markup's simple
+ * top-to-bottom flow — see DEVIATIONS.md "Tier row desktop layout" for the
+ * reasoning (matches the Figma visual: left column name+benefits, right
+ * column price+includes+badge+CTA). Mobile collapses back to a single
+ * column per the accordion spec, where the two-column split doesn't apply.
  */
-import Badge, { type BadgeTone } from "./Badge.astro";
+import Badge from "./Badge.astro";
 import Button from "./Button.astro";
+import type { Tier } from "../data/tiers";
+import { badgeTone, badgeLabel } from "../data/tiers";
 
-export type TierRowState = "default" | "hover" | "featured" | "soldout";
-
-interface Props {
-  tierName: string;
-  price: string;
-  includesLabel: string;
-  availabilityLabel: string;
-  state?: TierRowState;
-  benefits: string[];
-  registerHref?: string;
+export interface Props {
+  tier: Tier;
+  registerHref: string;
   class?: string;
 }
 
-const {
-  tierName,
-  price,
-  includesLabel,
-  availabilityLabel,
-  state = "default",
-  benefits,
-  registerHref = "/contact",
-  class: className = "",
-} = Astro.props;
-
-const isSoldOut = state === "soldout";
-
-const badgeTone: Record<TierRowState, BadgeTone> = {
-  default: "neutral",
-  hover: "neutral",
-  featured: "featured",
-  soldout: "soldout",
-};
+const { tier, registerHref, class: className = "" } = Astro.props;
+const tone = badgeTone(tier);
+const label = badgeLabel(tier);
+const panelId = `tier-${tier.id}`;
 ---
 
-<div class:list={["tier-row", `tier-row-${state}`, className]}>
-  <div class="tier-row-detail">
-    <div class="tier-row-header">
-      <h3 class="tier-row-name">{tierName}</h3>
-      <Badge tone={badgeTone[state]}>{availabilityLabel}</Badge>
-    </div>
-    <ul class="tier-row-benefits">
-      {benefits.map((benefit) => (
-        <li class="tier-row-benefit">
-          <span class="tier-row-marker" aria-hidden="true">▸</span>
-          <span>{benefit}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
+<article
+  class:list={[
+    "tier-row",
+    { "tier-row--featured": tier.featured },
+    { "tier-row--soldout": tier.soldOut },
+    className,
+  ]}
+  data-open="false"
+>
+  <div class="tier-row__grid">
+    <h3 class="tier-row__header">
+      <button
+        class="tier-row__toggle"
+        aria-expanded="false"
+        aria-controls={panelId}
+        disabled={tier.soldOut}
+      >
+        <span class="tier-row__name">{tier.name}</span>
+        <Badge tone={tone} class="tier-row__badge">{label}</Badge>
+        {!tier.soldOut && (
+          <svg class="tier-row__chevron" aria-hidden="true" focusable="false"
+            width="20" height="20" viewBox="0 0 20 20" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="5 8 10 13 15 8" />
+          </svg>
+        )}
+      </button>
+    </h3>
 
-  <div class="tier-row-action">
-    <p class="tier-row-price">{price}</p>
-    <p class="tier-row-includes">{includesLabel}</p>
-    {isSoldOut ? (
-      <Button variant="primary" size="medium" disabled>Sold Out</Button>
-    ) : (
-      <Button variant="primary" size="medium" href={registerHref}>Register Now</Button>
-    )}
+    <p class="tier-row__price">
+      <span class="tier-row__money">
+        {tier.price}
+      </span>
+      <span class="tier-row__includes">{tier.includes}</span>
+    </p>
+
+    <div class="tier-row__panel" id={panelId} role="region"
+      aria-label={`${tier.name} details`}>
+      <div>
+        <ul class="tier-row__benefits">
+          {tier.benefits.map((b: string) => (
+            <li class="tier-row__benefit">
+              <span class="tier-row__marker" aria-hidden="true">▸</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+        {tier.soldOut ? (
+          <Button variant="primary" size="medium" disabled>Sold Out</Button>
+        ) : (
+          <Button variant="primary" size="medium" href={registerHref}>
+            Register Now
+          </Button>
+        )}
+      </div>
+    </div>
   </div>
-</div>
+</article>
+
+<script is:inline src="/scripts/tier-row.js"></script>
 
 <style>
-  @layer components {
-    .tier-row {
-      display: flex;
-      justify-content: space-between;
-      gap: var(--spacing-8);
-      width: 100%;
-      padding: var(--spacing-8);
-      border-radius: var(--radius-lg);
-      background-color: var(--color-bg-panel);
-      border: 2px solid var(--color-border-default);
-    }
+  /* Row interior — components.css defines behavior/hover but leaves visual
+     styling to page-level CSS per BUILD-SPEC §3 ("build with Tailwind
+     utilities + our tokens"). LAYOUT-SPEC: desktop 1312 wide, 310 tall at
+     rest, always expanded. Mobile: collapsed 142, expanded ~425.
 
-    .tier-row-detail {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-4);
-      flex: 1;
-    }
+     DEVIATION (see DEVIATIONS.md "Tier row desktop layout"): desktop splits
+     into two columns — left: name+badge header, then benefits; right:
+     price+includes, then CTA — matching the Figma visual rather than the
+     single top-to-bottom flow in the components.css reference markup.
+     Mobile reverts to a single column (the two-column split doesn't apply
+     to the collapsed/accordion state). */
+  .tier-row {
+    padding: var(--spacing-8);
+  }
+  .tier-row__grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--spacing-8);
+    row-gap: var(--spacing-3);
+  }
+  .tier-row__header { grid-column: 1; grid-row: 1; }
+  .tier-row__price { grid-column: 2; grid-row: 1; }
+  .tier-row__panel { grid-column: 1 / -1; grid-row: 2; }
 
-    .tier-row-header {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-3);
-    }
+  .tier-row__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
 
-    .tier-row-name {
-      font-family: var(--font-display);
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--color-text-brand);
-    }
-
-    .tier-row-benefits {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-2);
-      list-style: none;
-    }
-
-    .tier-row-benefit {
-      display: flex;
-      gap: var(--spacing-2);
-      font-family: var(--font-body);
-      font-size: 16px;
-      color: var(--color-text-primary);
-    }
-
-    .tier-row-marker {
-      color: var(--color-text-accent);
-      flex-shrink: 0;
-    }
-
-    .tier-row-action {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: var(--spacing-2);
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .tier-row-price {
-      font-family: var(--font-display);
-      font-size: 40px;
-      font-weight: 700;
-      color: var(--color-text-accent);
-    }
-
-    .tier-row-includes {
-      font-family: var(--font-body);
-      font-size: 15px;
-      color: var(--color-text-secondary);
-      margin-bottom: var(--spacing-2);
-    }
-
-    /* ---- Hover / Featured ---- */
-    .tier-row-hover,
-    .tier-row-featured {
-      background-color: var(--color-bg-inverse);
-      border-color: var(--color-brand-default);
-    }
-    .tier-row-featured {
-      border-color: var(--color-accent-default);
-    }
-    .tier-row-hover .tier-row-name,
-    .tier-row-hover .tier-row-price,
-    .tier-row-featured .tier-row-name,
-    .tier-row-featured .tier-row-price {
-      color: var(--color-brand-light);
-    }
-    .tier-row-hover .tier-row-benefit,
-    .tier-row-featured .tier-row-benefit,
-    .tier-row-hover .tier-row-includes,
-    .tier-row-featured .tier-row-includes {
+  /* Name: heading/tier (22px Bitter Bold) */
+  .tier-row__name {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-tier);
+    line-height: var(--text-heading-tier--line-height);
+    font-weight: 700;
+    color: var(--color-text-brand);
+  }
+  /* Hover color overrides — scoped to hover-capable devices only.
+     On touch screens :hover sticks after a tap, making rows look
+     permanently selected. @media (hover: hover) excludes touchscreens. */
+  @media (hover: hover) {
+    .tier-row:hover .tier-row__name {
       color: var(--color-text-inverse);
     }
-    .tier-row-hover .tier-row-marker,
-    .tier-row-featured .tier-row-marker {
-      color: var(--color-accent-display);
+    .tier-row:hover .tier-row__money {
+      color: var(--color-bg-page);
     }
+    .tier-row:hover .tier-row__includes {
+      color: var(--color-text-inverse);
+    }
+    .tier-row:hover .tier-row__benefit {
+      color: var(--color-text-inverse);
+    }
+  }
 
-    /* ---- SoldOut — muted throughout, cream stays put ---- */
-    .tier-row-soldout {
-      opacity: 0.62;
+  /* Mobile expanded state — same green language as desktop hover. */
+  @media (max-width: 767px) {
+    .tier-row[data-open="true"] .tier-row__name {
+      color: var(--color-text-inverse);
     }
-    .tier-row-soldout .tier-row-name,
-    .tier-row-soldout .tier-row-price {
-      color: var(--color-text-primary);
+    .tier-row[data-open="true"] .tier-row__money {
+      color: var(--color-bg-page);
+    }
+    .tier-row[data-open="true"] .tier-row__includes {
+      color: var(--color-text-inverse);
+    }
+    .tier-row[data-open="true"] .tier-row__benefit {
+      color: var(--color-text-inverse);
+    }
+  }
+
+  /* Price column: price (display/price, 40px) right-aligned, includes below */
+  .tier-row__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: var(--spacing-1);
+  }
+  .tier-row__money {
+    font-family: var(--font-heading);
+    font-size: var(--text-display-price);
+    line-height: var(--text-display-price--line-height);
+    font-weight: 700;
+    color: var(--color-text-accent);
+    white-space: nowrap;
+  }
+  .tier-row__includes {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+
+  /* Benefits list */
+  .tier-row__benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  .tier-row__benefit {
+    display: flex;
+    gap: var(--spacing-2);
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    color: var(--color-text-primary);
+  }
+  .tier-row__marker {
+    font-family: var(--font-heading);
+    font-size: var(--text-marker-sm);
+    line-height: var(--text-marker-sm--line-height);
+    font-weight: 700;
+    color: var(--color-text-accent);
+    flex-shrink: 0;
+  }
+
+  /* Panel: benefits on the left, CTA anchored to the price column's width
+     on the right — a two-column grid mirroring the header/price split. */
+  .tier-row__panel > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    column-gap: var(--spacing-8);
+    padding-top: var(--spacing-3);
+  }
+  .tier-row__panel .tier-row__benefits { grid-column: 1; }
+  .tier-row__panel .btn { grid-column: 2; }
+
+  @media (max-width: 767px) {
+    .tier-row { padding: var(--spacing-5); }
+    .tier-row__grid {
+      grid-template-columns: 1fr;
+    }
+    .tier-row__header { grid-column: 1; grid-row: 1; }
+    .tier-row__price {
+      grid-column: 1; grid-row: 2;
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: var(--spacing-2);
+      text-align: left;
+    }
+    .tier-row__panel { grid-row: 3; }
+    .tier-row__panel > div {
+      grid-template-columns: 1fr;
+      justify-items: stretch;
+    }
+    .tier-row__panel .btn { grid-column: 1; }
+    .tier-row__name {
+      font-size: var(--text-mobile-heading-tier);
+      line-height: var(--text-mobile-heading-tier--line-height);
+    }
+    .tier-row__money {
+      font-size: var(--text-mobile-display-price);
+      line-height: var(--text-mobile-display-price--line-height);
+    }
+    .tier-row__benefit {
+      font-size: var(--text-mobile-body-sm);
+      line-height: var(--text-mobile-body-sm--line-height);
+    }
+    .tier-row__marker {
+      font-size: var(--text-mobile-marker-sm);
+      line-height: var(--text-mobile-marker-sm--line-height);
     }
   }
 </style>
