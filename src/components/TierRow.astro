@@ -46,55 +46,61 @@ const panelId = `tier-${tier.id}`;
   data-open="false"
 >
   <div class="tier-row__grid">
-    <h3 class="tier-row__header">
-      <button
-        class="tier-row__toggle"
-        aria-expanded="false"
-        aria-controls={panelId}
-        disabled={tier.soldOut}
-      >
-        <span class="tier-row__name">{tier.name}</span>
-        <Badge tone={tone} class="tier-row__badge">{label}</Badge>
-        {!tier.soldOut && (
-          <svg class="tier-row__chevron" aria-hidden="true" focusable="false"
-            width="20" height="20" viewBox="0 0 20 20" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <polyline points="5 8 10 13 15 8" />
-          </svg>
-        )}
-      </button>
-    </h3>
+    <!-- Left column: name/badge header → benefits panel -->
+    <div class="tier-row__left">
+      <h3 class="tier-row__header">
+        <button
+          class="tier-row__toggle"
+          aria-expanded="false"
+          aria-controls={panelId}
+          disabled={tier.soldOut}
+        >
+          <span class="tier-row__name">{tier.name}</span>
+          <Badge tone={tone} class="tier-row__badge">{label}</Badge>
+          {!tier.soldOut && (
+            <svg class="tier-row__chevron" aria-hidden="true" focusable="false"
+              width="20" height="20" viewBox="0 0 20 20" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="5 8 10 13 15 8" />
+            </svg>
+          )}
+        </button>
+      </h3>
 
-    <p class="tier-row__price">
-      <span class="tier-row__money">
-        {tier.price}
-      </span>
-      <span class="tier-row__includes">{tier.includes}</span>
-      <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
-    </p>
-
-    <div class="tier-row__panel" id={panelId} role="region"
-      aria-label={`${tier.name} details`}>
-      <div>
-        <ul class="tier-row__benefits">
-          {tier.benefits.map((b: string) => (
-            <li class="tier-row__benefit">
-              <span class="tier-row__marker" aria-hidden="true">▸</span>
-              <span>{b}</span>
-            </li>
-          ))}
-        </ul>
+      <div class="tier-row__panel" id={panelId} role="region"
+        aria-label={`${tier.name} details`}>
+        <div>
+          <ul class="tier-row__benefits">
+            {tier.benefits.map((b: string) => (
+              <li class="tier-row__benefit">
+                <span class="tier-row__marker" aria-hidden="true">▸</span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
 
-    <div class="tier-row__cta">
-      {tier.soldOut ? (
-        <Button variant="primary" size="medium" disabled>Sold Out</Button>
-      ) : (
-        <Button variant="primary" size="medium" href={registerHref}>
-          Register Now
-        </Button>
-      )}
+    <!-- Right column: price → CTA, stacked -->
+    <div class="tier-row__right">
+      <p class="tier-row__price">
+        <span class="tier-row__money">
+          {tier.price}
+        </span>
+        <span class="tier-row__includes">{tier.includes}</span>
+        <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
+      </p>
+
+      <div class="tier-row__cta">
+        {tier.soldOut ? (
+          <Button variant="primary" size="medium" disabled>Sold Out</Button>
+        ) : (
+          <Button variant="primary" size="medium" href={registerHref}>
+            Register Now
+          </Button>
+        )}
+      </div>
     </div>
   </div>
 </article>
@@ -116,16 +122,34 @@ const panelId = `tier-${tier.id}`;
   .tier-row {
     padding: var(--spacing-8);
   }
+  /* Desktop layout: flex row — left column (name + benefits) grows,
+     right column (price + CTA) is fixed width and stacks independently.
+     Using flex instead of grid avoids row-height cross-contamination:
+     the price column's 58px never inflates the name row on the left. */
   .tier-row__grid {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: var(--spacing-8);
-    row-gap: var(--spacing-2);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-8);
   }
-  .tier-row__header { grid-column: 1; grid-row: 1; align-self: start; }
-  .tier-row__price  { grid-column: 2; grid-row: 1; align-self: start; }
-  .tier-row__panel  { grid-column: 1; grid-row: 2; }
-  .tier-row__cta    { grid-column: 2; grid-row: 2; align-self: start; padding-top: var(--spacing-3); }
+  .tier-row__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+  }
+  .tier-row__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-3);
+    flex-shrink: 0;
+  }
+  /* Keep grid alias classes pointing at the new structure */
+  .tier-row__header { margin: 0; }
+  .tier-row__price  { text-align: right; }
+  .tier-row__panel  { width: 100%; }
+  .tier-row__cta    {}
 
   .tier-row__toggle {
     display: flex;
@@ -254,7 +278,6 @@ const panelId = `tier-${tier.id}`;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
-    padding-top: var(--spacing-2);
   }
   /* CTA button: justify centered */
   .tier-row__cta :global(.btn) {
@@ -284,11 +307,14 @@ const panelId = `tier-${tier.id}`;
     :global(.tier-row__badge) { display: none; }
     :global(.tier-row__badge-mobile) { display: inline-flex; }
 
-    /* Mobile: header (1) → panel/benefits (2) → price (3) → cta (4) */
-    .tier-row__header { grid-column: 1; grid-row: 1; }
-    .tier-row__panel  { grid-column: 1; grid-row: 2; }
-    .tier-row__price  { grid-column: 1; grid-row: 3; align-self: auto; }
-    .tier-row__cta    { grid-column: 1; grid-row: 4; }
+    /* Mobile: flex column — left (header+panel) then right (price+CTA) stack */
+    .tier-row__grid { flex-direction: column; gap: 0; }
+    .tier-row__left { gap: 0; }
+    .tier-row__right {
+      width: 100%;
+      align-items: flex-start;
+      gap: var(--spacing-2);
+    }
     .tier-row__price {
       flex-direction: row;
       align-items: baseline;
@@ -299,7 +325,7 @@ const panelId = `tier-${tier.id}`;
     /* CTA full width on mobile */
     .tier-row__cta { display: block; width: 100%; }
     .tier-row__cta :global(.btn) { display: flex; width: 100%; box-sizing: border-box; }
-    /* Hide cta when collapsed */
+    /* Hide only the panel (benefits) and CTA when collapsed — price stays visible */
     .tier-row[data-open="false"] .tier-row__cta { display: none; }
     .tier-row__name {
       font-size: var(--text-mobile-heading-tier);
