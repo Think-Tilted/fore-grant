@@ -1,18 +1,17 @@
 ---
 /**
- * ArgyleBand — per figma-handoff/assets/argyle.css + design-brief.md.
+ * ArgyleBand — per src/styles/argyle.css (regenerated 2026-08-27 from
+ * Figma export, node 32:14).
  *
- * Three variants: full (with crosshatch dots), plain (no crosshatch),
- * mono (single color). Two sizes: tall (88px, header band) and trim
- * (24px, email/tight spaces — pair with plain variant since dots fall
- * under 1px below 48px and read as mud).
+ * Three variants: full (with orange dots), plain (no dots),
+ * mono (single green, no dots). Three sizes: tall (88px, every page
+ * header and footer), standard (48px), trim (24px — pair with plain
+ * since dots fall under 1px below 48px and read as mud).
  *
- * The tile is 46.9×48.735px (one dark + one olive diamond, point to
- * point). background-size: auto 100% + repeat-x scales to any band
- * height and crops at narrow widths — NEVER squash. The background
- * images are the handoff's exact SVG data URIs from argyle.css.
+ * Tile is 84.6866×88px. background-size: auto 100% + repeat-x scales
+ * to any band height and crops at narrow widths — NEVER squash.
  */
-export type ArgyleSize = "tall" | "trim";
+export type ArgyleSize = "tall" | "standard" | "trim";
 export type ArgyleVariant = "full" | "plain" | "mono";
 
 interface Props {
@@ -36,6 +35,7 @@ const { size = "tall", variant = "full", class: className = "" } = Astro.props;
     background-position: center;
     background-size: auto 100%;
   }
-  .argyle-band--tall { height: 88px; }
-  .argyle-band--trim { height: 24px; }
+  .argyle-band--tall     { height: 88px; }
+  .argyle-band--standard { height: 48px; }
+  .argyle-band--trim     { height: 24px; }
 </style>
