@@ -82,6 +82,31 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
             </select>
           </div>
         </div>
+
+        <!-- Logo upload — full width, outside the 2-col grid -->
+        <div class="field field--full">
+          <label class="field-label" for="companyLogo">Company logo <span class="required">*</span></label>
+          <div class="logo-dropzone" id="logo-dropzone">
+            <input
+              id="companyLogo"
+              name="companyLogo"
+              type="file"
+              accept=".svg,.eps,.ai,.pdf,.png,.jpg,.jpeg,.webp"
+              class="logo-dropzone-input"
+              data-label="Company Logo"
+            />
+            <div class="logo-dropzone-inner" aria-hidden="true">
+              <p class="logo-dropzone-prompt">Choose a file or drag it here</p>
+              <label for="companyLogo" class="logo-dropzone-browse">Browse files</label>
+            </div>
+            <p class="logo-dropzone-filename" id="logo-filename" hidden></p>
+          </div>
+          <p class="logo-error" id="logo-error" hidden></p>
+          <p class="field-hint">
+            High-resolution required. Vector preferred — SVG, EPS or AI.
+            This goes on signage, so a screenshot or a web-sized PNG will not reproduce.
+          </p>
+        </div>
       </section>
 
       <section class="form-section">
@@ -208,6 +233,77 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
   .back-link:hover { background-color: var(--color-bg-panel); }
 
   .reg-form { display: flex; flex-direction: column; gap: var(--spacing-8); }
+
+  /* Logo dropzone */
+  .field--full { grid-column: 1 / -1; }
+  .logo-dropzone {
+    position: relative;
+    border: 1.5px dashed var(--color-accent-display);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-field);
+    min-height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--motion-duration-hover) var(--motion-ease),
+                border-color var(--motion-duration-hover) var(--motion-ease);
+    cursor: pointer;
+  }
+  .logo-dropzone:hover,
+  .logo-dropzone.is-dragover {
+    background-color: rgb(240 83 35 / .06);
+    border-color: var(--color-accent-hover);
+  }
+  /* Hidden file input overlays the entire dropzone for click-to-browse */
+  .logo-dropzone-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .logo-dropzone-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-1);
+    pointer-events: none;
+  }
+  .logo-dropzone-prompt {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .logo-dropzone-browse {
+    font-family: var(--font-heading);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    color: var(--color-accent-display);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .logo-dropzone-filename {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-brand);
+    font-weight: 600;
+    margin: 0;
+    padding: var(--spacing-3);
+    text-align: center;
+  }
+  /* Error state */
+  .logo-dropzone.is-error {
+    border-color: var(--color-text-accent);
+    background-color: rgb(240 83 35 / .04);
+  }
+  .logo-error {
+    font-family: var(--font-body);
+    font-size: var(--text-body-xs);
+    color: var(--color-text-accent);
+    margin: var(--spacing-1) 0 0;
+  }
 
   .form-section {
     background-color: var(--color-bg-panel);
@@ -383,4 +479,5 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
   }
 </style>
 
+<script is:inline src="/scripts/dropzone.js"></script>
 <script is:inline src="/scripts/sponsor-form.js"></script>

@@ -12,6 +12,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/netlify": "^7.0.0",
+    "@aws-sdk/client-s3": "^3.1121.0",
     "astro": "^6.0.0",
     "googleapis": "^144.0.0",
     "typescript": "^5.7.0"

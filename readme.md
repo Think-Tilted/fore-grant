@@ -172,10 +172,28 @@ ROADMAP.md          → build plan / phase tracking
 | `GOOGLE_PRIVATE_KEY` | Netlify + local `.env` | Service account `private_key` for Sheets API auth |
 | `GOOGLE_SHEET_ID` | Netlify + local `.env` | Google Sheet ID used as sponsor/tier database |
 | `GOOGLE_SHEET_TAB` | Netlify + local `.env` | Sheet tab name to read/append (`Sheet1`) |
+| `CLOUDFLARE_R2_ACCOUNT_ID` | Netlify + local `.env` | Cloudflare account ID for R2 S3-compatible API |
+| `CLOUDFLARE_R2_ACCESS_KEY_ID` | Netlify + local `.env` | R2 API token access key (scoped to `fore-grant` bucket) |
+| `CLOUDFLARE_R2_SECRET_ACCESS_KEY` | Netlify + local `.env` | R2 API token secret key |
+| `CLOUDFLARE_R2_BUCKET_NAME` | Netlify + local `.env` | R2 bucket name (`fore-grant`) |
+| `CLOUDFLARE_R2_PUBLIC_URL` | Netlify + local `.env` | Public base URL for the bucket (e.g. `https://pub-xxx.r2.dev`) |
 
 
 Copy `.env.example` to `.env` for local dev. Netlify env vars are set via the
 account env API (site-scoped).
+
+## Logo upload (Cloudflare R2)
+
+Sponsor registration forms include a required logo upload field. Files are stored
+in Cloudflare R2 object storage under `logos/{CompanySlug}/{filename}` — one
+folder per company, browseable in the Cloudflare dashboard.
+
+The public URL for each uploaded file is written to column O of the Google Sheet
+alongside the registration row. Jess can click the link directly from the sheet
+to view or download the file.
+
+R2 free tier: 10 GB storage · 1M writes/month · 10M reads/month — well within
+range for this event.
 
 ## Local development
 

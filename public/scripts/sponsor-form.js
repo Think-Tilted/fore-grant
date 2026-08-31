@@ -162,6 +162,11 @@ function closeResultModal() {
 form?.addEventListener("submit", (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
+  // Represent the file as its filename in the confirm modal (can't JSON-serialize a File)
+  const logoFile = form.querySelector("[name='companyLogo']");
+  if (logoFile && logoFile.files && logoFile.files[0]) {
+    data.companyLogo = logoFile.files[0].name;
+  }
   openConfirmModal(data);
 });
 
@@ -181,13 +186,16 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
   confirmModalSubmitBtn.disabled = true;
   confirmModalSubmitBtn.textContent = "Submitting…";
 
-  const data = Object.fromEntries(new FormData(form).entries());
+  // Use FormData directly so the file input (companyLogo) is included.
+  // The API endpoint reads multipart/form-data — do NOT set Content-Type
+  // manually; the browser sets it automatically with the correct boundary.
+  const formData = new FormData(form);
+  const tierParam = String(formData.get("sponsorTier") || formData.get("tierId") || "");
 
   try {
     const res = await fetch("/api/sponsor", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: formData,
     });
     const result = await res.json();
 
@@ -201,7 +209,6 @@ confirmModalSubmitBtn?.addEventListener("click", async () => {
         message: "Thank you! Your registration has been received. We'll be in touch with next steps. See you on the course!",
       });
       // Carry the tier through to Confirmation via query param.
-      const tierParam = data.sponsorTier || data.tierId || "";
       window.__foreGrantConfirmRedirect = tierParam
         ? `/confirmation?tier=${encodeURIComponent(tierParam)}`
         : "/confirmation";

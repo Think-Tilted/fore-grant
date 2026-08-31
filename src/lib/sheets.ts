@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export interface SponsorSubmission {
   companyName: string;
@@ -12,6 +13,7 @@ export interface SponsorSubmission {
   player3: string;
   player4: string;
   comments: string;
+  logoUrl: string;
 }
 
 function requireEnv(name: string): string {
@@ -20,29 +22,69 @@ function requireEnv(name: string): string {
   return value;
 }
 
-function getSheetsClient() {
+function getAuth() {
   const email = requireEnv("GOOGLE_SERVICE_ACCOUNT_EMAIL");
   const privateKey = requireEnv("GOOGLE_PRIVATE_KEY").replace(/\\n/g, "\n");
 
-  const auth = new google.auth.JWT({
+  return new google.auth.JWT({
     email,
     key: privateKey,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
+}
 
-  return google.sheets({ version: "v4", auth });
+function getR2Client(): S3Client {
+  const accountId = requireEnv("CLOUDFLARE_R2_ACCOUNT_ID");
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: requireEnv("CLOUDFLARE_R2_ACCESS_KEY_ID"),
+      secretAccessKey: requireEnv("CLOUDFLARE_R2_SECRET_ACCESS_KEY"),
+    },
+  });
+}
+
+export async function uploadLogoToR2(
+  fileBuffer: Buffer,
+  companySlug: string,
+  filename: string,
+  mimeType: string,
+): Promise<string> {
+  const client    = getR2Client();
+  const bucket    = requireEnv("CLOUDFLARE_R2_BUCKET_NAME");
+  const publicUrl = requireEnv("CLOUDFLARE_R2_PUBLIC_URL");
+
+  // Store under logos/{CompanySlug}/filename — creates a per-company folder
+  // in the R2 dashboard for easy browsing.
+  const key = `logos/${companySlug}/${filename}`;
+
+  await client.send(new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    Body: fileBuffer,
+    ContentType: mimeType,
+  }));
+
+  return `${publicUrl}/${key}`;
 }
 
 export async function appendSponsorRow(submission: SponsorSubmission): Promise<void> {
-  const sheets = getSheetsClient();
+  const auth   = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
   const spreadsheetId = requireEnv("GOOGLE_SHEET_ID");
   const tab = import.meta.env.GOOGLE_SHEET_TAB || "Sheet1";
 
-  // Column order matches the Sheet header row (A–L):
-  // Timestamp | Company Name | Sponsor Tier | Company Website | Payment Type |
-  // Captain Name | Phone | Email | Player 2 | Player 3 | Player 4 | Comments
+  // Column order matches the Sheet header row (A–O):
+  // A Timestamp | B Company Name | C Sponsor Tier | D Company Website | E Payment Type |
+  // F Captain Name | G Phone | H Email | I Player 2 | J Player 3 | K Player 4 | L Comments |
+  // M Internal Alert Sent (Apps Script) | N Invoice Number (Apps Script) | O Logo URL
   const row = [
-    new Date().toISOString(),
+    new Date().toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+      month: "short", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit", hour12: true,
+    }),
     submission.companyName,
     submission.sponsorTier,
     submission.companyWebsite,
@@ -54,11 +96,14 @@ export async function appendSponsorRow(submission: SponsorSubmission): Promise<v
     submission.player3,
     submission.player4,
     submission.comments,
+    "",                    // M — Internal Alert Sent, written by Apps Script
+    "",                    // N — Invoice Number, written by Apps Script
+    submission.logoUrl,    // O — Logo URL
   ];
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${tab}!A:L`,
+    range: `${tab}!A:O`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [row] },
   });
