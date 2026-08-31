@@ -151,6 +151,15 @@ import { buckets } from "../data/tiers";
     }
     .reg-packages { padding: 0 var(--spacing-5) var(--spacing-10); gap: var(--spacing-5); }
     .other-ways { padding: var(--spacing-10) var(--spacing-5); }
+    /* Button text wraps on mobile — allow height to grow with content */
+    .callout :global(.btn) {
+      height: auto;
+      padding-top: var(--spacing-3);
+      padding-bottom: var(--spacing-3);
+      white-space: normal;
+      width: 100%;
+      justify-content: center;
+    }
     .bucket-heading h2 {
       font-size: var(--text-mobile-heading-bucket);
       line-height: var(--text-mobile-heading-bucket--line-height);

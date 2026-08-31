@@ -458,6 +458,16 @@ carouselImages.push({
     .last-year { padding: var(--spacing-10) var(--spacing-5); }
     .other-ways { padding: var(--spacing-10) var(--spacing-5); }
     .find-us { padding: 28px var(--spacing-5) var(--spacing-6); }
+    /* Callout + CTA buttons: allow height to grow with wrapped text on mobile */
+    .callout :global(.btn),
+    .cta-card :global(.btn) {
+      height: auto;
+      padding-top: var(--spacing-3);
+      padding-bottom: var(--spacing-3);
+      white-space: normal;
+      width: 100%;
+      justify-content: center;
+    }
     .meet-grant-story h2,
     .cta-card h2,
     .last-year h2,
