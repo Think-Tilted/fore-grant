@@ -18,6 +18,10 @@
  *                     written to sheet column N; passed into PDF so number is consistent.
  *                     Email body rewritten as registrant-ready (no internal language).
  *                     Subject line carries phone + email for Jess to verify at a glance.
+ * v1.6.0  2026-08-31  Fix duplicate invoice numbers when multiple new rows are processed
+ *                     in one trigger run. Warn when tier string has no TIER_DATA match.
+ *                     PDF sections wrapped with page-break-inside:avoid so page breaks
+ *                     land between sections, never mid-address or mid-step.
  *
  * Trigger: onChange on the spreadsheet.
  * Dedup:   Column M ("Internal Alert Sent") — set to "Yes" after each send.
@@ -27,7 +31,7 @@
  *   3  Company Website  4  Payment Type     5  Captain Name
  *   6  Phone            7  Email            8  Player 2
  *   9  Player 3        10  Player 4        11  Comments
- *  12  Internal Alert Sent
+ *  12  Internal Alert Sent                 13  Invoice Number
  *
  * Workflow:
  *   Registration → Sheet1 row appended → script fires →
@@ -41,6 +45,10 @@ var SPONSOR_SHEET_NAME    = "Sheet1";
 var ALERT_SENT_COLUMN     = 13;   // column M
 var INVOICE_NUMBER_COLUMN = 14;   // column N
 var INTERNAL_ALERT_TO     = "trevadelman@gmail.com,kadelman760@gmail.com";
+
+// Keep each PDF section intact across page breaks (both legacy + modern properties —
+// Google's HTML→PDF renderer support is inconsistent, so set both defensively).
+var AVOID = "page-break-inside:avoid;break-inside:avoid;";
 
 // ─── Tier data ────────────────────────────────────────────────────────────────
 // Keys must match the exact "Name — Price" string in column C.
@@ -171,6 +179,9 @@ function onSponsorRowAdded(e) {
       if (match) maxNum = Math.max(maxNum, parseInt(match[1], 10));
     }
     var invoiceNum = "FG-" + String(maxNum + 1).padStart(3, "0");
+    // Update in-memory snapshot so later rows in this same run see this number
+    // and don't generate a duplicate.
+    data[i][13] = invoiceNum;
     Logger.log("Row " + rowNumber + ": invoice number " + invoiceNum);
 
     var plainBody = [
@@ -275,7 +286,12 @@ function onSponsorRowAdded(e) {
 // Table-based, inline styles only. Georgia ≈ Bitter. Courier New ≈ mono.
 
 function buildInvoicePdf(d) {
-  var tier        = TIER_DATA[d.sponsorTier] || {};
+  var tier = TIER_DATA[d.sponsorTier];
+  if (!tier) {
+    Logger.log("WARNING: no TIER_DATA match for tier string: " + d.sponsorTier
+      + " — invoice will have no price/benefits. Check TIER_DATA keys vs column C.");
+    tier = {};
+  }
   var price       = tier.price    || d.sponsorTier;
   var includes    = tier.includes || "—";
   var benefits    = tier.benefits || [];
@@ -324,14 +340,16 @@ function buildInvoicePdf(d) {
     + '<tr><td bgcolor="#F05323" style="background:#F05323;height:4px;font-size:1px;line-height:4px;">&nbsp;</td></tr>'
 
     // Title + intro
-    + '<tr><td style="padding:36px 40px 0;">'
+    + '<tr><td style="padding:36px 40px 0;' + AVOID + '">'
     + '<p style="margin:0;font-size:40px;font-weight:700;color:#31532D;font-family:Georgia,serif;line-height:1.1;">You&rsquo;re registered.</p>'
     + '<p style="margin:12px 0 0;font-size:14px;color:#5D5C58;font-family:Georgia,serif;line-height:1.7;">'
     + 'Thanks, ' + firstName + ' &mdash; your spot in Teeing Off Fore Grant is confirmed. '
     + 'This email is your invoice; keep it for your records.</p>'
     + '<hr style="' + RULE + '">'
+    + '</td></tr>'
 
     // Invoice meta — stacked label/value pairs
+    + '<tr><td style="padding:0 40px;' + AVOID + '">'
     + '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="padding:5px 0;' + MONO + '">Invoice #</td>'
     + '<td style="padding:5px 0;' + BODY + 'text-align:right;">' + invoiceNum + '</td></tr>'
@@ -343,8 +361,10 @@ function buildInvoicePdf(d) {
     + '<td style="padding:5px 0;' + BODY + 'text-align:right;">Teeing Off Fore Grant 2026 &mdash; ' + tierName + '</td></tr>'
     + '</table>'
     + '<hr style="' + RULE + '">'
+    + '</td></tr>'
 
     // Package / Total / Due / Entry
+    + '<tr><td style="padding:0 40px;' + AVOID + '">'
     + '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="width:120px;padding:8px 0;' + MONO + 'border-bottom:1px solid #CDD3C3;">Package</td>'
     + '<td style="padding:8px 0;' + BODY + 'text-align:right;border-bottom:1px solid #CDD3C3;">' + tierName + '</td></tr>'
@@ -362,14 +382,16 @@ function buildInvoicePdf(d) {
 // ─── PDF builder (part 2 — included/team/payment/steps/footer + export) ───────
 
 function buildInvoicePdfPart2(html, d, benefits, benefitRows, hasPlayers, playerRows, MONO, BODY, RULE, isFoursome) {
+  var AVOID = "page-break-inside:avoid;break-inside:avoid;";
+
   if (benefitRows) {
-    html += '<tr><td style="padding:20px 40px 0;">'
+    html += '<tr><td style="padding:20px 40px 0;' + AVOID + '">'
       + '<p style="margin:0 0 8px;' + MONO + '">Included</p>'
       + '<table width="100%" cellpadding="0" cellspacing="0" border="0">' + benefitRows + '</table>'
       + '</td></tr>';
   }
   if (hasPlayers) {
-    html += '<tr><td style="padding:20px 40px 0;">'
+    html += '<tr><td style="padding:20px 40px 0;' + AVOID + '">'
       + '<p style="margin:0 0 8px;' + MONO + '">Team</p>'
       + '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
       + '<tr><td style="width:100px;padding:4px 0;color:#5D5C58;font-size:13px;font-family:Georgia,serif;">Captain</td>'
@@ -378,49 +400,48 @@ function buildInvoicePdfPart2(html, d, benefits, benefitRows, hasPlayers, player
   }
 
   html += '<tr><td style="padding:0 40px;"><hr style="' + RULE + '"></td></tr>'
-    + '<tr><td style="padding:0 40px;">'
+    + '<tr><td style="padding:0 40px;' + AVOID + '">'
     + '<p style="margin:0 0 4px;' + MONO + '">How to Pay</p>'
     + '<p style="margin:0 0 14px;font-size:14px;color:#5D5C58;font-family:Georgia,serif;">Nothing is charged online. Whichever of these is easiest.</p>'
     + '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="width:60px;padding:10px 0;vertical-align:top;' + MONO + 'border-top:1px solid #CDD3C3;">Venmo</td>'
     + '<td style="padding:10px 0;' + BODY + 'border-top:1px solid #CDD3C3;">@Jessica-Carlson-15</td></tr>'
-    + '<tr><td style="padding:10px 0;vertical-align:top;' + MONO + 'border-top:1px solid #CDD3C3;">Check</td>'
+    + '<tr style="' + AVOID + '"><td style="padding:10px 0;vertical-align:top;' + MONO + 'border-top:1px solid #CDD3C3;">Check</td>'
     + '<td style="padding:10px 0;' + BODY + 'border-top:1px solid #CDD3C3;line-height:1.7;">'
     + 'Payable to Jessica Carlson, with &ldquo;Teeing Off Fore Grant&rdquo; on the memo line.<br>'
-    + 'Bring it on the day, or mail it to:<br>'
-    + 'Jessica Carlson<br>'
+    + '<span style="' + AVOID + 'display:inline-block;">Jessica Carlson<br>'
     + '907 Neighborly Lane<br>'
-    + 'Ramona, CA 92065</td></tr>'
+    + 'Ramona, CA 92065</span></td></tr>'
     + '<tr><td style="padding:10px 0;vertical-align:top;' + MONO + 'border-top:1px solid #CDD3C3;">Cash</td>'
     + '<td style="padding:10px 0;' + BODY + 'border-top:1px solid #CDD3C3;">Hand it to us at check-in on tournament day.</td></tr>'
     + '</table></td></tr>'
-    + '<tr><td style="padding:20px 40px 0;">'
-    + '<p style="margin:0 0 12px;font-size:12px;color:#5D5C58;font-family:Georgia,serif;">Teeing Off Fore Grant is a personal fundraiser, not a registered 501(c)(3). Sponsorships and entries are not tax-deductible.</p>'
-    + '<p style="margin:0;font-size:14px;color:#000;font-family:Georgia,serif;font-style:italic;line-height:1.7;">Thank you for supporting Grant&rsquo;s T-ALL Battle and helping us drive out leukemia one swing at a time.</p>'
+    + '<tr><td style="padding:20px 40px 0;' + AVOID + '">'
+    + '<p style="margin:0;font-size:12px;color:#5D5C58;font-family:Georgia,serif;"><strong>Note:</strong> Teeing Off Fore Grant is a personal fundraiser, not a registered 501(c)(3). Sponsorships and entries are not tax-deductible.</p>'
     + '</td></tr>'
     + '<tr><td style="padding:0 40px;"><hr style="' + RULE + '"></td></tr>'
     + '<tr><td style="padding:0 40px;">'
     + '<p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#31532D;font-family:Georgia,serif;">What happens next</p>'
     + '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
-    + '<tr><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
+    + '<tr style="' + AVOID + '"><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
     + '<p style="margin:0;font-size:22px;font-weight:700;color:#F05323;font-family:Georgia,serif;line-height:1;">01</p>'
     + '<p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#000;font-family:Georgia,serif;">Send payment</p>'
     + '<p style="margin:4px 0 0;font-size:13px;color:#5D5C58;font-family:Georgia,serif;line-height:1.6;">Sooner is better. Friday, October 30 is the final deadline, and you can pay by Venmo, check or cash.</p>'
     + '</td></tr>'
     + (isFoursome ? '' :
-        '<tr><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
+        '<tr style="' + AVOID + '"><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
       + '<p style="margin:0;font-size:22px;font-weight:700;color:#F05323;font-family:Georgia,serif;line-height:1;">02</p>'
       + '<p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#000;font-family:Georgia,serif;">Send your logo</p>'
       + '<p style="margin:4px 0 0;font-size:13px;color:#5D5C58;font-family:Georgia,serif;line-height:1.6;">Sponsors: send this as early as you can. Signage and the flyer go to print well before the payment deadline, so reply to this email with your artwork.</p>'
       + '</td></tr>')
-    + '<tr><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
+    + '<tr style="' + AVOID + '"><td style="padding:12px 0;border-top:1px solid #CDD3C3;">'
     + '<p style="margin:0;font-size:22px;font-weight:700;color:#F05323;font-family:Georgia,serif;line-height:1;">' + (isFoursome ? '02' : '03') + '</p>'
     + '<p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#000;font-family:Georgia,serif;">We see you on the 6th</p>'
     + '<p style="margin:4px 0 0;font-size:13px;color:#5D5C58;font-family:Georgia,serif;line-height:1.6;">Your tee time and starting hole go out closer to the day.</p>'
     + '</td></tr>'
     + '</table></td></tr>'
-    + '<tr><td style="padding:20px 40px;">'
-    + '<p style="margin:0;font-size:13px;color:#5D5C58;font-family:Georgia,serif;">Questions? Reply to this email or reach Jessica at grantstallbattle@gmail.com &middot; 619-344-7687</p>'
+    + '<tr><td style="padding:20px 40px;' + AVOID + '">'
+    + '<p style="margin:0 0 12px;font-size:13px;color:#5D5C58;font-family:Georgia,serif;"><strong style="color:#000;">Questions?</strong> Reply to this email or reach Jessica at grantstallbattle@gmail.com &middot; 619-344-7687</p>'
+    + '<p style="margin:0;font-size:14px;color:#000;font-family:Georgia,serif;font-style:italic;line-height:1.7;">Thank you for supporting Grant&rsquo;s T-ALL Battle and helping us drive out leukemia one swing at a time.</p>'
     + '</td></tr>'
     + '<tr><td bgcolor="#31532D" style="background:#31532D;padding:20px 40px;">'
     + '<p style="margin:0;color:#E4E1C5;font-size:13px;font-family:Georgia,serif;line-height:1.9;">'
