@@ -73,7 +73,7 @@ var TIER_DATA = {
       "Logo featured on lunch signage",
       "Acknowledgment during awards and lunch program",
       "Complimentary entry for 1 foursome (4 players)",
-      "Promotional items in every golfer's goodie bag",
+      "Showcase your company or brand by adding promotional items to golfer goodie bags",
     ],
   },
   '"Pre-Round Fuel" Breakfast Sponsor — $1,750': {
@@ -83,7 +83,7 @@ var TIER_DATA = {
       "Logo featured on breakfast signage",
       "Acknowledgment during awards and lunch program",
       "Complimentary entry for 1 foursome (4 players)",
-      "Promotional items in every golfer's goodie bag",
+      "Showcase your company or brand by adding promotional items to golfer goodie bags",
     ],
   },
   "Premium Adopt-A-Hole — Contest Holes — $1,750": {
@@ -92,7 +92,6 @@ var TIER_DATA = {
       "Drive Out Leukemia (Longest Drive) or Swing for Strength (Closest to the Pin)",
       "Recognition in all social media posts",
       "Logo displayed on signage at your designated hole",
-      "Hand out food, drinks, or giveaways at a hole",
       "Complimentary entry for 1 foursome (4 players)",
     ],
   },
@@ -101,8 +100,7 @@ var TIER_DATA = {
     benefits: [
       "Recognition in all social media posts",
       "Logo displayed on signage at your designated hole",
-      "Hand out food, drinks, or giveaways at a hole",
-      "Decorate the table with your branding",
+      "Decorate your table with branding and promotional items",
       "Complimentary entry for 1 foursome (4 players)",
     ],
   },
@@ -119,7 +117,7 @@ var TIER_DATA = {
     price: "$250", includes: "Signage only",
     benefits: [
       "Your name or logo on a tee sign at a hole",
-      "Promotional items in every golfer's goodie bag",
+      "Showcase your company or brand by adding promotional items to golfer goodie bags",
     ],
   },
   "Foursome Entry — Group Package — $600": {
@@ -128,7 +126,7 @@ var TIER_DATA = {
       "18 holes for four players",
       "Cart rental",
       "Breakfast & lunch",
-      "Player swag bags",
+      "Player goodie bags",
     ],
   },
 };
