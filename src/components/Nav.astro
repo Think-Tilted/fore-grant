@@ -38,6 +38,11 @@ const isRegistration = path === "/registration" ||
         <a href="/" class="nav-home-logo" aria-label="Teeing Off Fore Grant — home">
           <Logo variant="badge" />
         </a>
+        <div class="nav-home-details">
+          <p class="nav-home-eyebrow">The 2nd Annual</p>
+          <h2 class="nav-home-date">Friday, November 6, 2026</h2>
+          <p class="nav-home-venue">San Vicente Golf Course &middot; Ramona, CA &middot; 9:00 AM shotgun start</p>
+        </div>
         <nav class="nav-yield nav-home-links" aria-label="Primary">
           <Button href="/registration" size="medium">Register Today</Button>
           <NavLink href="/tournament-day" tone="light" active={path === "/tournament-day"}>
@@ -123,6 +128,39 @@ const isRegistration = path === "/registration" ||
     width: 520px;
     max-width: 80vw;
   }
+  .nav-home-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-2);
+  }
+  .nav-home-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-caption);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .nav-home-date {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--color-bg-inverse);
+    margin: 0;
+    white-space: nowrap;
+  }
+  .nav-home-venue {
+    font-family: var(--font-body);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
   .nav-home-links {
     display: flex;
     align-items: center;
