@@ -42,6 +42,7 @@
 (function toggleAdditionalPlayers() {
   const select = document.getElementById("sponsorTier");
   const playerFields = document.getElementById("player-fields");
+  const sectionTitle = document.getElementById("player-section-title");
   if (!select || !playerFields) return;
 
   const optionalPlayerFields = Array.from(playerFields.querySelectorAll(".player-field"));
@@ -50,7 +51,12 @@
     const selectedOption = select.options[select.selectedIndex];
     const includesGolfers = selectedOption?.dataset.includesGolfers !== "false";
 
+    if (sectionTitle) {
+      sectionTitle.textContent = includesGolfers ? "Player Information" : "Contact Information";
+    }
+
     for (const field of optionalPlayerFields) {
+
       field.style.display = includesGolfers ? "" : "none";
       if (!includesGolfers) {
         field.querySelectorAll("input").forEach((input) => { input.value = ""; });
