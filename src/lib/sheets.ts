@@ -108,3 +108,29 @@ export async function appendSponsorRow(submission: SponsorSubmission): Promise<v
     requestBody: { values: [row] },
   });
 }
+
+/**
+ * Counts registrations per exact Sponsor Tier string (column C), for the
+ * live availability ticker (src/pages/api/availability.ts). Read-only —
+ * uses a narrower scope than appendSponsorRow's write access.
+ */
+export async function getTierRegistrationCounts(): Promise<Record<string, number>> {
+  const auth   = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+  const spreadsheetId = requireEnv("GOOGLE_SHEET_ID");
+  const tab = import.meta.env.GOOGLE_SHEET_TAB || "Sheet1";
+
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `${tab}!C2:C`,
+  });
+
+  const counts: Record<string, number> = {};
+  for (const row of res.data.values ?? []) {
+    const tierString = row[0];
+    if (!tierString) continue;
+    counts[tierString] = (counts[tierString] ?? 0) + 1;
+  }
+  return counts;
+}
+

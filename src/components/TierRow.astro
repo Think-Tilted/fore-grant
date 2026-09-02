@@ -31,8 +31,11 @@ export interface Props {
 }
 
 const { tier, registerHref, class: className = "" } = Astro.props;
-const tone = badgeTone(tier);
-const label = badgeLabel(tier);
+// Static fallback render — overridden live by public/scripts/availability.js
+// once it fetches real counts from /api/availability. See tiers.ts header.
+const remaining = tier.soldOut ? 0 : tier.capacity;
+const tone = badgeTone(remaining);
+const label = badgeLabel(remaining);
 const panelId = `tier-${tier.id}`;
 ---
 
@@ -44,7 +47,10 @@ const panelId = `tier-${tier.id}`;
     className,
   ]}
   data-open="false"
+  data-tier-id={tier.id}
+  data-capacity={tier.capacity}
 >
+
   <div class="tier-row__grid">
     <!-- Left column: name/badge header → benefits panel -->
     <div class="tier-row__left">
