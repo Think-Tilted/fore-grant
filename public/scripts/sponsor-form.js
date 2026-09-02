@@ -30,6 +30,56 @@
   if (matching) select.value = matching.value;
 })();
 
+// Tiers like "Tee Sign Sponsor" are signage-only and don't include golfers —
+// hide the Player 2/3/4 fields for those tiers so registrants aren't asked
+// for players that aren't part of the package. Driven by data-includes-golfers
+// on each <option> (set from tierIncludesGolfers() in src/data/tiers.ts).
+//
+// Name/Phone/Email/Player2/3/4 all live in one shared two-column grid so the
+// rows pair up cleanly (2 per row) regardless of which fields are visible.
+// If an odd number of fields ends up visible, the last one is stretched to
+// full width so it never leaves an empty gap next to it.
+(function toggleAdditionalPlayers() {
+  const select = document.getElementById("sponsorTier");
+  const playerFields = document.getElementById("player-fields");
+  if (!select || !playerFields) return;
+
+  const optionalPlayerFields = Array.from(playerFields.querySelectorAll(".player-field"));
+
+  function syncVisibility() {
+    const selectedOption = select.options[select.selectedIndex];
+    const includesGolfers = selectedOption?.dataset.includesGolfers !== "false";
+
+    for (const field of optionalPlayerFields) {
+      field.style.display = includesGolfers ? "" : "none";
+      if (!includesGolfers) {
+        field.querySelectorAll("input").forEach((input) => { input.value = ""; });
+      }
+    }
+
+    // Clear any previous stretch before recomputing — the field that needed
+    // stretching last time isn't necessarily the same one this time.
+    for (const field of playerFields.children) {
+      field.classList.remove("field--full");
+    }
+
+    // Stretch the last visible field to full width if the visible count is odd,
+    // so pairs of two always fill their row with no dangling empty cell.
+    const visibleFields = Array.from(playerFields.children).filter(
+      (field) => field.style.display !== "none"
+    );
+
+    if (visibleFields.length % 2 !== 0) {
+      visibleFields[visibleFields.length - 1].classList.add("field--full");
+    }
+  }
+
+  select.addEventListener("change", syncVisibility);
+  syncVisibility();
+})();
+
+
+
 const form = document.getElementById("reg-form");
 
 const confirmModal = document.getElementById("confirm-modal");

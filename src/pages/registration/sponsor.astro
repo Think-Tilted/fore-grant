@@ -12,12 +12,14 @@
  * Company logo upload is deferred (HANDOFF.md future enhancement).
  */
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { allTiers, getTierById } from "../../data/tiers";
+import { allTiers, getTierById, tierIncludesGolfers } from "../../data/tiers";
 import { paymentOptions } from "../../data/forms";
 
 const preselectedTierId = Astro.url.searchParams.get("tier") ?? "";
 const preselected = getTierById(preselectedTierId);
 const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-package");
+const preselectedIncludesGolfers = preselected ? tierIncludesGolfers(preselected) : true;
+
 ---
 
 <BaseLayout title="Sponsor Registration — Teeing Off Fore Grant" navVariant="subpage">
@@ -52,11 +54,13 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
                 <option
                   value={`${tier.name} — ${tier.price}`}
                   data-tier-id={tier.id}
+                  data-includes-golfers={String(tierIncludesGolfers(tier))}
                   selected={tier.id === preselected?.id}
                 >
                   {tier.name} — {tier.price}
                 </option>
               ))}
+
             </select>
             <p class="field-hint">Carried in from your selection</p>
           </div>
@@ -116,7 +120,7 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
           <div class="section-rule" aria-hidden="true"></div>
         </div>
 
-        <div class="field-grid">
+        <div id="player-fields" class="field-grid">
           <div class="field">
             <label class="field-label" for="captainName">
               Name <span class="required">*</span>
@@ -143,28 +147,30 @@ const sponsorTiers = allTiers.filter((t) => t.id !== "foursome-entry-group-packa
               class="field-input" data-label="Email Address" autocomplete="email" />
           </div>
 
-          <div class="field">
+          <div class="field player-field" style={preselectedIncludesGolfers ? undefined : "display: none"}>
             <label class="field-label" for="player2">Player 2 name</label>
             <input id="player2" type="text" name="player2"
               class="field-input" data-label="Player 2" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
 
-          <div class="field">
+          <div class="field player-field" style={preselectedIncludesGolfers ? undefined : "display: none"}>
             <label class="field-label" for="player3">Player 3 name</label>
             <input id="player3" type="text" name="player3"
               class="field-input" data-label="Player 3" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
 
-          <div class="field">
+          <div class="field player-field" style={preselectedIncludesGolfers ? undefined : "display: none"}>
             <label class="field-label" for="player4">Player 4 name</label>
             <input id="player4" type="text" name="player4"
               class="field-input" data-label="Player 4" autocomplete="off" />
             <p class="field-hint">First and last</p>
           </div>
         </div>
+
       </section>
+
 
       <section class="form-section">
         <div class="section-header">
