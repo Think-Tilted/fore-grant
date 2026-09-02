@@ -62,17 +62,16 @@ function badgeLabel(remaining) {
 }
 
 function applyAvailability(row, remaining) {
-  const tone = badgeTone(remaining);
-  const label = badgeLabel(remaining);
   const soldOut = remaining <= 0;
 
-  row.querySelectorAll(".tier-row__badge, .tier-row__badge-mobile").forEach((badge) => {
-    badge.textContent = label;
-    badge.classList.remove("badge-neutral", "badge-limited", "badge-soldout", "badge-featured");
-    badge.classList.add(`badge-${tone}`);
-  });
-
   if (soldOut) {
+    // Sold out: badge removed entirely (not just relabeled) — the red CTA
+    // below is the single sold-out signal, avoiding "Sold out" appearing
+    // twice in the same card. See TierRow.astro's static markup, which
+    // this mirrors for tiers that only become sold-out live.
+    row.querySelectorAll(".tier-row__badge, .tier-row__badge-mobile").forEach((badge) => {
+      badge.remove();
+    });
     row.classList.add("tier-row--soldout");
     row.dataset.open = "false";
 
@@ -85,8 +84,17 @@ function applyAvailability(row, remaining) {
     const cta = row.querySelector(".tier-row__cta");
     if (cta) {
       cta.innerHTML =
-        '<button class="btn btn-primary btn-md" type="button" disabled>Sold Out</button>';
-
+        '<button class="btn btn-primary btn-md tier-row__cta-soldout" type="button" disabled>Sold Out</button>';
     }
+    return;
   }
+
+  const tone = badgeTone(remaining);
+  const label = badgeLabel(remaining);
+  row.querySelectorAll(".tier-row__badge, .tier-row__badge-mobile").forEach((badge) => {
+    badge.textContent = label;
+    badge.classList.remove("badge-neutral", "badge-limited", "badge-soldout", "badge-featured");
+    badge.classList.add(`badge-${tone}`);
+  });
 }
+

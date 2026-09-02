@@ -62,8 +62,11 @@ const panelId = `tier-${tier.id}`;
           disabled={tier.soldOut}
         >
           <span class="tier-row__name">{tier.name}</span>
-          <Badge tone={tone} class="tier-row__badge">{label}</Badge>
           {!tier.soldOut && (
+            <Badge tone={tone} class="tier-row__badge">{label}</Badge>
+          )}
+          {!tier.soldOut && (
+
             <svg class="tier-row__chevron" aria-hidden="true" focusable="false"
               width="20" height="20" viewBox="0 0 20 20" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -95,13 +98,16 @@ const panelId = `tier-${tier.id}`;
           {tier.price}
         </span>
         <span class="tier-row__includes">{tier.includes}</span>
-        <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
+        {!tier.soldOut && (
+          <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
+        )}
       </p>
 
       <div class="tier-row__cta">
         {tier.soldOut ? (
-          <Button variant="primary" size="medium" disabled>Sold Out</Button>
+          <Button variant="primary" size="medium" class="tier-row__cta-soldout" disabled>Sold Out</Button>
         ) : (
+
           <Button variant="primary" size="medium" href={registerHref}>
             Register Now
           </Button>
@@ -244,6 +250,13 @@ const panelId = `tier-${tier.id}`;
     color: var(--color-text-accent);
     white-space: nowrap;
   }
+  /* Sold-out: strike the price to signal it's no longer purchasable at
+     that number — set both statically (tier.soldOut) and live by
+     availability.js toggling the same .tier-row--soldout class. */
+  .tier-row--soldout .tier-row__money {
+    text-decoration: line-through;
+  }
+
   .tier-row__includes {
     font-family: var(--font-body);
     font-size: var(--text-body-sm);
@@ -289,20 +302,37 @@ const panelId = `tier-${tier.id}`;
   .tier-row__cta :global(.btn) {
     justify-content: center;
   }
+  /* Sold-out CTA: red, non-interactive — the badge is gone entirely for
+     sold-out rows (see markup above), so this button is the only sold-out
+     signal besides the struck-through price. Not a --disabled state of the
+     primary button (grey) — needs to read as "sold out" specifically, not
+     "can't click this now for some other reason". Uses the same scoped
+     --badge-soldout-red as Badge.astro for visual consistency. */
+  .tier-row__cta :global(.btn.tier-row__cta-soldout:disabled) {
+    --badge-soldout-red: #B3261E;
+    background-color: var(--badge-soldout-red);
+    color: var(--color-text-on-accent);
+    cursor: not-allowed;
+  }
 
-  /* Badge inversion on hover and mobile open state — reversed tones on green bg */
+
+
+  /* Badge inversion on hover and mobile open state — reversed tones on green
+     bg. Sold-out rows are excluded: their red badge must stay red as a
+     fixed warning color, not get swapped back to green/cream on hover. */
   @media (hover: hover) {
-    .tier-row:hover :global(.tier-row__badge) {
+    .tier-row:hover:not(.tier-row--soldout) :global(.tier-row__badge) {
       background-color: var(--color-bg-page);
       color: var(--color-text-brand);
     }
   }
   @media (max-width: 767px) {
-    .tier-row[data-open="true"] :global(.tier-row__badge-mobile) {
+    .tier-row[data-open="true"]:not(.tier-row--soldout) :global(.tier-row__badge-mobile) {
       background-color: var(--color-bg-page);
       color: var(--color-text-brand);
     }
   }
+
 
   @media (max-width: 767px) {
     .tier-row { padding: var(--spacing-4) var(--spacing-4) var(--spacing-3); }
