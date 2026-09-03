@@ -144,7 +144,7 @@ export const buckets: TierBucket[] = [
       id: "foursome-entry-group-package",
       name: "Foursome Entry — Group Package",
       price: "$600", priceAmount: 600, pricePlus: false,
-      includes: "Four players", capacity: 11,
+      includes: "Four players", capacity: 16,
       featured: false, soldOut: false,
       benefits: [
         "18 holes for four players",
