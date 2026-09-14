@@ -14,11 +14,18 @@
 // disallowed as a security measure). Living in public/ sidesteps that
 // bundling behavior entirely.
 
-// Pre-select sponsor tier from ?tier= URL param.
+// Pre-select sponsor tier from ?tier= URL param, then LOCK the select.
 // The HTML `selected` attribute is unreliable for non-first options in some
 // browsers — setting .value via JS after load is the reliable approach.
 // Uses data-tier-id on each <option> to match by tier id (what the URL carries)
 // rather than by the fragile "Name — Price" string.
+//
+// Locking: the tier is chosen on the Registration page, where sold-out
+// tiers have no Register link (live availability check). If the dropdown
+// stayed editable here, a user could arrive via an open tier and switch
+// to a sold-out one, bypassing that check. A `disabled` select is excluded
+// from FormData (which would break the submit payload), so instead we make
+// it inert: unfocusable + no pointer events, styled via .field-select--locked.
 (function preselectTier() {
   const tierId = new URLSearchParams(location.search).get("tier");
   if (!tierId) return;
@@ -27,7 +34,11 @@
   const matching = Array.from(select.options).find(
     (opt) => opt.dataset.tierId === tierId
   );
-  if (matching) select.value = matching.value;
+  if (!matching) return;
+  select.value = matching.value;
+  select.tabIndex = -1;
+  select.setAttribute("aria-readonly", "true");
+  select.classList.add("field-select--locked");
 })();
 
 // Tiers like "Tee Sign Sponsor" are signage-only and don't include golfers —

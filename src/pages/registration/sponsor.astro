@@ -62,7 +62,7 @@ const preselectedIncludesGolfers = preselected ? tierIncludesGolfers(preselected
               ))}
 
             </select>
-            <p class="field-hint">Carried in from your selection</p>
+            <p class="field-hint">Carried in from your selection — go back to choose a different package</p>
           </div>
 
           <div class="field">
@@ -386,6 +386,16 @@ const preselectedIncludesGolfers = preselected ? tierIncludesGolfers(preselected
     cursor: pointer;
   }
   .field-textarea { height: auto; padding: var(--spacing-3); resize: vertical; }
+  /* Locked tier select — applied by sponsor-form.js when the tier was
+     carried in via ?tier=. Read-only so a sold-out tier (which has no
+     Register link on the Registration page) can't be reached by switching
+     the dropdown here. pointer-events: none makes it inert without
+     `disabled`, which would drop it from the submitted FormData. */
+  .field-select--locked {
+    pointer-events: none;
+    background-image: none;
+    background-color: var(--color-bg-panel);
+  }
 
   .form-submit { display: flex; justify-content: center; padding-top: var(--spacing-2); }
   .submit-btn {
