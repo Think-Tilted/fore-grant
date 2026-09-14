@@ -1,17 +1,16 @@
 // Live sponsor tier availability — fetches real registration counts from
 // /api/availability (backed by the Google Sheet) and updates each TierRow's
-// badge + sold-out state. Runs once on page load, only on the Registration
-// page (that's the only page that loads this script).
+// badge, CTA, and sold-out state. Runs once on page load, only on the
+// Registration page (that's the only page that loads this script).
 //
-// IMPORTANT: the server always initially renders a tier's static `capacity`
-// as its badge count (see TierRow.astro / tiers.ts) — that's a real number
-// of physical slots, so showing it as truth when we can't confirm it live
-// risks overselling if a tier is actually sold out. So if we can't get a
-// trustworthy live count for a row (fetch failed entirely, or that specific
-// tier id is missing from the response), we HIDE that row's badge rather
-// than leave the possibly-stale static number up. Registration itself
-// stays open either way — this only ever removes a number, never blocks
-// or disables anything.
+// IMPORTANT: the server renders every open tier in a neutral loading state —
+// badge hidden (.tier-row__badge--pending) and a disabled "Checking
+// availability…" CTA placeholder (see TierRow.astro). A clickable Register
+// Now link is ONLY ever swapped in here, after a trustworthy live count
+// confirms the tier has spots left. If the fetch fails, or a tier id is
+// missing from the response, that row simply stays in its loading state —
+// the user can refresh. We never fail open: showing Register Now without a
+// confirmed count is how a full tier gets oversold.
 if (!window.__availabilityInit) {
   window.__availabilityInit = true;
 
@@ -22,32 +21,19 @@ if (!window.__availabilityInit) {
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("bad response"))))
       .then((remainingById) => {
         // Empty object = the API's own try/catch caught a failure server-side.
-        // Same untrustworthy state as a network error — hide every badge.
-        if (!remainingById || Object.keys(remainingById).length === 0) {
-          rows.forEach(hideBadge);
-          return;
-        }
+        // Same untrustworthy state as a network error — leave rows loading.
+        if (!remainingById || Object.keys(remainingById).length === 0) return;
         rows.forEach((row) => {
           const tierId = row.dataset.tierId;
-          if (!(tierId in remainingById)) {
-            hideBadge(row);
-            return;
-          }
+          if (!(tierId in remainingById)) return;
           applyAvailability(row, remainingById[tierId]);
         });
       })
       .catch(() => {
-        rows.forEach(hideBadge);
+        // Network error — rows stay in their loading state.
       });
   });
 }
-
-function hideBadge(row) {
-  row.querySelectorAll(".tier-row__badge, .tier-row__badge-mobile").forEach((badge) => {
-    badge.style.display = "none";
-  });
-}
-
 
 function badgeTone(remaining) {
   if (remaining <= 0) return "soldout";
@@ -89,12 +75,21 @@ function applyAvailability(row, remaining) {
     return;
   }
 
+  // Spots confirmed available: reveal the badge with the live count,
+  // remove the loading placeholder, and unhide the server-rendered
+  // Register Now link (kept in the markup so it retains its styling).
   const tone = badgeTone(remaining);
   const label = badgeLabel(remaining);
   row.querySelectorAll(".tier-row__badge, .tier-row__badge-mobile").forEach((badge) => {
     badge.textContent = label;
     badge.classList.remove("badge-neutral", "badge-limited", "badge-soldout", "badge-featured");
     badge.classList.add(`badge-${tone}`);
+    badge.classList.remove("tier-row__badge--pending");
   });
-}
 
+  const loading = row.querySelector(".tier-row__cta-loading");
+  if (loading) loading.remove();
+
+  const register = row.querySelector(".tier-row__cta-register");
+  if (register) register.classList.remove("tier-row__cta-register");
+}

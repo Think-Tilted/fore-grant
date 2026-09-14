@@ -31,8 +31,13 @@ export interface Props {
 }
 
 const { tier, registerHref, class: className = "" } = Astro.props;
-// Static fallback render — overridden live by public/scripts/availability.js
-// once it fetches real counts from /api/availability. See tiers.ts header.
+// The server can't know live availability, so open tiers render with a
+// hidden badge and a disabled "Checking availability…" CTA placeholder.
+// public/scripts/availability.js fetches real counts from /api/availability
+// and swaps in the live badge + Register Now link (or sold-out state).
+// If that fetch fails, the placeholder stays — we never show a clickable
+// Register Now without a confirmed live count (prevents overselling).
+// Statically sold-out tiers (tiers.ts soldOut: true) render sold out as before.
 const remaining = tier.soldOut ? 0 : tier.capacity;
 const tone = badgeTone(remaining);
 const label = badgeLabel(remaining);
@@ -49,6 +54,7 @@ const panelId = `tier-${tier.id}`;
   data-open="false"
   data-tier-id={tier.id}
   data-capacity={tier.capacity}
+  data-register-href={registerHref}
 >
 
   <div class="tier-row__grid">
@@ -63,7 +69,7 @@ const panelId = `tier-${tier.id}`;
         >
           <span class="tier-row__name">{tier.name}</span>
           {!tier.soldOut && (
-            <Badge tone={tone} class="tier-row__badge">{label}</Badge>
+            <Badge tone={tone} class="tier-row__badge tier-row__badge--pending">{label}</Badge>
           )}
           {!tier.soldOut && (
 
@@ -99,7 +105,7 @@ const panelId = `tier-${tier.id}`;
         </span>
         <span class="tier-row__includes">{tier.includes}</span>
         {!tier.soldOut && (
-          <Badge tone={tone} class="tier-row__badge-mobile">{label}</Badge>
+          <Badge tone={tone} class="tier-row__badge-mobile tier-row__badge--pending">{label}</Badge>
         )}
       </p>
 
@@ -107,10 +113,14 @@ const panelId = `tier-${tier.id}`;
         {tier.soldOut ? (
           <Button variant="primary" size="medium" class="tier-row__cta-soldout" disabled>Sold Out</Button>
         ) : (
-
-          <Button variant="primary" size="medium" href={registerHref}>
-            Register Now
-          </Button>
+          <>
+            <Button variant="primary" size="medium" class="tier-row__cta-loading" disabled>
+              Checking availability…
+            </Button>
+            <Button variant="primary" size="medium" href={registerHref} class="tier-row__cta-register">
+              Register Now
+            </Button>
+          </>
         )}
       </div>
     </div>
@@ -302,6 +312,26 @@ const panelId = `tier-${tier.id}`;
   .tier-row__cta :global(.btn) {
     justify-content: center;
   }
+  /* Loading CTA: neutral disabled placeholder shown until availability.js
+     confirms a live count. Reads as "not ready yet" — neither open nor
+     sold out. If the availability fetch fails it simply stays. */
+  .tier-row__cta :global(.btn.tier-row__cta-loading:disabled) {
+    cursor: wait;
+  }
+  /* Real Register Now link: server-rendered (so it keeps Button.astro's
+     scoped styles) but hidden until availability.js confirms spots remain,
+     when it removes this class along with the loading placeholder.
+     !important so no other .btn display rule (base inline-flex, mobile
+     full-width flex) can ever reveal it before the live check completes. */
+  .tier-row__cta :global(.btn.tier-row__cta-register) {
+    display: none !important;
+  }
+  /* Badges hidden until availability.js confirms a live count — the static
+     capacity number must never flash as if it were the real remaining count. */
+  :global(.tier-row__badge--pending) {
+    visibility: hidden;
+  }
+
   /* Sold-out CTA: red, non-interactive — the badge is gone entirely for
      sold-out rows (see markup above), so this button is the only sold-out
      signal besides the struck-through price. Not a --disabled state of the
