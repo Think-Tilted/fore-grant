@@ -134,3 +134,34 @@ export async function getTierRegistrationCounts(): Promise<Record<string, number
   return counts;
 }
 
+/**
+ * Reads manually-set tier allocations from the "Allocations" tab (columns
+ * A: exact "Name — Price" tier string, B: total slots for that tier). This
+ * is the live admin control for sponsorship tiers left — editing column B
+ * in the Sheet directly changes what /api/availability reports, no deploy
+ * required. Tiers missing from this tab, or with a non-numeric/blank
+ * value, are omitted so the caller can decide how to handle them (see
+ * availability.ts, which leaves such tiers in their loading state rather
+ * than trusting a stale hardcoded number).
+ */
+export async function getTierAllocations(): Promise<Record<string, number>> {
+  const auth   = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+  const spreadsheetId = requireEnv("GOOGLE_SHEET_ID");
+
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: "Allocations!A2:B",
+  });
+
+  const allocations: Record<string, number> = {};
+  for (const row of res.data.values ?? []) {
+    const tierString = row[0];
+    const value = Number(row[1]);
+    if (!tierString || !Number.isFinite(value)) continue;
+    allocations[tierString] = value;
+  }
+  return allocations;
+}
+
+
