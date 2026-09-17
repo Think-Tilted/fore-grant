@@ -4,16 +4,21 @@
  *
  * Sections top to bottom:
  *   Argyle band (88px, via BaseLayout) → hero nav (via BaseLayout) →
- *   Meet Grant → Sponsor CTA → Sponsors ticker (HIDDEN — V2) →
+ *   Meet Grant → Sponsor CTA → Sponsors ticker →
  *   Last year (carousel) → Other Ways → Find Us → Footer (via BaseLayout)
  *
  * Grant is 11, not 10 (CLAUDE.md copy correction).
- * Sponsor ticker ships hidden per Kyle's direction (HANDOFF.md §10).
+ * Sponsor ticker: previously shipped hidden per HANDOFF.md §10 (V2, no real
+ * logos yet). Figma's "Sponsor Logos" canvas (617:2550) now has 12 real
+ * sponsor marks and a full layout/timing spec wired onto both Home frames —
+ * unhidden per that update.
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Button from "../components/Button.astro";
 import Carousel from "../components/Carousel.astro";
 import Logo from "../components/Logo.astro";
+import SponsorTicker from "../components/SponsorTicker.astro";
+
 
 const carouselImages = Array.from({ length: 27 }, (_, i) => {
   const n = i < 27 ? String(i + 1).padStart(2, "0") : "29";
@@ -97,9 +102,14 @@ carouselImages.push({
     </div>
   </section>
 
-  <!-- Sponsors ticker: HIDDEN — V2, do not build -->
+  <!-- Sponsors ticker: col · pad 27/64/80/64 · gap 32 -->
+  <section class="sponsors-ticker">
+    <h2>Thank You to Our Sponsors</h2>
+    <SponsorTicker />
+  </section>
 
   <!-- Last year: col · pad 80/64/80/64 · gap 32 · bg bg/panel -->
+
   <section class="last-year">
     <h2>Last year was a hit!</h2>
     <Carousel images={carouselImages} />
@@ -247,7 +257,33 @@ carouselImages.push({
     color: var(--color-bg-panel); max-width: 640px;
   }
 
+  /* ---- Sponsors ticker: col · pad 27/64/80/64 · gap 32, bg/page ----
+     Figma padding is asymmetric (27 top, 80 bottom) — top is tight against
+     the Sponsor CTA above it, bottom matches the section-to-section rhythm
+     used elsewhere (e.g. Meet Grant's own 80px bottom pad). */
+  .sponsors-ticker {
+    background-color: var(--color-bg-page);
+    padding: 27px var(--spacing-16) var(--spacing-20);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+  }
+  .sponsors-ticker h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-heading-section);
+    line-height: var(--text-heading-section--line-height);
+    font-weight: 700;
+    color: var(--color-bg-inverse);
+    max-width: 1312px;
+    width: 100%;
+    text-align: center;
+  }
+
+
+
   /* ---- Last year: bg/panel ---- */
+
   .last-year {
     background-color: var(--color-bg-panel);
     padding: var(--spacing-20) var(--spacing-16);
@@ -448,6 +484,7 @@ carouselImages.push({
     }
 
     .cta-card h2,
+    .sponsors-ticker h2,
     .last-year h2,
     .callout h2,
     .find-us h2 {
@@ -455,9 +492,17 @@ carouselImages.push({
       line-height: var(--text-mobile-heading-section--line-height);
     }
     .sponsor-cta { padding: 28px var(--spacing-5); }
+    /* Figma mobile: pad 27/20/40/20, gap 20 — matches the site's mobile
+       gutter (--spacing-5, 20px) used by every other section, unlike the
+       original stub which inherited the desktop 64px gutter. */
+    .sponsors-ticker {
+      padding: 27px var(--spacing-5) var(--spacing-10);
+      gap: var(--spacing-5);
+    }
     .last-year { padding: var(--spacing-10) var(--spacing-5); }
     .other-ways { padding: var(--spacing-10) var(--spacing-5); }
     .find-us { padding: 28px var(--spacing-5) var(--spacing-6); }
+
     /* Callout + CTA buttons: allow height to grow with wrapped text on mobile */
     .callout :global(.btn),
     .cta-card :global(.btn) {

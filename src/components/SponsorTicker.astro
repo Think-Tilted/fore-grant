@@ -1,0 +1,229 @@
+---
+/**
+ * SponsorTicker — ported from Figma "Sponsor Logos" canvas (node 617:2550),
+ * placed on Home as "Sponsors — logo ticker" (desktop 127:1150, mobile
+ * 215:3186), between Sponsor CTA and the "Last year" carousel.
+ *
+ * Figma source values (verified against the live file):
+ *   Ribbon: 1312×200 desktop / 350×200 mobile, radius-lg (24px),
+ *     bg bound to color/bg/field (white) — several sponsor marks are
+ *     low-resolution with white already baked in, so white ground is a
+ *     requirement, not a style choice.
+ *   Track: horizontal row of logo cells, 328px wide each (desktop),
+ *     350px wide each (mobile, one visible at a time). The full sponsor
+ *     list is duplicated back-to-back (24 cells for 12 logos) so the
+ *     slide can loop seamlessly — the last hold of a cycle runs past the
+ *     end of the first copy into the start of the second.
+ *   Logo sizing: each sponsor instance renders at its natural Hug
+ *     width × 120 height — the artwork is sized inside the component to
+ *     ~14,400px² of equal visual weight (wide marks short, square marks
+ *     tall) and the box hugs the art. The img is therefore rendered at
+ *     exactly the width/height from sponsors.ts with no additional
+ *     clamping; clamping would shrink each mark by a different factor
+ *     and break the equal-weight system.
+ *   Edge fades: white→transparent linear gradients over both sides so
+ *     cells emerge/dissolve at the ribbon's edges — 24px desktop,
+ *     16px mobile.
+ *   Timing (per the file's own build note, "adding a sponsor" 620:3090):
+ *     Desktop holds 4 logos on screen for 2.6s, then slides 0.7s to the
+ *     next group of 4 — a stepped page rhythm, not a continuous crawl.
+ *     12 sponsors ÷ 4 per page = 3 pages per cycle; each slide travels
+ *     one full page (4 × 328px = 1312px), so after 3 steps the track has
+ *     moved exactly one full set (3936px) and lands on the loop copy,
+ *     making the restart invisible. Mobile shows 1 logo at a time:
+ *     1.6s hold, 0.7s slide, 12 steps of one cell (350px) per cycle.
+ *   Logos keep their own colors — never recolored, unlike the icon
+ *     system's currentColor pattern.
+ */
+import { sponsors } from "../data/sponsors";
+
+// Stepped hold/slide keyframes. Each step holds, then slides one page.
+// Percentages are (elapsed time / cycle time) at each hold-end and
+// slide-end boundary; offsets step by one page per slide.
+function steppedKeyframes(steps: number, holdS: number, slideS: number, pageExpr: string): string {
+  const cycle = steps * (holdS + slideS);
+  const frames: string[] = [`0% { transform: translateX(0); }`];
+  for (let i = 0; i < steps; i++) {
+    const holdEnd = ((i * (holdS + slideS) + holdS) / cycle) * 100;
+    const slideEnd = (((i + 1) * (holdS + slideS)) / cycle) * 100;
+    const from = `translateX(calc(${pageExpr} * ${i} * -1))`;
+    const to = `translateX(calc(${pageExpr} * ${i + 1} * -1))`;
+    frames.push(`${holdEnd.toFixed(4)}% { transform: ${from}; }`);
+    frames.push(`${slideEnd.toFixed(4)}% { transform: ${to}; }`);
+  }
+  return frames.join("\n  ");
+}
+
+// Desktop: 3 pages of 4 cells (12 sponsors), hold 2.6s, slide 0.7s,
+// page = 4 × 328px. Cycle = 3 × 3.3s = 9.9s.
+const desktopSteps = sponsors.length / 4;
+const desktopCycle = desktopSteps * (2.6 + 0.7);
+const desktopFrames = steppedKeyframes(desktopSteps, 2.6, 0.7, "(328px * 4)");
+
+// Mobile: 12 pages of 1 cell, hold 1.6s, slide 0.7s, page = one cell
+// (100% of the ribbon, since each mobile cell is full-width).
+const mobileSteps = sponsors.length;
+const mobileCycle = mobileSteps * (1.6 + 0.7);
+const mobileFrames = steppedKeyframes(mobileSteps, 1.6, 0.7, "var(--sponsor-cell-width)");
+---
+
+
+
+<div class="sponsor-ticker" role="group" aria-label="Our sponsors">
+  <div class="sponsor-ticker-ribbon">
+    <div
+      class="sponsor-ticker-track"
+      style={`--sponsor-cycle-desktop: ${desktopCycle}s; --sponsor-cycle-mobile: ${mobileCycle}s;`}
+    >
+
+      {/* First copy: the real, accessible list. Second copy exists purely
+          so the CSS scroll loop has something to slide into — screen
+          readers should never announce these logos twice, so it's marked
+          aria-hidden and every img's alt is emptied rather than repeating
+          each sponsor name. All imgs load eagerly: the track slides
+          off-screen cells into view every few seconds, and lazy loading
+          would let logos pop in mid-slide. */}
+      {sponsors.map((sponsor) => (
+        <div class="sponsor-ticker-cell">
+          <img
+            src={sponsor.src}
+            alt={sponsor.name}
+            width={sponsor.width}
+            height={sponsor.height}
+          />
+        </div>
+      ))}
+      <div class="sponsor-ticker-cell-group" aria-hidden="true">
+        {sponsors.map((sponsor) => (
+          <div class="sponsor-ticker-cell">
+            <img
+              src={sponsor.src}
+              alt=""
+              width={sponsor.width}
+              height={sponsor.height}
+            />
+          </div>
+        ))}
+      </div>
+
+    </div>
+    <div class="sponsor-ticker-fade sponsor-ticker-fade-left" aria-hidden="true"></div>
+    <div class="sponsor-ticker-fade sponsor-ticker-fade-right" aria-hidden="true"></div>
+  </div>
+</div>
+
+{/* Keyframes are generated in frontmatter from the Figma timing spec
+    (hold/slide per page) so the hold/slide boundaries aren't hand-typed
+    magic percentages. Astro's scoped <style> can't interpolate, so these
+    two @keyframes are emitted via set:html in an unscoped style tag;
+    everything they animate is set in the scoped block below. */}
+<style is:inline set:html={`
+@keyframes sponsor-ticker-page-desktop {
+  ${desktopFrames}
+}
+@keyframes sponsor-ticker-page-mobile {
+  ${mobileFrames}
+}
+`}></style>
+
+<style>
+
+  @layer components {
+    .sponsor-ticker {
+      max-width: 1312px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .sponsor-ticker-ribbon {
+      position: relative;
+      background-color: var(--color-bg-field);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      height: 200px;
+    }
+
+    .sponsor-ticker-track {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      width: max-content;
+      animation: sponsor-ticker-page-desktop var(--sponsor-cycle-desktop) linear infinite;
+    }
+
+
+    .sponsor-ticker-ribbon:hover .sponsor-ticker-track,
+    .sponsor-ticker-ribbon:focus-within .sponsor-ticker-track {
+      animation-play-state: paused;
+    }
+
+    .sponsor-ticker-cell-group {
+      display: flex;
+      height: 100%;
+    }
+
+    .sponsor-ticker-cell {
+      flex: 0 0 328px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+
+    /* Each img renders at its Figma-true instance size — the width/height
+       attributes from sponsors.ts (natural Hug width × 120). No max-width
+       or max-height clamp: the artwork inside each component is already
+       sized to equal visual weight, so any further clamping would shrink
+       each mark by a different factor. */
+    .sponsor-ticker-cell img {
+      object-fit: contain;
+    }
+
+
+    .sponsor-ticker-fade {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 24px;
+      pointer-events: none;
+    }
+    .sponsor-ticker-fade-left {
+      left: 0;
+      background: linear-gradient(to right, var(--color-bg-field), transparent);
+    }
+    .sponsor-ticker-fade-right {
+      right: 0;
+      background: linear-gradient(to left, var(--color-bg-field), transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sponsor-ticker-track {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 767px) {
+      /* One full-width cell per page; the keyframes translate by
+         --sponsor-cell-width per step, which must equal the ribbon's
+         inner width. 100% of the track can't be used (the track is
+         width: max-content), so the ribbon width is measured as 100cqw
+         via a container on the ribbon. */
+      .sponsor-ticker-ribbon {
+        container-type: inline-size;
+      }
+
+      .sponsor-ticker-cell {
+        flex: 0 0 100cqw;
+      }
+      .sponsor-ticker-track {
+        --sponsor-cell-width: 100cqw;
+        animation: sponsor-ticker-page-mobile var(--sponsor-cycle-mobile) linear infinite;
+      }
+      .sponsor-ticker-fade {
+        width: 16px;
+      }
+    }
+
+  }
+</style>
